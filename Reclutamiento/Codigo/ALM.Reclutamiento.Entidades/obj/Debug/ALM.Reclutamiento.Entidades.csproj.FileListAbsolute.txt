@@ -1,0 +1,15 @@
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\ALM.Reclutamiento.Entidades.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\ALM.Reclutamiento.Entidades.pdb
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\MySql.Data.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\Newtonsoft.Json.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\System.Web.Mvc.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\System.Web.Razor.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\System.Web.WebPages.Razor.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\System.Web.WebPages.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\Microsoft.Web.Infrastructure.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\bin\Debug\System.Web.WebPages.Deployment.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\obj\Debug\ALM.Reclutamiento.Entidades.csprojAssemblyReference.cache
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\obj\Debug\ALM.Reclutamiento.Entidades.csproj.CoreCompileInputs.cache
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\obj\Debug\ALM.Reclutamiento.Entidades.csproj.CopyComplete
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\obj\Debug\ALM.Reclutamiento.Entidades.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Entidades\obj\Debug\ALM.Reclutamiento.Entidades.pdb

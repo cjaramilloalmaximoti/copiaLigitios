@@ -1,0 +1,411 @@
+﻿@{
+    ViewBag.Title = "Reporte Ayuda Social y Subsidios";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/css/bootstrap-datetimepicker.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<h2>Listado Ayuda Social y Subsidios</h2>
+
+<div id="divListado">
+    @Html.Partial("ReporteAyudaSocialSubsidio_Listado")
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Estilo/lang/bootstrap-datepicker.es.min.js")"></script>
+    <script src="@Url.Content("~/scripts/bootstrap-datepicker.js")"></script>
+    <script src="~/scripts/jquery.sauron.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+
+        var datos = null;
+
+        window.addEventListener('keydown', function (e) {
+            if (e.keyCode === 8) {
+                if (e.target === document.body) {
+                    e.preventDefault();
+                }
+            }
+        }, true);
+
+        $(document).ready(function () {
+            $.fn.datepicker.defaults.format = "dd/M/yyyy";
+            $('#txtFechaInicio').datepicker({
+                language: "es",
+                autoclose: true,
+                todayHighlight: true,
+                orientation: "top auto",
+                format: "dd/M/yyyy",
+                pick12HourFormat: true
+            }).on('changeDate', function (e) {
+                // Revalidate the date field
+                $('#txtFechaInicio').validate();
+            });
+
+            $.fn.datepicker.defaults.format = "dd/M/yyyy";
+            $('#txtFechaFin').datepicker({
+                language: "es",
+                autoclose: true,
+                todayHighlight: true,
+                orientation: "top auto",
+                format: "dd/M/yyyy",
+                pick12HourFormat: true
+            }).on('changeDate', function (e) {
+                // Revalidate the date field
+                $('#txtFechaFin').validate();
+            });
+
+            propiedadesReporte.Inicializar();
+        });
+
+        $("#btnBuscar").click(function () {
+            //Captura de datos
+            var datosCapturados = [];
+
+            datosCapturados[0] = $("#txtConcepto").val();
+            datosCapturados[1] = $("#txtSubsidio").val();
+            datosCapturados[2] = $("#txtAyuda").val();
+            datosCapturados[3] = $("#txtSector").val();
+
+            //Filtros
+            var fechaInicio;
+            var fechaFin;
+
+            if ($("#txtFechaInicio").val() == "")
+                fechaInicio = "01/Ene/1900";
+            else
+                fechaInicio = $("#txtFechaInicio").val();
+
+            if ($("#txtFechaFin").val() == "") {
+                var mes = "";
+                switch (new Date().getMonth()) {
+                    case 0: mes = "Ene"; break;
+                    case 1: mes = "Feb"; break;
+                    case 2: mes = "Mar"; break;
+                    case 3: mes = "Abr"; break;
+                    case 4: mes = "May"; break;
+                    case 5: mes = "Jun"; break;
+                    case 6: mes = "Jul"; break;
+                    case 7: mes = "Ago"; break;
+                    case 8: mes = "Sep"; break;
+                    case 9: mes = "Oct"; break;
+                    case 10: mes = "Nov"; break;
+                    case 11: mes = "Dic"; break;
+                    default:
+                }
+
+                fechaFin = new Date().getDate() + "/" + mes + "/" + new Date().getFullYear();
+            }
+            else
+                fechaFin = $("#txtFechaFin").val();
+
+            var f = fechaInicio.split('/');
+            var f2 = fechaFin.split('/');
+
+            fechaInicio = f[2] + "-" + numMes(f[1]) + "-" + f[0];
+
+            fechaFin = f2[2] + "-" + numMes(f2[1]) + "-" + f2[0];
+
+            //usar una funcion diferente
+            if ((new Date(fechaInicio).getTime()) <= (new Date(fechaFin).getTime())) {
+                Utilidades.MostrarProgress();
+                propiedadesReporte.obtenerDatos(datosCapturados, fechaInicio, fechaFin);
+            }
+            else { //Rango fechas Incorrecto
+                Utilidades.MostrarDialogoError("Aviso", "La fecha inicial debe ser menor o igual a la fecha final.");
+            }
+        });
+
+        function numMes(m) {
+            var mes = 0;
+
+            switch (m) {
+                case 'Ene': mes = 1; break;
+                case "Jan": mes = 1; break;
+                case 'Feb': mes = 2; break;
+                case 'Mar': mes = 3; break;
+                case 'Abr': mes = 4; break;
+                case "Apr": mes = 4; break;
+                case 'May': mes = 5; break;
+                case 'Jun': mes = 6; break;
+                case 'Jul': mes = 7; break;
+                case 'Ago': mes = 8; break;
+                case "Aug": mes = 8; break;
+                case 'Sep': mes = 9; break;
+                case 'Oct': mes = 10; break;
+                case 'Nov': mes = 11; break;
+                case 'Dic': mes = 12; break;
+                case 'Dec': mes = 12; break;
+                default:
+            }
+
+            return mes;
+        }
+
+        function dar_formato(amount, decimals) {
+            amount += ''; // por si pasan un numero en vez de un string
+            amount = parseFloat(amount.replace(/[^0-9\.]/g, '')); // elimino cualquier cosa que no sea numero o punto
+
+            decimals = decimals || 2; // por si la variable no fue fue pasada
+
+            // si no es un numero o es igual a cero retorno el mismo cero
+            if (isNaN(amount) || amount === 0)
+                return parseFloat(0).toFixed(decimals);
+
+            // si es mayor o menor que cero retorno el valor formateado como numero
+            amount = '' + amount.toFixed(decimals);
+
+            var amount_parts = amount.split('.'),
+                regexp = /(\d+)(\d{3})/;
+
+            while (regexp.test(amount_parts[0]))
+                amount_parts[0] = amount_parts[0].replace(regexp, '$1' + ',' + '$2');
+
+            return amount_parts.join('.');
+        }
+
+        var urlDatatableInit = "@Url.Content("~/Estilo/DataTables/SpanishR.txt")";
+        var datos;
+
+        propiedadesReporte = {
+            exp: function(datos){
+                alert('Working....');
+            },
+            exportar: function (arrData) {
+                alert(arrData.length);
+
+                var ShowLabel = true;
+                var ReportTitle = 'Reporte';
+                var CSV = '';
+
+                //This condition will generate the Label/Header
+                if (ShowLabel) {
+                    var row = "";
+
+                    //This loop will extract the label from 1st index of on array
+                    for (var index in arrData[0]) {
+
+                        //Now convert each value to string and comma-seprated
+                        row += index + ',';
+                    }
+
+                    row = row.slice(0, -1);
+
+                    //append Label row with line break
+                    CSV += row + '\r\n';
+                }
+
+                //1st loop is to extract each row
+                for (var i = 0; i < arrData.length; i++) {
+                    var row = "";
+
+                    //2nd loop will extract each column and convert it in string comma-seprated
+                    for (var index in arrData[i]) {
+                        row += '"' + arrData[i][index] + '",';
+                    }
+
+                    row.slice(0, row.length - 1);
+
+                    //add a line break after each row
+                    CSV += row + '\r\n';
+                }
+
+                if (CSV == '') {
+                    alert("Invalid data");
+                    return;
+                }
+
+                //Generate a file name
+                var fileName = "MyReport_";
+                //this will remove the blank-spaces from the title and replace it with an underscore
+                fileName += ReportTitle.replace(/ /g,"_");
+
+                //Initialize file format you want csv or xls
+                var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+
+                // Now the little tricky part.
+                // you can use either>> window.open(uri);
+                // but this will not work in some browsers
+                // or you will not get the correct file extension
+
+                //this trick will generate a temp <a /> tag
+                var link = document.createElement("a");
+                link.href = uri;
+
+                //set the visibility hidden so it will not effect on your web-layout
+                link.style = "visibility:hidden";
+                link.download = fileName + ".csv";
+
+                //this part will append the anchor tag and remove it after automatic click
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            },
+            obtenerDatos: function (dat, fechaInicio, fechaFin) {
+
+                Utilidades.MostrarProgress();
+
+                var tempData = [];
+
+                Utilidades.CargarDatos("@Url.Action("ObtenerAyudaSocialSubsidio", "Reporte")", {
+                    FechaInicio: fechaInicio, FechaFin: fechaFin,
+                    Concepto: dat[0], Ayuda: dat[1], Subsidio: dat[2], Sector: dat[3]
+                }, 0, function (data, esFinal) {
+
+                    tempData = tempData.concat(data);
+
+                    if (esFinal) {
+
+                        propiedadesReporte.cargarDatos(tempData);
+                        Utilidades.OcultarProgress();
+
+                    }
+                }, function (json) { Utilidades.ErrorAjaxControlado(json); }, function () { Utilidades.ErrorAjax(error); });
+
+            },
+            Inicializar: function(){
+                $('#myTableBeneficiario1').dataTable({
+                    "bSort": false,
+                    "bFilter": false,
+                   "language": {
+                       "url": urlDatatableInit
+                   },
+                   "columns": [
+                        { "data": "NombreBenediciario", "autoWidth": true, "sClass": "columnaIzquierda" },
+                        { "data": "CURP", "autoWidth": true, "width": "10%", "sClass": "columnaIzquierda" },
+                        { "data": "RFC", "autoWidth": true, "width": "10%", "sClass": "columnaIzquierda" },
+                        { "data": "Monto Pagado", "autoWidth": true, "width": "10%", "sClass": "columnaDerecha" },
+                        { "data": "NombreModalidad", "autoWidth": true, "sClass": "columnaIzquierda" },
+                        { "data": "EsMenorEdad", "autoWidth": true, "width": "5%"},
+                    ]
+                });
+            },
+            cargarDatos: function (datos) {
+                //alert("datos en cargar datos" + datos);
+                $('#myTableBeneficiario1').dataTable({
+                    "bSort": true,
+                    "bFilter": false,
+                    "destroy": true,
+                    "render": true,
+                    "deferRender": true,
+                    "JQueryUI": true,
+                    "Paginate": true,
+                    "PaginationType": "first_last_numbers",
+                    "iDisplayLength": 10,
+                    "bAutoWidth": false,
+                    "data": datos,
+                    "language": {
+                        "url": urlDatatableInit
+                    },
+                    "dom": 'lBfrtip',
+                    "buttons":[
+                         {
+                             'text': '<img src='+"@Url.Content("~/Imagenes/excel.png")"+' class="imagBotones" style="max-width: 15px;max-height: 15px;margin-bottom:5px;" /> Exportar',
+                            'className': 'btnAgregarGrid btnExcel',
+                            'action': function (e, dt, node, config) {
+                                ExportarExcel(function () { Utilidades.MostrarProgress(); }, function () { Utilidades.OcultarProgress(); });
+                            }
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "data": "NombreBeneficiario", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a onmouseover="" style="cursor: pointer;" class="btnEditar" >')
+                                    .wrap("<div></div>")
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "CURP", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a onmouseover="" style="cursor: pointer;" class="btnEditar" >')
+                                    .wrap("<div></div>")
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "RFC", "autoWidth": true,  "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a onmouseover="" style="cursor: pointer;" class="btnEditar" >')
+                                    .wrap("<div></div>")
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Pago", "autoWidth": true, "sClass": "columnaDerecha",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a onmouseover="" style="cursor: pointer;" class="btnEditar" >')
+                                    .wrap("<div></div>")
+                                    .text('$'+ dar_formato(data))
+                                    .parent()
+                                    .html();
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                           {
+                               "data": "NombreModalidad", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<a onmouseover="" style="cursor: pointer;" class="btnEditar" >')
+                                       .wrap("<div></div>")
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   } else {
+                                       return data;
+                                   }
+                               }
+                           },
+                        {
+                            "data": "EsMenorEdad", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a onmouseover="" style="cursor: pointer;" class="btnEditar" >')
+                                    .wrap("<div></div>")
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                } else {
+                                    return data;
+                                }
+                            }
+                        }
+                    ]
+                });
+            }
+        }
+    </script>
+}

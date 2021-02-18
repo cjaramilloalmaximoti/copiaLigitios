@@ -1,0 +1,57 @@
+﻿<br />
+
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="cmbCategoriaPoligonoB" class="labelColumn tamLetra regularTipografia" id="lblPoligono">Categoría Polígono</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbCategoriaPoligonoB" class="form-control tamLetra bookTipografia">
+                    <option value="">SELECCIONE...</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblNombre" id="lblNombre" class="labelColumn tamLetra regularTipografia">Polígono</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtNombreB" class="form-control inputColumn inputpe tamLetra bookTipografia" name=" txtNombreB" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="cmbEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Es Activo</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbEstatus" class="form-control tamLetra bookTipografia"></select>
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscarAgregar">
+            <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+        </button>
+    </div>
+</div>
+
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable" id="myTable">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Categoría de Polígono</th>
+                    <th style="width: 15%;">Clave</th>
+                    <th style="width: 30%;">Polígono</th>
+                    <th style="width: 20%;">Polígono KML</th>
+                    <th>Es Activo</th>
+                    <th style="width: 10%;">Cargar GeoCercas</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+

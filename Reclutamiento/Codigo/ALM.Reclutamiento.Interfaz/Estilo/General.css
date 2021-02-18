@@ -1,0 +1,1000 @@
+﻿/********************** Estilo comun tipografia********************* */
+@font-face {
+    font-family: 'Intro Regular';
+    src: url("IntroFonts/Intro-Regular.woff") format('woff');
+}
+
+@font-face {
+    font-family: 'Intro Bold';
+    src: url("IntroFonts/Intro-Bold.woff") format('woff');
+}
+
+@font-face {
+    font-family: 'Intro Book';
+    src: url("IntroFonts/Intro-Book.woff") format('woff');
+}
+
+.navbar-default {
+    background-color: rgb(167,196,68);
+}
+
+.navbar-brand {
+    font-family: 'Intro Regular';
+    font-size: 20px;
+    color: white !important;
+}
+
+.navbar-brand-ViewBag {
+    font-family: 'Intro Regular';
+    font-size: 17px;
+    color: rgb(56, 87, 157) !important;
+    font-weight: normal !important;
+    padding-left: 120px !important;
+}
+
+h2 {
+    font-family: 'Intro Bold';
+}
+
+h4 {
+    font-family: 'Intro Book';
+}
+
+h5 {
+    font-family: 'Intro Book';
+}
+
+.boldTipografia {
+    font-family: 'Intro Book';
+}
+
+.regularTipografia {
+    font-family: 'Intro Regular';
+}
+
+.bookTipografia {
+    font-family: 'Intro Book';
+}
+
+.introTipografiaFootTable {
+    font-family: 'Intro Book' !important;
+    font-size: 13px !important;
+}
+
+.custom-input-file {
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #000;
+    text-align: center;
+    font-family: Intro Book;
+    font-size: 12px;
+    width: 300px;
+    min-height: 40px;
+}
+
+    .custom-input-file:hover {
+        background-color: rgb(46,55,95);
+        color: #fff;
+    }
+
+    .custom-input-file .input-file {
+        margin: 0;
+        padding: 0;
+        outline: 0;
+        font-size: 10000px;
+        border: 10000px solid transparent;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        position: absolute;
+        right: -1000px;
+        top: -1000px;
+        cursor: pointer;
+    }
+
+    .custom-input-file .archivo {
+        background-color: rgb(46,55,95);
+        color: #fff;
+        font-size: 7pt;
+        overflow: hidden;
+    }
+
+    .custom-input-file:hover .archivo {
+        background-color: white;
+        color: #000;
+    }
+
+/********************** Estilo comun ********************* */
+body {
+    padding-top: 0px;
+    padding-bottom: 20px;
+}
+
+.tamLetra {
+    font-size: 12px;
+}
+
+.taminput {
+    height: 5%;
+    max-width: 250px;
+}
+
+.inputColumn {
+    width: 100% !important;
+}
+
+.labelColumn {
+    margin-top: 8px !important;
+}
+
+.txtPasswordFor {
+    padding-right: 114px !important;
+}
+
+.btnBuscar {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 100px;
+    margin-left: 70%;
+    margin-top: 1%;
+}
+
+.btnGuardar {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 100px;
+    margin-top: 1%;
+}
+
+
+.btnGuardarDespuesLink {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 100px;
+    margin-top: 1%;
+    margin-right: 30px;
+}
+
+.btnCancelar {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 100px;
+    margin-top: 1%;
+    margin-right: 50px;
+}
+
+.btnEnviarCorreo {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 140px;
+}
+
+.btnEnviandoCorreo {
+    background-color: #DADADA;
+    border-radius: 5px;
+    color: white;
+    border-color: #DADADA;
+    font-family: 'Intro Regular';
+    width: 140px;
+}
+
+.botoniniciaSes {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 160px;
+    margin-top: 15px;
+}
+
+.btnBuscarAgregar {
+    background-color: rgb(46,55,95) !important;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    width: 100px;
+    margin-top: 1%;
+}
+
+.imagBotones {
+    height: auto;
+    width: auto;
+    max-width: 15px;
+    max-height: 15px;
+}
+
+.divOlvideContrasena {
+    text-align: center;
+    margin-left: -10%;
+    margin-top: 0.5%;
+}
+.divLogIn {
+    text-align: center;
+    margin-left: -10%;
+    margin-top: 0.5%;
+}
+.sauron {
+    z-index: 2;
+    position: relative;
+    margin-left: 345px !important;
+    background-image: url('../Imagenes/sauron.svg');
+    background-size: cover;
+    margin-top: -28px;
+    cursor: pointer;
+}
+
+div.sauron:hover {
+    background-image: url('../Imagenes/sauron_inverted.svg');
+    cursor:pointer;
+}
+
+input[type=password]::-ms-reveal,
+input[type=password]::-ms-clear
+{
+    display: none;
+}
+
+.linkPermisoRol {
+    margin-top: 15px;
+}
+
+.custom-combobox {
+    position: relative;
+    display: inline-block;
+}
+
+.custom-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+}
+
+.custom-combobox-input {
+    margin: 0;
+    padding: 5px 10px;
+}
+
+.textArea {
+    resize: none;
+}
+
+.modal.modal-wide .modal-dialog {
+  width: 90%;
+}
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
+
+.js-example-basic-multiple {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+img.LnkSegDeudor {
+        width: 100px !important;
+        height: inherit !important;
+    }
+
+img.LnkExcel {
+        width: 80px !important;
+        height: inherit !important;
+    }
+
+.datetimepickerZIndex {
+    z-index: 0 !important;
+}
+
+.cajaTexto {
+    border: solid 1px #ccc;
+    outline: 0px;
+    padding: 6px 12px;   
+    width:100%;
+}
+
+/********************** Estilo controles menu encabezado ********************* */
+.containerHeader {
+    max-width: 100% !important;
+    padding-right: 0% !important;
+    padding-left: 0% !important;
+    width: 100% !important;
+}
+
+@media (max-width: 767px) {
+    img.LogotipoIzquierdo {
+        width: 80px !important;
+        height: inherit !important;
+        margin-left: 0% !important;
+        margin-top: 1% !important;
+    }
+
+    .linkMenu {
+        color: white !important;
+    }
+
+
+    .navbar-nav {
+        float: inherit !important;
+        margin: inherit !important;
+    }
+
+    .navbar-brand {
+        padding-left: 40px !important;
+        /*line-height: 50px !important;*/
+    }
+ 
+    .navbar-brand-ViewBag{
+        /*padding-left: 40px !important;
+        line-height: 50px !important;*/
+    }
+
+    .esconderSalto {
+        display: none !important;
+    }
+
+    .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+        background-color: rgb(207,122,12) !important;
+        color: white !important;
+    }
+
+    .labelMenuNombreCompleto {
+        padding-left: 20px !important;
+    }
+
+    .labelMenuCorreo {
+        padding-left: 10px !important;
+        font-size: 13px !important;
+        font-weight: normal !important;
+    }
+}
+
+@media (max-width: 890px) {
+    .navbar-brand {
+        padding-left: 40px !important;
+        /*line-height: 50px !important;*/
+    }
+
+    .navbar-brand-ViewBag{
+        /*padding-left: 40px !important;
+        line-height: 50px !important;*/
+    }
+
+    .labelMenuNombreCompleto {
+        padding-left: 20px !important;
+    }
+
+    .labelMenuCorreo {
+        padding-left: 20px !important;
+        font-size: 13px !important;
+        font-weight: normal !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1350px) {
+    img.LogotipoIzquierdo {
+        width: 80px !important;
+        height: inherit !important;
+        margin-left: 0% !important;
+        margin-top: 3px !important;
+    }
+
+    .linkMenu {
+        color: #9932cc !important;
+    }
+
+    .esconderSalto {
+        display: normal !important;
+    }
+
+    .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+        background-color: transparent !important;
+    }
+
+    .navbar-nav > li > .dropdown-menu {
+        width: 350px !important;
+        margin-left: -280px !important;
+    }
+
+    .navbar-brand {
+        padding-left: 40px !important;
+        /*line-height: 100px !important;*/
+    }
+
+    .navbar-brand-ViewBag{
+        /*padding-left: 40px !important;
+        line-height: 80px !important;*/
+    }
+
+    .labelMenuNombreCompleto {
+        padding-left: 20px !important;
+    }
+
+    .labelMenuCorreo {
+        padding-left: 20px !important;
+        font-size: 13px !important;
+        font-weight: normal !important;
+    }
+}
+
+@media (min-width: 1351px) {
+    img.LogotipoIzquierdo {
+        width: 80px !important;
+        height: inherit !important;
+        margin-left: 0% !important;
+        margin-top: 3% !important;
+    }
+
+    .linkMenu {
+        color: #9932cc !important;
+    }
+
+    .esconderSalto {
+        display: normal !important;
+    }
+
+    .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+        background-color: transparent !important;
+    }
+
+    .navbar-nav > li > .dropdown-menu {
+        width: 350px !important;
+        margin-left: -280px !important;
+    }
+
+    .navbar-brand {
+        padding-left: 40px !important;
+        /*line-height: 100px !important;*/
+    }
+
+    .navbar-brand-ViewBag{
+        /*padding-left: 40px !important;
+        line-height: 80px !important;*/
+    }
+
+    .labelMenuNombreCompleto {
+        padding-left: 20px !important;
+    }
+
+    .labelMenuCorreo {
+        padding-left: 20px !important;
+        font-size: 13px !important;
+        font-weight: normal !important;
+    }
+}
+
+.containerHeader {
+    max-width: 100% !important;
+    padding-right: 0% !important;
+    padding-left: 0% !important;
+}
+
+img.LogoUserLog {
+    width: 35px !important;
+    height: 35px !important;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #9932cc !important;
+}
+
+.navbar-nav > li > a {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+
+.linkMenu:hover {
+    background-color: rgb(207,122,12) !important;
+    color: white !important;
+}
+
+.navbar-nav {
+    float: right;
+    margin: 0;
+}
+
+.scrollable-menu {
+    bottom: auto !important;
+    max-height: 250px !important;
+    overflow-x: hidden;
+    width: 300px !important;
+}
+
+/********************** Estilo controles busqueda ********************* */
+.divMarcoBusqueda {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid silver;
+    height: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    overflow: hidden;
+}
+
+.divMarcoBusqueda_Acordeon {
+    width: 100% !important;
+    padding: 10px !important;
+    border: 2px solid silver !important;
+    height: auto !important;
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+}
+
+/********************** Estilo controles grid resultado busqueda ********************* */
+.divMarcoGrid {
+    margin-top: 1px;
+    width: 100%;
+    padding: 1px;
+    border: 1px solid silver;
+    height: Auto;
+}
+
+.divSubMarcoGrid {
+    text-align: center;
+    margin-top: 2px;
+}
+
+.myTable {
+    width: 100% !important;
+    margin: 0 auto !important;
+    clear: both !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+
+    .myTable thead th, table.dataTable thead td {
+        padding: 10px 18px !important;
+        border-bottom: 1px solid #999 !important;
+        background-color: lavender !important;
+        border-top: 1px solid #999 !important;
+    }
+
+.columnaIzquierda {
+    text-align: left;
+}
+
+.celdaLarga{
+        min-width: 200px !important;
+
+}
+
+.NoIdentificado label{
+    color: rgb(237,28,36) !important;
+    font-family: 'Intro Bold' !important;
+}
+
+.NoIdentificadoAdvertencia label{
+    color: rgb(204,204,0) !important;
+    font-family: 'Intro Bold' !important;
+}
+
+.columnaDerecha {
+    text-align: right;
+}
+
+.columnaCentro {
+    text-align: center;
+}
+
+a.dt-button.btnAgregarGrid {
+    background: rgb(46,55,95) !important;
+    margin-left: 1em;
+    border-radius: 5px;
+    color: white;
+    border-color: rgb(46,55,95) !important;
+    font-family: 'Intro Regular';
+    height: 25px;
+    width: 100px;
+    padding: 2px;
+}
+
+    a.dt-button.btnAgregarGrid:hover {
+        background: #427BAA !important;
+        margin-left: 1em;
+        border-radius: 5px !important;
+        color: white !important;
+        border-color: steelblue !important;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
+        height: 25px;
+        width: 100px;
+        padding: 2px;
+    }
+
+    a.dt-button.btnAgregarGrid span {
+        margin-top: -3px !important;
+    }
+
+div.dt-buttons {
+    height: 25px !important;
+}
+
+.btnExcel {
+    height: 22px !important;
+}
+
+table.dataTable thead th, table.dataTable tfoot th {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+    text-align: center !important;
+}
+
+table.dataTable tbody th, table.dataTable tbody td {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+.dataTables_wrapper .dataTables_length {
+    font-family: 'Intro Regular' !important;
+    font-size: 13px !important;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    font-family: 'Intro Regular' !important;
+    font-size: 13px !important;
+}
+
+    .dataTables_wrapper .dataTables_filter input {
+        font-family: 'Intro Book' !important;
+        font-size: 13px !important;
+    }
+
+.dataTables_wrapper .dataTables_info {
+    font-family: 'Intro Book' !important;
+    font-size: 13px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    font-family: 'Intro Book' !important;
+    font-size: 13px !important;
+}
+
+.myTable thead th, table.dataTable thead td {
+    background-color: rgb(56,87,157) !important;
+    color: white !important;
+}
+
+tr.even {
+    background-color: rgb(192,192,192) !important;
+}
+
+.btnEditar {
+    font-family: 'Intro Bold' !important;
+    color: rgb(46,55,95) !important;
+}
+.btnEditar:hover {
+   font-family: 'Intro Bold' !important;
+    color: rgb(0,247,0) !important;
+}
+
+.lnkRevertir {
+    font-family: 'Intro Bold' !important;
+    color: rgb(255,00,00) !important;
+}
+
+.lnkAprobar,.btnAprobar{
+    font-family: 'Intro Bold' !important;
+    color: rgb(143,199,65) !important;
+}
+
+.lnkAprobar:focus,.btnAprobar:focus ,.lnkRevertir:focus{
+  outline: none;
+}
+
+.btnEditarDispersionInvalida {
+    font-family: 'Intro Bold' !important;
+    color: rgb(255,00,00) !important;
+}
+
+.btnEditarDispersionInvalida:hover {
+   font-family: 'Intro Bold' !important;
+    color: rgb(210,00,00) !important;
+}
+
+.linkDisabled {
+   pointer-events: none !important;
+   cursor: default !important;
+}
+
+.itemColumna {
+    font-family: 'Intro Bold' !important;
+    color: rgb(46,55,95) !important;
+}
+
+#myTableBeneficiario_wrapper  {
+    width: 99%;
+    margin: 0 auto;
+}
+
+#myTableBeneficiario thead {
+    visibility: collapse;
+}
+
+.defaultColor1 {
+   background-color:rgb(171,39,96) !important
+}
+.headerTitle{
+   color:rgb(255, 255, 255);
+   font-family:'Intro Regular' !important;
+}
+
+.defaultColor2 {
+   background-color:rgb(56,87,157) !important
+}
+
+.labelColumn {
+    margin-top: 8px !important;
+}
+
+/********************** Estilo controles progress ********************* */
+.containerProgress {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+.contentImageProgress {
+    position: fixed;
+    color: White;
+    z-index: 1052;
+    top: 50%;
+    left: 49%;
+}
+
+.backgroundProgress {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1051;
+    background-color: Gray;
+    filter: alpha(opacity=90); /*for IE7/8*/
+    opacity: 0.5;
+}
+
+.containerProgressContainer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    z-index:899;
+}
+.containerProgressReporte {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+/********************** Estilo modales ********************* */
+#modal-dialog-indicator {
+    z-index: 1000;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    opacity: 0.8;
+    position: fixed;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+#modal-confirm-indicator {
+    z-index: 1000;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 200%;
+    top: 0px;
+    left: 0px;
+    opacity: 0.8;
+    position: fixed;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+#modal-dialog {
+    z-index: 1011;
+    position: fixed;
+    width: 40%;
+    left: 30%;
+    height: auto;
+    max-height: 50%;
+    top: 25%;
+    background-color: white;
+    border: 5px solid rgb(60, 110, 207);
+    border-radius: 10px 10px 10px 10px;
+}
+
+.modal-title {
+    position: relative;
+    height: 48px;
+    vertical-align: central;
+}
+
+.modal-content {
+    height: auto;
+    overflow: auto;
+}
+
+.modal-footer {
+    height: 10%;
+}
+
+#modal-confirm-indicator {
+    z-index: 1000;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    opacity: 0.8;
+    position: fixed;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+#modal-confirm {
+    z-index: 1011;
+    position: fixed;
+    width: 40%;
+    left: 30%;
+    height: auto;
+    max-height: 30%;
+    top: 35%;
+    background-color: white;
+    border: 5px solid rgb(60, 110, 207);
+    border-radius: 10px 10px 10px 10px;
+}
+/*table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 50%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}*/
+.datepicker.dropdown-menu, .daterangepicker.dropdown-menu, .bootstrap-timepicker-widget.dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: none;
+    display: none;
+}
+
+/********************** Estilo select2 ********************* */
+
+.select2 {
+    width: 100% !important;
+}
+
+.select2-search__field {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;    
+    width: 250px !important;
+}
+
+.select2-results__option {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+.select2-results__option--highlighted {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+.select2-selection__choice {
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple{
+    border-color: #66afe9 !important;
+    outline: 0 !important;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6) !important;
+    box-shadow: inset 0px 1px 1px rgba(0,0,0,0.075), 0px 0px 8px rgba(102,175,233,0.6) !important;
+}
+
+.select2-selection__placeholder{
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+.select2-selection__rendered{
+    font-family: 'Intro Book' !important;
+    font-size: 12px !important;
+}
+
+.select2-wrapper {
+    height: 36px !important; 
+}
+
+.select2-container--default .select2-selection--single {
+    height: 36px !important; 
+}
+
+.select2 select2-container select2-container--default {
+    height: 36px !important; 
+}
+
+.select2-selection--multiple {
+    height: 80px !important;
+    overflow: auto !important;
+}
+
+
+.select2-results__options--nested {
+    display: none;
+}
+
+.select2-dropdown .select2-search input {
+    background: #fff url('/Imagenes/lupa.png') no-repeat 100% 3px !important; 
+    background: url('/Imagenes/lupa.png') no-repeat 100% 3px, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee)) !important; 
+    background: url('/Imagenes/lupa.png') no-repeat 100% 3px, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%) !important; 
+    background: url('/Imagenes/lupa.png') no-repeat 100% 3px, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%) !important; 
+    background: url('/Imagenes/lupa.png') no-repeat 100% 3px, -o-linear-gradient(bottom, white 85%, #eeeeee 99%) !important; 
+    background: url('/Imagenes/lupa.png') no-repeat 100% 3px, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%) !important; 
+    background: url('/Imagenes/lupa.png') no-repeat 100% 3px, linear-gradient(top, #ffffff 85%, #eeeeee 99%) !important; 
+    padding: 4px 20px 4px 5px !important; 
+    outline: 0 !important; 
+    border: 1px solid #aaa !important; 
+    font-family:  'Intro Book' !important; 
+    font-size: 12px !important; 
+    width:100% !important; 
+    margin:0 !important; 
+    height:auto !important; 
+    min-height: 26px !important; 
+    -webkit-box-shadow: none !important; 
+    -moz-box-shadow: none !important; 
+    box-shadow: none !important; 
+    border-radius: 0 !important; 
+    -moz-border-radius: 0 !important; 
+    -webkit-border-radius: 0 !important;  
+}
+
+.select2-container--default [aria-selected].select2-results__option--highlighted{
+  /*color: #fff !important;*/
+}

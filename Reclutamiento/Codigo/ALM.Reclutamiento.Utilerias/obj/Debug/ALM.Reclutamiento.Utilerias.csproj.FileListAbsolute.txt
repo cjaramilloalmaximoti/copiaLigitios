@@ -1,0 +1,16 @@
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\ALM.Reclutamiento.Utilerias.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\ALM.Reclutamiento.Utilerias.pdb
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\ALM.Reclutamiento.Entidades.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\DocumentFormat.OpenXml.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\System.Web.Mvc.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\System.Web.Razor.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\System.Web.WebPages.Razor.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\System.Web.WebPages.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\Microsoft.Web.Infrastructure.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\System.Web.WebPages.Deployment.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\bin\Debug\ALM.Reclutamiento.Entidades.pdb
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\obj\Debug\ALM.Reclutamiento.Utilerias.csprojAssemblyReference.cache
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\obj\Debug\ALM.Reclutamiento.Utilerias.csproj.CoreCompileInputs.cache
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\obj\Debug\ALM.Reclutamiento.Utilerias.csproj.CopyComplete
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\obj\Debug\ALM.Reclutamiento.Utilerias.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.Utilerias\obj\Debug\ALM.Reclutamiento.Utilerias.pdb

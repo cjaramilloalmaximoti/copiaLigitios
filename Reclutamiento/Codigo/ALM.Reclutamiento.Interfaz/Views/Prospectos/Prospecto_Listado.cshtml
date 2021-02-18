@@ -1,0 +1,176 @@
+﻿
+    <div class="divMarcoBusqueda">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label for="lblNombre" id="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre</label>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    <input type="text" id="txtProspecto_B" class="form-control inputColumn inputpe tamLetra bookTipografia" name=" txtnombre" placeholder="Nombre" />
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                    <label for="cmbEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Es Activo</label>
+                </div>
+                <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                    <select id="cmbEstatus" class="form-control tamLetra bookTipografia">
+                        <option value="-1">Todos</option>
+                        <option value="1">Activos</option>
+                        <option value="0">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- FSALAZAR 03/04/2019 INI: Se  crea la sección que contendrá las características especiales y el tipo de control-->
+        <br />
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label for="lblCP" id="lblCP" class="labelColumn tamLetra regularTipografia">Características Particulares</label>
+                </div>
+
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+
+                    <!-- Boton que muestra modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalCP">
+                        <i class="fa fa-filter" aria-hidden="true" id="FiltroAvanzado" style="display:none;"></i>
+                        Filtro Avanzado
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="ModalCP" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLongTitle">Características Particulares</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+
+                                 
+                                        
+                                            <button type="button"  class="btn btn-primary"  name="limpiarTodos" id="limpiarTodos" >
+                                            <span class="cr"><i class="fa fa-trash-o"></i></span> 
+                                              Deseleccionar todos
+                                            </button>
+                                  
+                                </div>
+                                <div class="modal-body">
+
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                                            <div id="caracteristicaParticular">
+                                                <div>
+                                                    <div class="checkboxBootstrap" style="height: 30px; margin-top:5px;">
+                                                        <label>
+                                                            <input id="filtroSalarioInput" type="checkbox" class="form-control inputColumn cajaTexto tamLetra bookTipografia" onclick="habilitarCaracteristicasGenerales('Salario');" />
+                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>Salario
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div class="checkboxBootstrap" style="height: 30px; margin-top:5px;">
+                                                        <label>
+                                                            <input id="filtroGeneroInput" type="checkbox" class="form-control inputColumn cajaTexto tamLetra bookTipografia" onclick="habilitarCaracteristicasGenerales('Genero');"/>
+                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>Género
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div class="checkboxBootstrap" style="height: 30px; margin-top:5px;">
+                                                        <label>
+                                                            <input id="filtroEscolaridadInput" type="checkbox" class="form-control inputColumn cajaTexto tamLetra bookTipografia" onclick="habilitarCaracteristicasGenerales('Escolaridad');"/>
+                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>Escolaridad
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <div class="checkboxBootstrap" style="height: 30px; margin-top:5px;">
+                                                        <label>
+                                                            <input id="filtroNivelInput" type="checkbox" class="form-control inputColumn cajaTexto tamLetra bookTipografia" onclick="habilitarCaracteristicasGenerales('Nivel');"/>
+                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>Nivel de Ingles
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <br />
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                                            <div id="ElementoTipoControl">
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <input placeholder="Valor Inicial" type="text" tipocontrol="Entero" class="form-control inputColumn cajaTexto tamLetra bookTipografia int-number" id="SalarioInicial" disabled value="">
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <input placeholder="Valor Final" type="text" tipocontrol="Entero" class="form-control inputColumn cajaTexto tamLetra bookTipografia int-number" id="SalarioFinal" disabled value="">
+                                                    </div><span class="text-danger tamLetra bookTipografia"></span><br><br>
+                                                </div>
+                                                <div class="select2-wrapper">
+                                                    <select disabled="disabled"
+                                                            multiple=""
+                                                            style="height: 100%;"
+                                                            class="js-example-basic-single form-control inputColumn cajaTexto tamLetra bookTipografia" id="FiltroGenero">
+                                                    </select>
+                                                    <span class="text-danger tamLetra bookTipografia" ></span><br><br>
+                                                </div>
+                                                <div class="select2-wrapper">
+                                                    <select disabled="disabled"
+                                                            multiple=""
+                                                            style="height: 100%;"
+                                                            class="js-example-basic-single form-control inputColumn cajaTexto tamLetra bookTipografia" id="FiltroEscolaridad">
+                                                    </select>
+                                                    <span class="text-danger tamLetra bookTipografia" ></span><br><br>
+                                                </div>
+                                                <div class="select2-wrapper">
+                                                    <select disabled
+                                                            multiple=""
+                                                            style="height: 100%;"
+                                                            class="js-example-basic-single form-control inputColumn cajaTexto tamLetra bookTipografia" id="FiltroNivel">
+                                                        <option value="Seleccione..." selected="selected">Seleccione...</option>
+                                                        <option value="Bajo">Bajo</option>
+                                                        <option value="Medio">Medio</option>
+                                                        <option value="Inter Medio">Inter Medio</option>
+                                                        <option value="Avanzado">Avanzado</option>
+                                                    </select>
+                                                    <span class="text-danger tamLetra bookTipografia" ></span><br><br>
+                                                </div>
+                                                <br />
+                                            </div>
+
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Modal -->
+
+
+            </div>
+
+        </div>
+
+    <!-- FSALAZAR 03/04/2019 FIN-->
+    <div style="clear:both; text-align:right; width:100%;">
+        <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscarAgregar">
+            <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+        </button>
+    </div>
+
+
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid" id="divSubMarcoGrid">
+        <table class="myTable" id="myTable">
+        </table>
+    </div>
+</div>

@@ -1,0 +1,123 @@
+﻿@model ALM.Empresa.Entidades.EUsuario
+@{
+    ViewBag.Title = "Olvidé mi contraseña";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="~/Estilo/bootstrap-select.min.css" rel="stylesheet" />
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+@section Scripts {
+    <script src="~/scripts/Utilidades.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#txtCorreoElectronico").focus();
+        });
+        function ValidarSubmit() {
+            $("#btnEnviarCorreo").prop("enabled", true);
+            //$("#btnEnviarCorreo").attr('class', 'btnEnviandoCorreo');
+            return true;
+        }
+        $("#CorreoElectronico").keyup(function (event) {
+
+            if (event.keyCode == 13) { //Permite dar enter y ejecutar la función, cuando está posicionado sobre el txtCorreoElectrónico
+                $("#btnEnviarCorreo").click();
+            }
+        });
+
+        function linkVerDetalleError_Click(link) {
+            if ($('#txtDescripcionDetalleError').is(':hidden') == true) {
+                link.text = 'Ocultar detalle';
+            }
+            else {
+                link.text = 'Ver detalle';
+            }
+            $('#txtDescripcionDetalleError').toggleClass('hidden');
+        }
+
+        function EnviarCorreo() {
+            // ValidateAntiForgeryToken         
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $("[name='__RequestVerificationToken']").val();
+            var txtCorreoElectronico = $("#CorreoElectronico").val();
+            //Caractéres y sintáxis permitida para escribir un correo electrónico
+            var filter = /^[a-zA-Z0-9_.-]+@@[a-zA-Z0-9]+[a-zA-Z0-9.-]+[a-zA-Z0-9]+.[a-z]{0,4}$/;
+            // Lleva doble "arroba" porque razor la detecta como inicializar C# si sólo se pone una
+            if ($("#CorreoElectronico").val().length <= 0) {
+                Utilidades.MostrarDialogoError("¡El campo correo es obligatorio!")
+                return false;
+            }
+            else
+                
+        //Validar Correo electrónico bien escrito
+            if (filter.test(txtCorreoElectronico)) {
+                Utilidades.MostrarProgress();
+                $.ajax({
+                    url: '@Url.Action("EnviarCorreoContraseniaUsuario", "Inicio")',
+                    type: 'POST',
+                    cache: false,
+                    data: { CorreoElectronico: txtCorreoElectronico, __RequestVerificationToken: token},
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                        //Ya no se tiene que redirigir a la misma pantalla    @*window.location.href = '@Url.Action("OlvideContrasenia", "Inicio")';*@
+                            Utilidades.MostrarDialogo("Aviso", "Correo enviado exitosamente.", false);
+                            Utilidades.OcultarProgress();
+                            $('#CorreoElectronico').val('');
+                        }
+                        else if (codigoRegreso == '"ERROR"') {
+                            Utilidades.ErrorAjaxControlado(json);
+                            Utilidades.OcultarProgress();
+                            $('#CorreoElectronico').val('');
+                        }
+                        else if (codigoRegreso == '"UNREGISTRED"') {
+                            Utilidades.ErrorAjaxControlado(json);
+                            Utilidades.OcultarProgress();
+                            $('#CorreoElectronico').val('');
+                        }
+                    },
+                    error: function (xhr) {
+                        
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            else {
+                Utilidades.MostrarDialogoError("Error", "Introduzca un correo electrónico válido. \n(Ejemplo: correo@midomino.com)");
+                return false;
+            }
+        }
+    </script>
+
+}
+<h2><strong>@ViewBag.Title</strong></h2>
+<h4>Proporcione su cuenta de correo electrónico.</h4>
+<hr />
+
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.CorreoElectronico, new { @class = "labelColumn tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia" })
+                @Html.ValidationMessageFor(model => model.CorreoElectronico, null, new { @class = "text-danger bookTipografia" })
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <hr />
+        @Html.ActionLink("Regresar al Acceso", "Index", "Inicio", new { @class = "bookTipografia" })
+        <input id="btnEnviarCorreo" type="submit" onclick="EnviarCorreo()" value="Enviar correo" class="btnEnviarCorreo" />
+    </div>
+</div>
+
+@*}*@
+
+
+

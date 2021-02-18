@@ -1,0 +1,966 @@
+﻿@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdCliente", "0")
+@Html.Hidden("hidIdDoc", "0")
+@Html.Hidden("hidIdClienteDocumento", "0")
+
+<div id="divListado">
+    @Html.Partial("Cliente_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Cliente_Detalle", new ALM.Reclutamiento.Entidades.ECliente())
+    </form>
+    <div id="divAcordeon">
+        @Html.Partial("~/Views/Shared/Acordeon_Listado.cshtml")
+    </div>
+</div>
+
+<div id="modalSeleccionarDireccion" class="modal fade modal-wide" role="dialog">
+    <form name="userFormDireccion" id="userFormDireccion" method="post" novalidate="">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Seleccionar Dirección</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divSeleccionarDireccion" style="width:100%">
+                        @Html.Partial("~/Views/Shared/Ciudad.cshtml")
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="clear:both; text-align:right; width:98%">
+                        <button type="button" value="Guardar" id="btnGuardarDireccion" name="Guardar" class="btnGuardar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                        </button>
+                        <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+
+
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+    <script src="@Url.Content("~/scripts/Acordeon_Caracteristicas.js?v=1.5")"></script>
+
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+    var rowR = null;
+    var objMod = null;
+    var tableR = null;
+
+
+    var documentos = new Array();
+
+    $(document).ready(function () {
+        Utilidades.MostrarProgress();
+        Inicializar();
+
+        $('#divProspectos').hide();
+        $('#divProspectos2').hide();
+        $('#divCaracteristicas').hide();
+        $('#divCaracteristicas2').hide();
+        $('#divReferenciaLaboral').hide();
+        $('#divReferenciaLaboral2').hide();
+        $('#divBitacora').hide();
+        $('#divBitacora2').hide();
+
+        //Validar introducir solo numeros
+        $('#txtEmpresaTelefono').keydown(function (event) {
+            /*if (event.shiftKey) {
+                event.preventDefault();
+            }*/
+
+            if (event.keyCode == 46 || event.keyCode == 8) {
+            }
+            else {
+                if (event.keyCode < 95) {
+                    if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+                else {
+                    if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+
+        //Validar introducir solo numeros
+        $('#txtContacto_Telefono').keydown(function (event) {
+            /*if (event.shiftKey) {
+                event.preventDefault();
+            }*/
+
+            if (event.keyCode == 46 || event.keyCode == 8) {
+            }
+            else {
+                if (event.keyCode < 95) {
+                    if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+                else {
+                    if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+
+        items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+        $('#cmbPais').html(items);
+        $('#cmbEstado').html(items);
+        $('#cmbCiudad').html(items);
+        $('#cmbColonia').html(items);
+
+        cargarPaises();
+        Utilidades.OcultarProgress();
+    });
+
+    function ValidaRfc(rfcStr) {
+        var valid;
+        var strCorrecta = rfcStr;
+        if (rfcStr.length == 12) {
+            //strCorrecta = ' ' + rfcStr;
+            valid = '^(([A-Z]|[a-z]){3})([0-9]{6})((([A-Z]|[a-z]|[0-9]){3}))';
+        }
+        else {
+            //strCorrecta = rfcStr;
+            valid = '^(([A-Z]|[a-z]|\s){1})(([A-Z]|[a-z]){3})([0-9]{6})((([A-Z]|[a-z]|[0-9]){3}))';
+        }
+        var validRfc = new RegExp(valid);
+        var matchArray = strCorrecta.match(validRfc);
+        if (matchArray == null) {
+            //alert('Cadena:' + strCorrecta);
+            Utilidades.MostrarDialogoError("Aviso", "RFC incorrecto.");
+            return false;
+        }
+        else {
+            //alert('Cadena:' + strCorrecta);
+            return true;
+        }
+    }
+
+    function ValidarTelefono(telefono) {
+        var tel = telefono;
+
+        if (tel.length == 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function Inicializar() {
+        $("#txtCliente_B").focus();
+
+        $('#myTable').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCliente();
+                        }
+                    }
+            ],
+            "columns": [
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" }
+            ]
+        });
+
+        $('#myTable tbody').on('click', 'a.btnEditar', function () {
+            rowR = tableR.row($(this).parents('tr'));
+            objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+            OcultarMostrarDiv(objMod);
+        });
+
+        $('#myTableDocumentos').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarDocumento();
+                    }
+                }
+            ],
+            "columns":
+            [
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" },
+                { "data": "", "autoWidth": false, "sClass": "columnaIzquierda" }
+            ]
+        });
+        $('#myTableDocumentos1').hide();
+
+    }
+
+    $("#btnBuscar").click(function () {
+        Utilidades.MostrarProgress();
+        LlenarGrid();
+    });
+
+    $('#btnCancelar').on('click', function () {
+        //Limpiar controles
+        $('#hidIdCliente').val("0");
+
+        $('#divDetalle').hide();
+        $('#divListado').show();
+
+        rowR = null;
+        objMod = null;
+
+        return false;
+    });
+
+    $('#btnGuardar').on('click', function () {
+        GuardarInformacionCliente();
+        return false;
+    });
+
+    function GuardarInformacionCliente() {
+        if ($("#userForm").data('unobtrusiveValidation').validate()) {
+            if (ValidaRfc($('#txtEmpresaRFC').val())) {
+                if ($('').val() == '') {
+                    Utilidades.MostrarDialogoError("Aviso", "Es necesario introducir una Dirección.");
+                } else {
+                    if (ValidarTelefono($('#txtEmpresaTelefono').val())) {
+                        if (ValidarTelefono($('#txtContacto_Telefono').val())) {
+                            Utilidades.MostrarProgress();
+                            if ($('#hidIdCliente').val() != '0') {
+                                ActualizarCliente();
+                            }
+                            else {
+                                InsertarCliente();
+                            }
+                        } else { Utilidades.MostrarDialogoError("Aviso", "El telefono del contacto debe tener 10 digitos.") }
+                    } else {
+                        Utilidades.MostrarDialogoError("Aviso", "El telefono de la empresa debe tener 10 digitos.")
+                    }
+                }
+            } else {
+                Utilidades.MostrarDialogoError("Aviso", "Formato de RFC incorrecto.");
+            }
+        }
+    }
+
+    function AgregarCliente() {
+        objMod = null;
+        rowR = null;
+        OcultarMostrarDiv(null);
+    }
+
+    function OcultarMostrarDiv(data) {
+
+        if (data != null) {
+            $('#hidIdCliente').val(data.IdCliente);
+            $('#txtEmpresaRFC').val(data.RFC);
+            $('#txtRazonSocial').val(data.RazonSocial);
+            $('#txtNombreComercial').val(data.NombreComercial);
+            $('#txtContacto_Nombre').val(data.Contacto_Nombre);
+            $('#txtEmpresaCorreo').val(data.EmpresaCorreo);
+            $('#txtEmpresaTelefono').val(data.EmpresaTelefono);
+            $('#txtContacto_Email').val(data.Contacto_Email);
+            $('#txtContacto_Telefono').val(data.Contacto_Telefono);
+            $('#txtDireccion').val(data.Direccion);
+            $('#txtEmpresaComentarios').val(data.Comentarios);
+            $('#chkEmpresaActivo').prop('disabled', false);
+            $('#chkEmpresaActivo').prop('checked', data.Estatus);
+            $('#hidCp').val(data.CP);
+            $('#hidClaveColonia').val(data.Clave_Colonia);
+            $('#txtCP').val(data.CP);
+            if (data.Calle === "") {
+                $('#txtDireccionSeleccionada').val("");
+            } else {
+                $('#txtDireccionSeleccionada').val(data.Calle);
+            }
+            buscarCP(data.CP)
+        }
+        else {
+            objMod = null;
+            $('#txtEmpresaRFC').val('');
+            $('#txtRazonSocial').val('');
+            $('#txtNombreComercial').val('');
+            $('#txtContacto_Nombre').val('');
+            $('#txtEmpresaCorreo').val('');
+            $('#txtEmpresaTelefono').val('');
+            $('#txtContacto_Email').val('');
+            $('#txtContacto_Telefono').val('');
+            $('#txtDireccion').val('');
+            $('#txtEmpresaComentarios').val('');
+            $('#chkEmpresaActivo').prop('disabled', true);
+            $('#chkEmpresaActivo').prop('checked', true);
+            $('#hidCp').val('');
+            $('#hidClaveColonia').val('');
+            $('#txtCP').val('');
+            $('#cmbColonia').val('-1');
+            $('#txtDireccionSeleccionada').val('');
+
+            $('#cmbPais').val('-1');
+            $('#cmbEstado').val('-1');
+            $('#cmbCiudad').val('-1');
+            $('#cmbColonia').val('-1');
+            $('#txtCP').val('');
+            $('#txtDireccion').val('');
+
+            $('#txtCP').focus();
+        }
+
+        if ($('#hidIdCliente').val() == "0") {
+            $('#accordion').hide();
+            $('#accordion2').show();
+        } else {
+            $('#accordion').show();
+            $('#accordion2').hide();
+            agregarListaDocumento();
+        }
+
+        $('#divDetalle').show();
+        $('#divListado').hide();
+
+        $('#txtEmpresaRFC').focus();
+
+        return false;
+    }
+
+    function LlenarGrid() {
+        tableR = $('#myTable').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtenerClientes", "Clientes")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        //alert(json.Respuesta.RespuestaInformacion.Data.Info);
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.Err
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                data: { nombreCompleto: $('#txtCliente_B').val(), activo: $("#cmbEstatus").val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCliente();
+                        }
+                    }
+            ],
+            "columns": [
+                    {
+                        "data": "RFC", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RFC">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "RazonSocial", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreComercial", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Contacto_Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Estatus", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+            ]
+        });
+    }
+
+    function ActualizarCliente() {
+        var params = {
+            cliente: {
+                IdCliente: $('#hidIdCliente').val(),
+                RFC: $('#txtEmpresaRFC').val(),
+                RazonSocial: $('#txtRazonSocial').val(),
+                NombreComercial: $('#txtNombreComercial').val(),
+                EmpresaCorreo: $('#txtEmpresaCorreo').val(),
+                EmpresaTelefono: $('#txtEmpresaTelefono').val(),
+                Contacto_Nombre: $('#txtContacto_Nombre').val(),
+                Contacto_Email: $('#txtContacto_Email').val(),
+                Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                Clave_Colonia: $('#hidClaveColonia').val(),
+                CP: $('#hidCP').val(),
+                Direccion: $('#txtDireccion').val(),
+                Comentarios: $('#txtEmpresaComentarios').val(),
+                Estatus: $('#chkEmpresaActivo').is(":checked"),
+                Calle: $('#txtDireccionSeleccionada').val()
+            }
+        };
+        $.ajax({
+            url: '@Url.Action("ActualizarCliente", "Clientes")',
+            type: 'POST',
+            cache: false,
+            data: params,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    if (objMod != null) {
+                        objMod.RFC = $('#txtEmpresaRFC').val();
+                        objMod.RazonSocial = $('#txtRazonSocial').val();
+                        objMod.NombreComercial = $('#txtNombreComercial').val();
+                        objMod.Contacto_Nombre = $('#txtContacto_Nombre').val();
+                        objMod.EmpresaCorreo = $('#txtEmpresaCorreo').val();
+                        objMod.EmpresaTelefono = $('#txtEmpresaTelefono').val();
+                        objMod.Contacto_Email = $('#txtContacto_Email').val();
+                        objMod.Contacto_Telefono = $('#txtContacto_Telefono').val();
+                        objMod.Direccion = $('#txtDireccion').val();
+                        objMod.Comentarios = $('#txtEmpresaComentarios').val();
+                        objMod.Estatus = $('#chkEmpresaActivo').is(":checked");
+                        objMod.Calle = $('#txtDireccionSeleccionada').val();
+                        tableR.row(rowR).data(objMod).draw(false);
+                    }
+                    Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function InsertarCliente() {
+
+
+            if (    $("#txtCP").val() == "" || $("#cmbPais").val() == "-1" || $("#cmbEstado").val() == "-1" || $("#cmbCiudad").val() == "-1"
+                 || $("#cmbColonia").val() == "-1" || $("#txtDireccionSeleccionada").val() == "" )
+            {
+                  Utilidades.OcultarProgress();
+                  Utilidades.MostrarDialogoError('Error', 'No se introdujeron todos los datos de direccion.');
+            }
+            else
+            {
+                 var params = {
+                    cliente: {
+                        RFC: $('#txtEmpresaRFC').val(),
+                        RazonSocial: $('#txtRazonSocial').val(),
+                        NombreComercial: $('#txtNombreComercial').val(),
+                        EmpresaCorreo: $('#txtEmpresaCorreo').val(),
+                        EmpresaTelefono: $('#txtEmpresaTelefono').val(),
+                        Contacto_Nombre: $('#txtContacto_Nombre').val(),
+                        Contacto_Email: $('#txtContacto_Email').val(),
+                        Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                        Clave_Colonia: $('#hidClaveColonia').val(),
+                        CP: $('#hidCP').val(),
+                        Direccion: $('#txtDireccion').val(),
+                        Comentarios: $('#txtEmpresaComentarios').val(),
+                         Estatus: $('#chkEmpresaActivo').is(":checked"),
+                         Calle: $('#txtDireccionSeleccionada').val()
+                    }
+                };
+                $.ajax({
+                    url: '@Url.Action("InsertarCliente", "Clientes")',
+                    type: 'POST',
+                    cache: false,
+                    data: params,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            var insObt = null;
+                            Utilidades.OcultarProgress();
+                            $('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                            Utilidades.MostrarProgress();
+
+                            if (tableR == null) {
+                                 LlenarGrid();
+                            }
+                            else {
+
+                                insObt = {
+                                    RFC: $('#txtEmpresaRFC').val(),
+                                    RazonSocial: $('#txtRazonSocial').val(),
+                                    NombreComercial: $('#txtNombreComercial').val(),
+                                    Contacto_Nombre: $('#txtContacto_Nombre').val(),
+                                    EmpresaCorreo: $('#txtEmpresaCorreo').val(),
+                                    EmpresaTelefono: $('#txtEmpresaTelefono').val(),
+                                    Contacto_Email: $('#txtContacto_Email').val(),
+                                    Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                                    Direccion: $('#txtDireccion').val(),
+                                    Comentarios: $('#txtEmpresaComentarios').val(),
+                                    Estatus:  $('#chkEmpresaActivo').is(":checked")
+                                };
+
+                                tableR.row.add(insObt).draw();
+                            }
+
+                       
+                           
+
+                            Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de Clientes.");
+
+                            //Habitar la opcion de agregar caracteristicas y documentos
+                            if ($('#hidIdCliente').val() == "0") {
+                                $('#accordion').hide();
+                                $('#accordion2').show();
+                            } else {
+                                $('#accordion').show();
+                                $('#accordion2').hide();
+                                agregarListaDocumento();
+                            }
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+
+
+
+    }
+
+    //PopUp Direccion
+    $(".lnkDireccionEmpresa").click(function () {
+        $('#modalSeleccionarDireccion').modal('show');
+    });
+
+    //PopUp Documento
+    function AgregarDocumento() {
+        Utilidades.MostrarProgress();
+
+        $('#cmbDocumentos').val('-1');
+        $('#txtNombreDocumento').val('');
+        $('#txtUrlDocumento').val('');
+
+        var cloned = $(".RutaFile").clone(true);
+        cloned.val("");
+        $(".RutaFile").replaceWith(cloned);
+
+        $('#modalSeleccionarDocumento').modal('show');
+        PrepararSeleccionDocumentos();
+        Utilidades.OcultarProgress();
+    }
+
+    $('#btnGuardarDocumento').on('click', function () {
+        //Utilidades.MostrarProgress();
+        if ($("#userFormDocs").data('unobtrusiveValidation').validate()) {
+            if ($("#cmbDocumentos").val() == '-1' || $("#txtNombreDocumento").val() == '' || $("#userFormDocs" + ' input[type="file"]')[0].files['0'] == null) {
+                alert('No se introdujeron los datos necesarios.');
+            } else {
+                InsertarDocumento();
+                agregarListaDocumento();
+            }
+        }
+    });
+
+    function InsertarDocumento() {
+        var formData = new FormData();
+
+        var files = $(".RutaFile").get(0).files;
+
+        formData.append('IdCliente', $('#hidIdCliente').val());
+        formData.append('IdDocumento', $('#cmbDocumentos').val());
+        formData.append('Nombre', $('#txtNombreDocumento').val());
+        formData.append('Url', $('#txtUrlDocumento').val());
+        formData.append('file', files[0]);
+        formData.append('origen', 'Cliente');
+
+        $.ajax({
+            url: '@Url.Action("insertarDocsCliente", "Documentos")',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    //$('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                    Utilidades.MostrarDialogo("Aviso", "Documento agregado exitosamente.");
+
+                    var cloned = $(".RutaFile").clone(true);
+                    cloned.val("");
+                    $(".RutaFile").replaceWith(cloned);
+
+                    //Ocultar PopUp
+                    $('#modalSeleccionarDocumento').modal('hide');
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+        function downloadFile(pFileName, pOrigen, pNombreOriginal) {
+            
+        window.location = '@Url.Action("DownloadFile", "Documentos")?origen=' + pOrigen + '&fileName=' + pFileName + '&nombreOriginal=' + pNombreOriginal;
+    }
+
+    function agregarListaDocumento() {
+        $('#myTableDocumentos').dataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("obtenerDocsCliente", "Documentos")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { IdCliente: $('#hidIdCliente').val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarDocumento();
+                    }
+                }
+            ],
+            "columns":
+            [
+                {
+                    "data": "IdDocumento", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "descDocumento", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Nombre", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Url", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $("<a  onmouseover=\"\" style=\"cursor: pointer;\" class=\"btnEditar Contacto_Nombre\" onClick=\"downloadFile('" + String(data) + "', 'Cliente','" + String(data) + "');\"><img src=\"@Url.Content("~/Imagenes/DownloadON.png")\" onmouseover=\"this.src='@Url.Content("~/Imagenes/Download.png")'\" onmouseout=\"this.src='@Url.Content("~/Imagenes/DownloadON.png")'\" style=\"width:22px; height:25px\"></a>")
+                                    .wrap('<div></div>')
+                                    .parent()
+                                    .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+            ]
+        });
+        $('#myTableDocumentos1').hide();
+    }
+
+    //Seleccionar Direccion PopUp
+    $('#btnGuardarDireccion').on('click', function () {
+        var control = '';
+
+        if ($('#cmbPais').val() == '-1') {
+            control = "cmbPais";
+        } else if ($('#cmbEstado').val() == '-1') {
+            control = "cmbEstado";
+        } else if ($('#cmbCiudad').val() == '-1') {
+            control = "cmbCiudad";
+        } else if ($('#cmbColonia').val() == '-1') {
+            control = "cmbColonia";
+        } else if ($('#txtCP').val() == '') {
+            control = "txtCP";
+        } else if ($('#txtDireccionSeleccionada').val() == '') {
+            control = "txtDireccionSeleccionada";
+        }
+
+        if (control == '') {
+            var colonia = $('#cmbColonia').val().split('|');
+
+            $('#hidIdCiudad').val($('#cmbCiudad').val());
+            $('#hidClaveColonia').val(colonia[0]);
+            $('#hidCP').val($('#txtCP').val());
+            $('#txtDireccion').val($('#txtDireccionSeleccionada').val() + ", " + $('#cmbColonia option:selected').text() + ", " + $('#txtCP').val() + "\n" + $('#cmbCiudad option:selected').text() + ", " + $('#cmbEstado option:selected').text());
+
+            $('#modalSeleccionarDireccion').modal('hide');
+        } else {
+            $('#' + control).focus();
+            Utilidades.MostrarDialogoError('Error', 'No se introdujeron todos los datos.');
+        }
+    });
+
+    $('#lnkCP').on('click', function () {
+        if ($('#txtCP').val() != '') {
+            buscarCP($('#txtCP').val());
+        } else {
+            $('#cmbPais').val('-1');
+            $('#cmbEstado').val('-1');
+            $('#cmbCiudad').val('-1');
+            $('#cmbColonia').val('-1');
+            $('#txtCP').val('');
+            $('#txtDireccion').val('');
+
+            $('#txtCP').focus();
+        }
+    });
+
+    $('#cmbPais').change(function () {
+        if ($('#cmbPais').val() != -1) {
+            Utilidades.MostrarProgress();
+            cargarEstados($('#cmbPais').val());
+        } else {
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+            $('#txtCP').val('');
+            $('#cmbEstado').html(items);
+            $('#cmbCiudad').html(items);
+            $('#cmbColonia').html(items);
+            $('cmbEstado').attr('disabled', 'enabled');
+        }
+    });
+
+    $('#cmbEstado').change(function () {
+        if ($('#cmbEstado').val() != -1) {
+            Utilidades.MostrarProgress();
+            cargarCiudades($('#cmbEstado').val());
+        } else {
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbCiudad').html(items);
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+
+        if ($('#cmbEstado').val() == -2) {
+            cargarEstados($('#cmbPais').val());
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbCiudad').html(items);
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+    });
+
+    $('#cmbCiudad').change(function () {
+        if ($('#cmbCiudad').val() != -1) {
+            Utilidades.MostrarProgress();
+            cargarColonias($('#cmbCiudad').val(), '');
+            Utilidades.OcultarProgress();
+        } else {
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+
+        if ($('#cmbCiudad').val() == -2) {
+            cargarCiudades($('#cmbEstado').val());
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+    });
+
+    $('#cmbColonia').change(function () {
+        if ($('#cmbColonia').val() != -1) {
+            var cp = $('#cmbColonia').val().split('|');
+            $('#txtCP').val(cp[1]);
+        }
+    });
+
+
+    </script>
+}

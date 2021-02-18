@@ -1,0 +1,187 @@
+﻿@model ALM.Empresa.Entidades.EFormaPermiso
+@{
+    ViewBag.Title = "Editar nombre de permisos por Forma";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+@Html.Hidden("hidIdParametro", "0")
+
+<div id="divListado">
+    @Html.Partial("FormaPermiso_Detalle")
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+
+        var lstFormas = null;
+        var lstPermisos = null;
+
+        $(document).ready(function () {
+            Utilidades.MostrarProgress();
+            Inicializar();
+        });
+
+        function Inicializar() {
+            var items = null;
+            ObtenerInformacioPermisos(null);
+            items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerFormas", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    Utilidades.OcultarProgress();
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstFormas = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstFormas != null) {
+                            $.each(lstFormas, function (i, forma) {
+                                items += "<option value='" + forma.IdForma + "'  class='tamLetra bookTipografia'>" + forma.TextoLink + "</option>";
+                            });
+                        }
+                        $("#cmbForma").html(items);
+                    }
+                    else {
+                        $("#cmbForma").html(items);
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    $("#cmbForma").html(items);
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        $("#cmbForma").change(function () {
+            Utilidades.MostrarProgress();
+            var idForma = $("#cmbForma").val();
+            var forma = null;
+            if (idForma && idForma != '' && idForma != '-1') {
+                $.map(lstFormas, function (formaI, index) {
+                    if (idForma == formaI.IdForma) {
+                        forma = formaI;
+                    }
+                });
+            }
+            if (forma != null) {
+                $('#txtDescripcion').val(forma.Descripcion);
+            }
+            else {
+                $('#txtDescripcion').val('');
+            }
+            ObtenerInformacioPermisos(forma);
+        });
+
+        function ObtenerInformacioPermisos(forma) {
+            var index;
+            for (index = 1; index <= 8; index++) {
+                $('#divPrivilegio' + index.toString()).hide();
+            };
+
+            lstPermisos = null;
+
+            if (forma != null) {
+                $.ajax({
+                    url: '@Url.Action("ObtenerFormaPermisos", "Configuracion")',
+                    type: 'POST',
+                    cache: false,
+                    data: {
+                        idForma: forma.IdForma
+                    },
+                    success: function (json) {
+                        Utilidades.OcultarProgress();
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            lstPermisos = json.Respuesta.RespuestaInformacion.Data.Info;
+                            if (lstPermisos != null) {
+                                for (index = 1; index <= 8; index++) {
+                                    $.each(lstPermisos, function (i, permiso) {
+                                        if (index == (i + 1)) {
+                                            $('#divPrivilegio' + index.toString()).show();
+                                            $('#txtPrivilegio' + index.toString()).val(permiso.NombrePermiso);
+                                        }
+                                    });
+                                };
+                            }
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            else {
+
+                Utilidades.OcultarProgress();
+            }
+        }
+
+
+        $('#btnCancelar').on('click', function () {
+            $("#cmbForma").val('-1');
+            $('#txtDescripcion').val('');
+            ObtenerInformacioPermisos(null);
+            return false;
+        });
+
+        
+        $('#btnGuardar').on('click', function () {
+            var idParametro = $('#hidIdParametro').val();
+            if ($('#cmbForma').val() == "-1") {
+                Utilidades.MostrarDialogoError("Error", "No ha seleccionado una forma para establecer el Alias de los permisos.");
+                return false;
+            }
+            if (lstPermisos == null || lstPermisos.length == 0) {
+                Utilidades.MostrarDialogoError("Error", "La forma seleccionada no tiene permisos a guardar sus Alias.");
+            }
+            else {
+                Utilidades.MostrarProgress();
+                ObtenerListaPermisos();
+                $.ajax({
+                    url: '@Url.Action("ActualizarFormaPermisos", "Configuracion")',
+                    type: 'POST',
+                    cache: false,
+                    data: {
+                        listformaPermiso: lstPermisos
+                    },
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            return false;
+        });
+
+        function ObtenerListaPermisos() {
+            if (lstPermisos && lstPermisos != null) {
+                $.each(lstPermisos, function (i, permiso) {
+                    permiso.NombrePermiso = $('#txtPrivilegio' + (i + 1).toString()).val();
+                });
+            }
+        }
+
+    </script>
+}

@@ -1,0 +1,67 @@
+﻿@model ALM.Reclutamiento.Entidades.ESubCatalogo
+<div class="divMarcoBusqueda">
+    <div class="row" id="divControl">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px" id="divPibote">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Clave, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Clave, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtClaveDet" })
+                @Html.ValidationMessageFor(model => model.Clave, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Nombre, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtNombreDet" })
+                @Html.ValidationMessageFor(model => model.Nombre, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Descripcion, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Descripcion, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtDescripcionDet" })
+                @Html.ValidationMessageFor(model => model.Descripcion, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="chkEstatus" class="labelColumn tamLetra regularTipografia">Es Activo</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8" style="margin-top:5px">
+                <input type="checkbox" id="chkEstatus" checked="checked" />
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnGuardar" name="Guardar" class="btnGuardarDespuesLink pull-right">
+            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+        </button>
+        <button type="button" value="Buscar" id="btnCancelar" name="Cancelar" class="btnCancelar pull-right">
+            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+        </button>
+    </div>
+</div>
+
+<style>
+    /* CSS REQUIRED */
+    .state-icon {
+        left: -5px;
+    }
+
+    .list-group-item-primary {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+    }
+
+    /* DEMO ONLY - REMOVES UNWANTED MARGIN */
+    .well .list-group {
+        margin-bottom: 0px;
+    }
+</style>
+
+

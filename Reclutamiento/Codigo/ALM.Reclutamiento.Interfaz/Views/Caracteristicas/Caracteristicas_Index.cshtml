@@ -1,0 +1,927 @@
+﻿
+@{
+    ViewBag.Title = "Características";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdCaracteristica", "0")
+@Html.Hidden("hidEmail", "0")
+@Html.Hidden("hidUsuario", "0")
+@Html.Hidden("hidFechaCreacion", "0")
+@Html.Hidden("hidEmpresa", "0")
+
+<div id="divListado">
+    @Html.Partial("Caracteristicas_Listado")
+</div>
+
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Caracteristicas_Detalle", new ALM.Reclutamiento.Entidades.ECaracteristicas())
+    </form>
+</div>
+
+<div id="divFiltros" class="divMarcoBusqueda" style="display:none; width:100%">
+    <!--@Html.Partial("Caracteristicas_Filtros")-->
+    @Html.Partial("~/Views/Shared/MasFiltros.cshtml")
+    <div class="row">
+        <div style="clear:both; text-align:right; width:98%">
+            <button type="button" value="Guardar" id="btnGuardarFiltros" name="Guardar" class="btnGuardar pull-right">
+                <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+            </button>
+            <button type="button" value="Cancelar" id="btnCancelarFiltros" name="Cancelar" class="btnCancelar pull-right">
+                <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+
+
+    <script type="text/javascript">
+        var rowR = null;
+        var objMod = null;
+        var tableR = null;
+        var filtroCategorias = "";
+        var aux = "";
+        var strCategorias = "";
+        var strCategoriasFiltro = "";
+        var lstCategorias = null;
+
+        HabilitarInahilitar = "enabled";
+
+        $(document).ready(function () {
+            EsSuperAdmin = "True";
+
+            if(EsSuperAdmin == "True"){
+                $('#divAdministrador').show();
+            }else{
+                $('#divAdministrador').hide();
+            }
+
+            Inicializar();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            $('#hidIdCaracteristica').val('0');
+            $('#txtNombre').val('');
+            $('#txtDescripcion').val('');
+            $('#cmbCategoria').val('-1');
+            $('#cmbTipoCampo').val('-1');
+            $('#cmbTipoCampo').trigger('change');
+
+            $('#hidEmail').val('0');
+            $('#hidUsuario').val('0');
+            $('#hidFechaCreacion').val('0');
+            $('#hidEmpresa').val('0');
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            rowR = null;
+            objMod = null;
+
+            return false;
+        });
+
+        $("#btnGuardar").on('click', function () {
+            var detalles = generarDetallesCaracteristicas();
+
+            if (detalles.length == 0) {
+                Utilidades.MostrarDialogoError("Aviso", "Es necesario seleccionar al menos una Categoria.");
+            } else {
+                //alert($('input:radio[name="radAprobada"]:checked').val());
+                if (EsSuperAdmin == "True" && $('input:radio[name="radAprobada"]:checked').val() == '2' &&
+                    $('#txtComentario').val() == '') {
+                    Utilidades.MostrarDialogoError("Aviso", "Es necesario enviar comentario al Usuario de Rechazo.");
+                } else {
+                    GuardarInformacion(detalles);
+                }
+            }
+
+            return false;
+        });
+
+        $("#btnBuscar").on('click', function () {
+            LlenarGrid();
+        });
+
+        function Inicializar() {
+            PrepararComboTiposControl();
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                              AgregarCaracteristica();
+                        }
+                    }
+                ],
+                "columns": [
+                    { "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "TipoControl", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "Aprobada", "autoWidth": true },
+                    { "data": "EsActivo", "autoWidth": true }
+                ]
+            });
+
+            obtenerCategorias();
+        }
+
+        function AgregarCaracteristica()
+        {
+            objMod = null;
+            rowR = null;
+            OcultarMostrarDiv(null);
+        }
+
+        function OcultarMostrarDiv(data)
+        {
+            if (data != null) {
+                $("#hidIdCaracteristica").val(data.IdCaracteristica);
+                $("#txtNombre").val(data.Nombre);
+                $("#txtDescripcion").val(data.Descripcion);
+                $('#cmbTipoCampo').val(data.IdTipoControl);
+                $('#cmbTipoCampo').trigger('change');
+                $('#hidEmail').val(data.Email);
+                $('#hidUsuario').val(data.Usuario);
+                $('#hidFechaCreacion').val(Utilidades.FormatearFechaMilisegundosString(data.FechaCreacion));
+                $('#hidEmpresa').val(data.Empresa);
+
+                strCategorias = data.Categorias;
+
+                obtenerCategorias();
+
+                //alert(data.Aprobada);
+                switch (data.Aprobada) {
+                    case 0:
+                        if (data.IdEmpresa == @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.IdEmpresa || EsSuperAdmin == "True") {
+                            //Permitir Modificar
+                            $("#txtNombre").attr('disabled', false);
+                            $("#txtDescripcion").attr('disabled', false);
+                            $('#cmbTipoCampo').attr('disabled', false);
+ 
+                            $('#btnGuardar').attr('disabled', false);
+                            $('#rad1').attr('disabled', false);
+                            $('#rad1').prop('checked', true);
+
+                            $('#chkActivo').prop('disabled', false);
+                            $('#chkActivo').prop('checked', data.EsActivo);
+
+                            HabilitarInahilitar = "enabled";
+
+                            $('#spanLeyenda').text('');
+
+                        } else {
+                            $("#txtNombre").attr('disabled', true);
+                            $("#txtDescripcion").attr('disabled', true);
+                            $('#cmbTipoCampo').attr('disabled', true);
+                            $('#rad1').prop('checked', true);
+
+                            $('#btnGuardar').attr('disabled', true);
+                            $('#chkActivo').attr('disabled', true);
+
+                            $('#chkActivo').prop('disabled', true);
+                            $('#chkActivo').prop('checked', data.EsActivo);
+
+                            HabilitarInahilitar = "disabled";
+                            $('#spanLeyenda').text('No se puede modificar la característica. "Agregada por otra empresa"');
+                        }
+
+                        break;
+                    case 1:
+                        $('#rad2').prop('checked', true);
+                        $("#txtNombre").attr('disabled', true);
+                        $("#txtDescripcion").attr('disabled', true);
+                        $('#cmbTipoCampo').attr('disabled', true);
+                        $('#rad2').prop('checked', true);
+
+                        $('#rad1').attr('disabled', true);
+                        $('#chkActivo').attr('disabled', true);
+
+                        $('#chkActivo').prop('disabled', true);
+                        $('#chkActivo').prop('checked', data.EsActivo);
+
+                        HabilitarInahilitar = "disabled";
+                        $('#spanLeyenda').text('No se puede modificar, ya fue Aprobada');
+
+                        if (EsSuperAdmin == "True") {
+                            $('#btnGuardar').attr('disabled', false);
+                        } else {
+                            $('#btnGuardar').attr('disabled', true);
+                        }
+
+                        break;
+                    case 2:
+                        $('#rad3').prop('checked', true);
+                        $("#txtNombre").attr('disabled', true);
+                        $("#txtDescripcion").attr('disabled', true);
+                        $('#cmbTipoCampo').attr('disabled', true);
+                        $('#rad3').prop('checked', true);
+                
+                        $('#rad1').attr('disabled', true);
+                        $('#chkActivo').attr('disabled', true);
+
+                        $('#chkActivo').prop('disabled', true);
+                        $('#chkActivo').prop('checked', true);
+
+                        HabilitarInahilitar = "disabled";
+                        $('#spanLeyenda').text('No se uede modificar, ya fue Rechazada');
+
+                        if (EsSuperAdmin == "True") {
+                            $('#btnGuardar').attr('disabled', false);
+                        } else {
+                            $('#btnGuardar').attr('disabled', true);
+                        }
+                        break;
+                }
+            }
+            else {
+                objMod = null;
+
+                $("#hidIdCaracteristica").val('0');
+                $("#txtNombre").val('');
+                $("#txtDescripcion").val('');
+                $('#cmbTipoCampo').val('-1');
+                $('#cmbTipoCampo').trigger('change');
+                $('#rad1').prop('checked', true);
+
+                $("#txtNombre").attr('disabled', false);
+                $("#txtDescripcion").attr('disabled', false);
+                $('#cmbTipoCampo').attr('disabled', false);
+
+                $('#btnGuardar').attr('disabled', false);
+                $('#rad1').attr('disabled', false);
+
+                $('#chkActivo').prop('disabled', true);
+                $('#chkActivo').prop('checked', true);
+
+                HabilitarInahilitar = "enabled";
+
+                $('#hidEmail').val('0');
+                $('#hidUsuario').val('0');
+                $('#hidFechaCreacion').val('0');
+                $('#hidEmpresa').val('0');
+
+                strCategorias = "";
+                $('#spanLeyenda').text('');
+
+                obtenerCategorias();
+            }
+
+            $('#divDetalle').show();
+            $('#divListado').hide();
+        };
+
+        function GuardarInformacion(detalles)
+        {
+            if ($("#userForm").data('unobtrusiveValidation').validate()) {
+                if($('#cmbTipoCampo').val() == '-1'){
+                    Utilidades.MostrarDialogoError("Aviso", "Todos los campos son necesarios.");
+                }else{
+                    Utilidades.MostrarProgress();
+                    if ($('#hidIdCaracteristica').val() != '0') {
+                        ActualizarCaracteristica(detalles);
+                    }
+                    else {
+                        InsertarCaracteristica(detalles);
+                    }
+                }
+            }
+            LlenarGrid();
+        };
+
+        function ActualizarCaracteristica(detalles) {
+            var params = {
+                carac:
+                    {
+                        IdCaracteristica: $('#hidIdCaracteristica').val(),
+                        Nombre: $('#txtNombre').val(),
+                        Descripcion: $('#txtDescripcion').val(),
+                        IdTipoControl: $('#cmbTipoCampo').val(),
+                        Comentario: $('#txtComentario').val(),
+                        Email: $('#hidEmail').val(),
+                        Usuario: $('#hidUsuario').val(),
+                        EsActivo: $('#chkActivo').is(":checked"),
+                        FechaCreacion: $('#hidFechaCreacion').val(),
+                        Aprobada: $('input:radio[name=radAprobada]:checked').val(),
+                },
+                detalles: detalles
+            };
+            $.ajax(
+                {
+                    url: '@Url.Action("ActualizarCaracteristica", "Caracteristicas")',
+                    type: 'POST',
+                    cache: false,
+                    data: params,
+                    success:
+                        function (json) {
+                            var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                            var codigoCorrecto = '"OK"';
+                            if (codigoRegreso == codigoCorrecto) {
+                                Utilidades.OcultarProgress();
+                                Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                            }
+                            else {
+                                Utilidades.ErrorAjaxControlado(json);
+                            }
+                        },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+        }
+
+        function InsertarCaracteristica(detalles)
+        {
+            var params =
+                {
+                    carac:
+                        {
+                        IdCaracteristica: $('#hidIdCaracteristica').val(),
+                        Nombre: $('#txtNombre').val(),
+                        Descripcion: $('#txtDescripcion').val(),
+                        IdTipoControl: $('#cmbTipoCampo').val(),
+                        Comentario: $('#txtComentario').val(),
+                        EsActivo: $('#chkActivo').is(":checked"),
+                        Aprobada: $('input:radio[name=radAprobada]:checked').val(),
+                    },
+                    detalles: detalles
+                };
+            $.ajax({
+                url: '@Url.Action("InsertarCaracteristica", "Caracteristicas")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#hidIdCaracteristica').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de Caracteristicas.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function LlenarGrid() {
+            var params = {
+                caracteristica: {
+                    Nombre: $("#txtNombreFiltro").val(),
+                    intEsActivo: $('#cmbActivo').val(),
+                    Aprobada: $("#cmbAprobadaFiltro").val()
+                },
+                masFiltros: aux
+            };
+            tableR = $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("obtenerCaracteristicas", "Caracteristicas")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: params,
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return "";
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCaracteristica();
+                        }
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TipoControl", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar TipoCampo">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Aprobada", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                .wrap('<div></div>')
+                                .text( (data == 0) ? 'Pendiente' : (data == 1) ? 'Aprobada' : 'Rechazada')
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "EsActivo", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                    .wrap('<div></div>')
+                                    .text((data == 0) ? 'No' : 'Si')
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(objMod);
+            });
+        }
+
+
+
+        //Mas Filtros
+        function obtenerCategorias() {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+            var params = {
+                Nombre: '', Estatus: 1
+            };
+
+            $.ajax({
+                url:'@Url.Action("obtenerCategorias", "Categorias")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        lstCategorias = json.Respuesta.RespuestaInformacion;
+
+                        MostrarCategorias(json.Respuesta.RespuestaInformacion);
+                        MostrarCategorias2(json.Respuesta.RespuestaInformacion);
+                    }
+                },
+                data: params,
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function MostrarCategorias(lstcategorias) {
+            if (lstcategorias.Data && lstcategorias.Data.Info && lstcategorias.Data.Info.length > 0) {
+                var divCategorias = $("#divCategorias");
+                var ulCategorias = $("#ulCategorias");
+
+                ulCategorias.remove();
+
+                var li = null;
+                if (ulCategorias) {
+                    ulCategorias.remove();
+                }
+                ulCategorias = $("<ul class='list-group checked-list-box' id='ulCategorias'></u>");
+
+                $.map(lstcategorias.Data.Info, function (objInterno, indexInterno) {
+                    li = $("<li class='list-group-item inputpe tamLetra bookTipografia' " + HabilitarInahilitar + "='true' idCategoria='" +
+                        objInterno.IdCategoria + "' " +
+                        (strCategorias.search('-' + objInterno.IdCategoria + '-') != -1 ? "data-checked='true'" : "") + "></li>");
+                    li.attr("id", "lnk" + objInterno.IdCategoria).text(objInterno.Nombre);
+                    ulCategorias.append(li);
+                });
+                divCategorias.append(ulCategorias);
+            }
+            EstablecerFormatoCheckList();
+        }
+
+        function MostrarCategorias2(lstcategorias) {
+            if (lstcategorias.Data && lstcategorias.Data.Info && lstcategorias.Data.Info.length > 0) {
+                var divCategoriasFiltro = $("#divCategoriasFiltro");
+                var ulCategoriasFiltro = $("#ulCategoriasFiltro");
+
+                var li = null;
+                if (ulCategoriasFiltro) {
+                    ulCategoriasFiltro.remove();
+                }
+                ulCategoriasFiltro = $("<ul class='list-group checked-list-box' id='ulCategoriasFiltro'></u>");
+
+                $.map(lstcategorias.Data.Info, function (objInterno, indexInterno) {
+                    li = $("<li class='list-group-item inputpe tamLetra bookTipografia' idCategoria='" +
+                        objInterno.IdCategoria + "' " +
+                        (strCategoriasFiltro.search('-' + objInterno.IdCategoria + '-') != -1 ? "data-checked='true'" : "") + "></li>");
+                    li.attr("id", "lnk" + objInterno.IdCategoria).text(objInterno.Nombre);
+                    ulCategoriasFiltro.append(li);
+                });
+                divCategoriasFiltro.append(ulCategoriasFiltro);
+            }
+
+            EstablecerFormatoCheckList2();
+        }
+
+        function EstablecerFormatoCheckList() {
+            $('.list-group.checked-list-box .list-group-item').each(function () {
+
+                // Settings
+                var $widget = $(this),
+                    $checkbox = $('<input type="checkbox" class="hidden" />'),
+                    color = ($widget.data('color') ? $widget.data('color') : "primary"),
+                    style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
+                    settings = {
+                        on: {
+                            icon: 'glyphicon glyphicon-check'
+                        },
+                        off: {
+                            icon: 'glyphicon glyphicon-unchecked'
+                        }
+                    };
+
+                $widget.css('cursor', 'pointer')
+                $widget.append($checkbox);
+
+                // Event Handlers
+                $widget.on('click', function () {
+                    $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    $checkbox.triggerHandler('change');
+                    updateDisplay();
+                });
+                $checkbox.on('change', function () {
+                    updateDisplay();
+                });
+
+
+                // Actions
+                function updateDisplay() {
+                    var isChecked = $checkbox.is(':checked');
+
+                    // Set the button's state
+                    $widget.data('state', (isChecked) ? "on" : "off");
+
+                    // Set the button's icon
+                    $widget.find('.state-icon')
+                        .removeClass()
+                        .addClass('state-icon ' + settings[$widget.data('state')].icon);
+
+                    // Update the button's color
+                    if (isChecked) {
+                        $widget.addClass(style + color + ' active');
+                    } else {
+                        $widget.removeClass(style + color + ' active');
+                    }
+                }
+
+                // Initialization
+                function init() {
+
+                    if ($widget.data('checked') == true) {
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+
+                    updateDisplay();
+
+                    // Inject the icon if applicable
+                    if ($widget.find('.state-icon').length == 0) {
+                        $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>');
+                    }
+                }
+                init();
+            });
+        }
+
+        function EstablecerFormatoCheckList2() {
+            $('.list-group.checked-list-box .list-group-item').each(function () {
+
+                // Settings
+                var $widget = $(this),
+                    $checkbox = $('<input type="checkbox" class="hidden" />'),
+                    color = ($widget.data('color') ? $widget.data('color') : "primary"),
+                    style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
+                    settings = {
+                        on: {
+                            icon: 'glyphicon glyphicon-check'
+                        },
+                        off: {
+                            icon: 'glyphicon glyphicon-unchecked'
+                        }
+                    };
+
+                $widget.css('cursor', 'pointer')
+                $widget.append($checkbox);
+
+                // Event Handlers
+                $widget.on('click', function () {
+                    $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    $checkbox.triggerHandler('change');
+                    updateDisplay();
+                });
+                $checkbox.on('change', function () {
+                    updateDisplay();
+                });
+
+
+                // Actions
+                function updateDisplay() {
+                    var isChecked = $checkbox.is(':checked');
+
+                    // Set the button's state
+                    $widget.data('state', (isChecked) ? "on" : "off");
+
+                    // Set the button's icon
+                    $widget.find('.state-icon')
+                        .removeClass()
+                        .addClass('state-icon ' + settings[$widget.data('state')].icon);
+
+                    // Update the button's color
+                    if (isChecked) {
+                        $widget.addClass(style + color + ' active');
+                    } else {
+                        $widget.removeClass(style + color + ' active');
+                    }
+                }
+
+                // Initialization
+                function init() {
+
+                    if ($widget.data('checked') == true) {
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+
+                    updateDisplay();
+
+                    // Inject the icon if applicable
+                    if ($widget.find('.state-icon').length == 0) {
+                        $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>');
+                    }
+                }
+                init();
+            });
+        }
+
+        $('#linkMasFiltros').click(function () {
+            //alert(strCategoriasFiltro);
+            MostrarCategorias2(lstCategorias);
+
+            $('#divFiltros').show();
+            $('#divListado').hide();
+        });
+
+        $('#btnGuardarFiltros').on('click', function () {
+            //Utilidades.MostrarProgress();
+            var intx = 0;
+            filtroCategorias = "";
+            strCategoriasFiltro = "";
+            aux = "";
+
+            $("#ulCategoriasFiltro li.active").each(function (idx, li) {
+                if (intx == 0) {
+                    filtroCategorias += " cat.IdCategoria = " + parseInt($(li).attr("IdCategoria"));
+                } else {
+                    filtroCategorias += " OR cat.IdCategoria = " + parseInt($(li).attr("IdCategoria"));
+                }
+                strCategoriasFiltro += "-" + parseInt($(li).attr("IdCategoria"));
+
+                intx++;
+            });
+
+            if (intx != 0 ) {
+                aux += " AND ( " + filtroCategorias + ") ";
+                $('#linkMasFiltros').attr('style', 'background-color:blue; cursor: pointer; color:white;');
+            } else {
+                $('#linkMasFiltros').attr('style', 'background-color:white; cursor: pointer;');
+            }
+
+            strCategoriasFiltro += "-";
+
+            LlenarGrid();
+            $('#divFiltros').hide();
+            $('#divListado').show();
+        });
+
+        $('#btnCancelarFiltros').on('click', function () {
+            $('#divFiltros').hide();
+            $('#divListado').show();
+        });
+
+        function generarDetallesCaracteristicas() {
+            var intCategorias = 0;
+            var intx = "";
+            var a = "";
+            var filtro = "";
+
+            $("#ulCategorias li.active").each(function (idx, li) {
+                intCategorias = intCategorias + 1;
+
+                if ($('#hidIdCaracteristica').val() != 0) {
+                    //Actualizar
+                    if (intx == 0) {
+                        filtro += "(" + $('#hidIdCaracteristica').val() + "," + parseInt($(li).attr("IdCategoria")) + ")";
+                    } else {
+                        filtro += ",(" + $('#hidIdCaracteristica').val() + "," + parseInt($(li).attr("IdCategoria")) + ")";
+                    }
+                } else {
+                    //Agregar
+                    if (intx == 0) {
+                        filtro += "(idValor," + parseInt($(li).attr("IdCategoria")) + ")";
+                    } else {
+                        filtro += ",(idValor," + parseInt($(li).attr("IdCategoria")) + ")";
+                    }
+                }
+                
+                intx++;
+            });
+
+            if (intx != 0) {
+                a += "insert into caracteristica_categoria (idCaracteristica, idCategoria) values " + filtro + ";";
+            }
+
+            return a;
+        }
+
+            function cambiarIcono() {
+                if (banDoc == 0) {
+                    $('#imgDocimgMasDocs').attr('src', '~/images/details_open.png');
+                } else {
+                    $('#imgDocimgMasDocs').attr('src', '~/images/details_close.png');
+                }
+                banDoc = 0;
+            }
+
+            function PrepararComboTiposControl() {
+                $.ajax({
+                    url: '@Url.Action("ObtenerTiposControl", "Caracteristicas")',
+                    type: 'POST',
+                    cache: false,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            var lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                            $element = $('#cmbTipoCampo').select2({
+                                language: "es",
+                                placeholder: "Selecciona una opción",
+                                matcher: filterMatcher,
+                                allowClear: true,
+                                data: lstCatalogos
+                            });
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControladoPopUp(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjaxPopUp(xhr);
+                    }
+                });
+            }
+
+        function filterMatcher(params, data) {
+            data.parentText = data.parentText || "";
+
+            // Always return the object if there is nothing to compare
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+
+            // Do a recursive check for options with children
+            if (data.children && data.children.length > 0) {
+                // Clone the data object if there are children
+                // This is required as we modify the object to remove any non-matches
+                var match = $.extend(true, {}, data);
+
+                // Check each child of the option
+                for (var c = data.children.length - 1; c >= 0; c--) {
+                    var child = data.children[c];
+                    child.parentText += data.parentText + " " + data.text;
+
+                    var matches = filterMatcher(params, child);
+
+                    // If there wasn't a match, remove the object in the array
+                    if (matches == null) {
+                        match.children.splice(c, 1);
+                    }
+                }
+
+                // If any children matched, return the new object
+                if (match.children.length > 0) {
+                    return match;
+                }
+
+                // If there were no matching children, check just the plain object
+                return filterMatcher(params, match);
+            }
+
+            // If the typed-in term matches the text of this term, or the text from any
+            // parent term, then it's a match.
+            var original = (data.parentText + ' ' + data.text).toUpperCase();
+            var term = params.term.toUpperCase();
+
+
+            // Check if the text contains the term
+            if (original.indexOf(term) > -1) {
+                return data;
+            }
+
+            return null;
+        }
+    </script>
+}

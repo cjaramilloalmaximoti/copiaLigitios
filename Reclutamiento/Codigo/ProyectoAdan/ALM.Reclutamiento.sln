@@ -1,0 +1,101 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Interfaz", "ALM.Reclutamiento.Interfaz\ALM.Reclutamiento.Interfaz.csproj", "{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Encriptador", "ALM.Reclutamiento.Encriptador\ALM.Reclutamiento.Encriptador.csproj", "{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.AccesoDatos", "ALM.Reclutamiento.AccesoDatos\ALM.Reclutamiento.AccesoDatos.csproj", "{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Datos", "ALM.Reclutamiento.Datos\ALM.Reclutamiento.Datos.csproj", "{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Entidades", "ALM.Reclutamiento.Entidades\ALM.Reclutamiento.Entidades.csproj", "{23DC1139-135F-4C9B-8285-278492665F24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Negocio", "ALM.Reclutamiento.Negocio\ALM.Reclutamiento.Negocio.csproj", "{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Utilerias", "ALM.Reclutamiento.Utilerias\ALM.Reclutamiento.Utilerias.csproj", "{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E9938B9A-1750-4A14-9F53-E5220FF4CFB7}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 7
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://reclutamiento.visualstudio.com/
+		SccProjectUniqueName0 = ALM.Reclutamiento.Interfaz\\ALM.Reclutamiento.Interfaz.csproj
+		SccProjectName0 = ALM.Reclutamiento.Interfaz
+		SccAuxPath0 = https://reclutamiento.visualstudio.com
+		SccLocalPath0 = ALM.Reclutamiento.Interfaz
+		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName1 = ALM.Reclutamiento.Encriptador\\ALM.Reclutamiento.Encriptador.csproj
+		SccProjectName1 = ALM.Reclutamiento.Encriptador
+		SccAuxPath1 = https://reclutamiento.visualstudio.com
+		SccLocalPath1 = ALM.Reclutamiento.Encriptador
+		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName2 = ALM.Reclutamiento.AccesoDatos\\ALM.Reclutamiento.AccesoDatos.csproj
+		SccProjectName2 = ALM.Reclutamiento.AccesoDatos
+		SccAuxPath2 = https://reclutamiento.visualstudio.com
+		SccLocalPath2 = ALM.Reclutamiento.AccesoDatos
+		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName3 = ALM.Reclutamiento.Utilerias\\ALM.Reclutamiento.Utilerias.csproj
+		SccProjectName3 = ALM.Reclutamiento.Utilerias
+		SccAuxPath3 = https://reclutamiento.visualstudio.com
+		SccLocalPath3 = ALM.Reclutamiento.Utilerias
+		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName4 = ALM.Reclutamiento.Negocio\\ALM.Reclutamiento.Negocio.csproj
+		SccProjectName4 = ALM.Reclutamiento.Negocio
+		SccAuxPath4 = https://reclutamiento.visualstudio.com
+		SccLocalPath4 = ALM.Reclutamiento.Negocio
+		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName5 = ALM.Reclutamiento.Entidades\\ALM.Reclutamiento.Entidades.csproj
+		SccProjectName5 = ALM.Reclutamiento.Entidades
+		SccAuxPath5 = https://reclutamiento.visualstudio.com
+		SccLocalPath5 = ALM.Reclutamiento.Entidades
+		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName6 = ALM.Reclutamiento.Datos\\ALM.Reclutamiento.Datos.csproj
+		SccProjectName6 = ALM.Reclutamiento.Datos
+		SccAuxPath6 = https://reclutamiento.visualstudio.com
+		SccLocalPath6 = ALM.Reclutamiento.Datos
+		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+	EndGlobalSection
+EndGlobal

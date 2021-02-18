@@ -1,0 +1,239 @@
+﻿@{
+    ViewBag.Title = "Carga Codigo Postal";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+<form>
+    <div class="divMarcoBusqueda">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+                <h2>Carga Codigo Postal</h2>
+            </div>
+
+            @*@using (Html.BeginForm("CargaCodigoPostal", "CodigoPostal", System.Web.Mvc.FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {*@
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label class="control-label tamLetra regularTipografia">Pais:</label>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    <select id="cmbPais" class="form-control tamLetra bookTipografia" onchange="ConsulaFecha()"></select>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    <label class="control-label tamLetra regularTipografia">Archivo XML:</label>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+
+                    <div>
+                        @Html.TextBox("file", "", new { type = "file", id = "file", accept = "text/xml" })
+
+                        @*@ViewBag.Message*@
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <label id="msj" class="control-label tamLetra"></label>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <br />
+                <div style="clear:both; text-align:right; width:98%">
+                    <hr />
+                    @*<input type="submit" value="Cargar Codigos Postales" />*@
+                    <button type="button" value="Cargar Codigos Postales" id="btnGuardar" name="Guardar" class="btnGuardar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                    </button>
+                    <button type="button" value="Cancelar" id="btnCancelar" name="Cancelar" class="btnCancelar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                    </button>
+                </div>
+            </div>
+
+            @*}*@
+
+
+        </div>
+
+
+    </div>
+
+</form>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+
+    <script src="@Url.Content("~/scripts/bootstrap-datepicker.js")"></script>
+    <script src="@Url.Content("~/Estilo/lang/bootstrap-datepicker.es.min.js")"></script>
+
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+        var rowR = null;
+        var objMod = null;
+        var tableR = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+           // ObtenerSexos();
+            ObtenerPaises();
+            //ObtenerEstadoCivil();
+            //ObtenerProfesion();
+
+            //$("#txtCliente_B").focus();
+
+        }
+
+        $("#btnBuscar").click(function () {
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $("#file").val('');
+            $('#cmbPais').val(-1)
+            return false;
+        });
+
+
+        $('#btnGuardar').on('click', function () {
+
+
+            Utilidades.MostrarProgress();
+
+            var files = $("#file").get(0).files;
+
+            var formData = new FormData();
+            formData.append('file', files[0]);
+            formData.append('Id', $('#cmbPais').val());
+
+            if ($("#file").val().length > 0 && $('#cmbPais').val() != -1) {
+
+
+                $.ajax({
+                    url: '@Url.Action("CargaCodigoPostal", "CodigoPostal")',
+                    type: 'POST',
+                    cache: false,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+
+                            //$("#file").get(0).reset();
+                            $("#file").val('');
+                            $('#cmbPais').val(-1);
+                            $('#msj').text('');
+
+                            Utilidades.MostrarDialogo("Aviso", JSON.stringify(json.Respuesta.MensajeUsuario));
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            else
+            {
+
+                Utilidades.MostrarDialogoError("Requeridos", "Debe seleccionar el pais y agregar el archivo XML");
+                Utilidades.OcultarProgress();
+            }
+            return false;
+        });
+
+
+
+
+        function ObtenerPaises() {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerPaises", "CodigoPostal")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.Clave_Pais + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmbPais').html(items);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+
+
+        function ConsulaFecha() {
+            if ($('#cmbPais').val() != -1) {
+                $.ajax({
+                    url: '@Url.Action("ObtenerFecha", "CodigoPostal")',
+                    type: 'POST',
+                    cache: false,
+                    data: { pais: $('#cmbPais').val() },
+
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+
+                            $('#msj').text(JSON.stringify(json.Respuesta.MensajeUsuario));
+                        }
+                    },
+
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            else
+            {
+                $('#msj').text('');
+            }
+        }
+
+
+
+    </script>
+}

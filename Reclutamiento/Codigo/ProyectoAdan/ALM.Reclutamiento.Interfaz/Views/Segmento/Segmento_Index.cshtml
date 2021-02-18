@@ -1,0 +1,1050 @@
+﻿@{
+    ViewBag.Title = "Segmentos";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+<style>
+    .body-content {
+        width: 95% !important;
+    }
+
+    .modalAlto {
+        height: 95%;
+    }
+
+    .modalbody {
+        max-height: calc(90% - 120px);
+        overflow-y: scroll;
+    }
+        
+    .modalEliminarDeudor.modal-wide .modal-dialog {
+        width: 40% !important;
+    }
+</style>
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdSegmento", "0")
+
+<div id="divListado">
+    @Html.Partial("Segmento_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Segmento_Detalle", new ALM.Empresa.Entidades.ESegmento())
+    </form>
+</div>
+
+<div id="modalMapeo" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog modalAlto">
+        <!-- Modal content-->
+        <div class="modal-content modalAlto">
+            <div class="modal-header">
+                <h4 class="modal-title">Mapear Campos a Columnas</h4>
+            </div>
+            <div class="modal-body modalbody">
+                <div id="divSeleccionarMunicipio" style="width:100%">
+                    @Html.Partial("Segmento_Mapeo")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarMapeo" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEliminarDeudor" class="modal fade modal-wide modalEliminarDeudor" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Desactivar/Eliminar Deudores</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divEliminarDeudor" style="width:100%">
+                    <form name="eliminarDeudorForm" id="eliminarDeudorForm" method="post" novalidate="">
+                        @Html.Partial("Segmento_EliDeudor", new @ALM.Empresa.Entidades.ESegmento())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnEliminarDeudores" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Eliminar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+    var rowR = null;
+    var objMod = null;
+    var tableR = null;
+
+    $(document).ready(function () {
+        Inicializar();
+    });
+
+    function Inicializar() {
+
+        $('#myTable').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarSegmento();
+                        }
+                    }
+            ],
+            "columns": [
+                    {
+                        "data": "Cliente", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Cliente">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Cartera", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Cartera">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Segmento", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Segmento">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaString", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaString">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaUltimaModificacionString", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaUltimaModificacionString">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Archivo", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Archivo">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "EsActivo", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar EsActivo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+            ]
+        });
+        $('#myTable tbody').on('click', 'a.btnEditar', function () {
+            rowR = tableR.row($(this).parents('tr'));
+            objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+            if (this.name == "lnkDeudores" && objMod.DeudoresCargados == 0) {
+                Utilidades.MostrarConfirmacion('Aviso', 'Se cargarán los deudores desde el archivo de excel seleccionado, ¿Desea continuar?', CargarDeudoresSuccess, CargarDeudoresCancel);
+            }
+            else
+                if (this.name == "lnkDeudores" && objMod.DeudoresCargados > 0) {
+                    $('#modalEliminarDeudor').modal('show');
+                }
+                else {
+                    OcultarMostrarDiv(objMod);
+                }
+        });
+        FormatearCmbCarteraFiltro();
+        FormatearCmbClienteFiltro();
+    }
+
+    function FormatearCmbCarteraFiltro() {
+        $element = $('#cmbCarteraFiltro').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerCarteras", "Segmento")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+    }
+
+    function FormatearCmbClienteFiltro() {
+        $element = $('#cmbClienteFiltro').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerClientes", "Segmento")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+    }
+
+    $("#btnBuscar").click(function () {
+        Utilidades.MostrarProgress();
+        LlenarGrid();
+    });
+
+    $('#btnCancelar').on('click', function () {
+        //Limpiar controles
+        $('#hidIdSegmento').val("0");
+
+        $(".RutaLogo").val('');
+        var cloned = $(".RutaLogo").clone(true);
+        cloned.val("");
+        $(".RutaLogo").replaceWith(cloned);
+
+        $('#divDetalle').hide();
+        $('#divListado').show();
+
+        rowR = null;
+        objMod = null;
+
+        return false;
+    });
+
+
+    $('#btnGuardar').on('click', function () {
+        GuardarInformacionSegmento();
+        return false;
+    });
+
+
+    function GuardarInformacionSegmento() {
+        if ($("#userForm").data('unobtrusiveValidation').validate()) {
+            if ($('#hidIdSegmento').val() != '0') {
+                if (objMod == null || objMod.TotalRegistros == 0) {
+                    ActualizarSegmento();
+                }
+                else {
+                    if (objMod.EsActivo && !$('#chkActivo').is(":checked") && objMod.TotalRegistros != 0) {
+                        Utilidades.MostrarConfirmacion('Aviso', 'El segmento a desactivar ya tiene cargados los deudores del archivo de Excel asignado al mismo, ¿Desea continuar?', ActualizarSegmento, null);
+                    }
+                    else {
+                        ActualizarSegmento();
+                    }
+                }
+            }
+            else {
+                if ($("#userForm" + ' input[type="file"]')[0].files['0'] != null) {
+                    Utilidades.MostrarProgress();
+                    InsertarSegmento();
+                }
+                else {
+                    Utilidades.MostrarDialogoError("Aviso", "No ha seleccionado un archivo.");
+                }
+            }
+        }
+    }
+
+    function AgregarSegmento() {
+        objMod = null;
+        rowR = null;
+        OcultarMostrarDiv(null);
+    }
+
+    function OcultarMostrarDiv(data) {
+        if (data != null) {
+            $('#hidIdSegmento').val(data.IdSegmento);
+            $('#txtSegmento').val(data.Segmento);
+            $('#txtFecha').val(data.FechaString);
+            $('#txtArchivo').val(data.Archivo);
+            $('#cmbClienteCartera').val(data.IdCartera);
+            $('#chkActivo').prop('disabled', false);
+            $('#chkActivo').prop('checked', data.EsActivo);
+            $('.linkMapear').show();
+        }
+        else {
+            objMod = null;
+            $('#txtSegmento').val('');
+            $('#txtFecha').val(Utilidades.FormatoFecha(new Date()));
+            $('#txtArchivo').val('');
+            $('#cmbClienteCartera').val('');
+            $('#chkActivo').prop('disabled', true);
+            $('#chkActivo').prop('checked', true);
+            $('.linkMapear').hide();
+        }
+        $('#divDetalle').show();
+        $('#divListado').hide();
+
+        ConfiguracionCombo(data);
+
+        return false;
+    }
+
+    function LlenarGrid() {
+        tableR = $('#myTable').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtenerSegmentos", "Segmento")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { pIdCartera: $('#cmbCarteraFiltro').val(), pIdCliente: $("#cmbClienteFiltro").val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarSegmento();
+                        }
+                    }
+            ],
+            "columns": [
+                    {
+                        "data": "Cliente", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Cliente">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Cartera", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Cartera">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Segmento", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Segmento">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaString", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaString">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaUltimaModificacionString", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaUltimaModificacionString">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Archivo", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Archivo">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TotalRegistros", "autoWidth": true,
+                        "targets": 'no-sort',
+                        "bSortable": false,
+                        "render": function (data, type, row, meta) {
+                            return (row.DeudoresCargados == 0 && row.Mapeado > 0 ? ' <a href="#" class="ControlEditar btnEditar" name="lnkDeudores"> <img src="@Url.Content("~/Imagenes/ImportarDeudores.png")" id="imgDeudor" onmouseover="this.src=\'@Url.Content("~/Imagenes/ImportarDeudoresON.png")\'" onmouseout="this.src=\'@Url.Content("~/Imagenes/ImportarDeudores.png")\'"></img></a>' : row.DeudoresCargados > 0 && row.Mapeado > 0 ? ' <a href="#" class="ControlEditar btnEditar" name="lnkDeudores"> <img src="@Url.Content("~/Imagenes/DeudorEliminar.png")" id="imgDeudor" onmouseover="this.src=\'@Url.Content("~/Imagenes/DeudorEliminarON.png")\'" onmouseout="this.src=\'@Url.Content("~/Imagenes/DeudorEliminar.png")\'"></img></a>' : '')
+                        }
+                    }
+            ]
+        });
+    }
+
+    function ActualizarSegmento() {
+        Utilidades.MostrarProgress();
+
+        var formData = new FormData();
+        formData.append('pIdSegmento', $('#hidIdSegmento').val());
+        formData.append('pIdCartera', $('#cmbClienteCartera').val());
+        formData.append('pSegmento', $('#txtSegmento').val());
+        formData.append('pFecha', $('#txtFecha').val());
+        formData.append('pArchivo', $('#txtArchivo').val());
+        formData.append('pEsActivo', $('#chkActivo').is(":checked"));
+        formData.append('file', $("#userForm" + ' input[type="file"]')[0].files['0']);
+
+        $.ajax({
+            url: '@Url.Action("ActualizarSegmento", "Segmento")',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    if (objMod != null) {
+                        objMod.IdCartera = $('#cmbClienteCartera').val();
+                        objMod.Segmento = $('#txtSegmento').val();
+                        objMod.EsActivo = $('#chkActivo').is(":checked");
+                        if ($("#userForm" + ' input[type="file"]')[0].files['0'] != null) {
+                            $('#txtArchivo').val($("#userForm" + ' input[type="file"]')[0].files['0'].name);
+                            objMod.DeudoresCargados = 0;
+                            objMod.Mapeado = 0;
+                        }
+                        objMod.Archivo = $('#txtArchivo').val();
+                        $(".RutaLogo").val('');
+                        var cloned = $(".RutaLogo").clone(true);
+                        cloned.val("");
+                        $(".RutaLogo").replaceWith(cloned);
+                        tableR.row(rowR).data(objMod).draw(false);
+                    }
+                    else {
+                        if ($("#userForm" + ' input[type="file"]')[0].files['0'] != null) {
+                            $('#txtArchivo').val($("#userForm" + ' input[type="file"]')[0].files['0'].name);
+                        }
+                        $(".RutaLogo").val('');
+                        var cloned = $(".RutaLogo").clone(true);
+                        cloned.val("");
+                        $(".RutaLogo").replaceWith(cloned);
+                    }
+                    Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function InsertarSegmento() {
+        var formData = new FormData();
+        formData.append('pIdCartera', $('#cmbClienteCartera').val());
+        formData.append('pSegmento', $('#txtSegmento').val());
+        formData.append('pFecha', $('#txtFecha').val());
+        formData.append('pArchivo', $('#txtArchivo').val());
+        formData.append('pEsActivo', $('#chkActivo').is(":checked"));
+        formData.append('file', $("#userForm" + ' input[type="file"]')[0].files['0']);
+
+        $.ajax({
+            url: '@Url.Action("InsertarSegmento", "Segmento")',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    $('#hidIdSegmento').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                    if ($("#userForm" + ' input[type="file"]')[0].files['0'] != null) {
+                        $('#txtArchivo').val($("#userForm" + ' input[type="file"]')[0].files['0'].name);
+                    }
+                    $(".RutaLogo").val('');
+                    var cloned = $(".RutaLogo").clone(true);
+                    cloned.val("");
+                    $(".RutaLogo").replaceWith(cloned);
+                    $('.linkMapear').show();
+                    Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de segmentos.");
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function ConfiguracionCombo(datos) {
+        try {
+            $('#cmbClienteCartera').html('').select2({ data: { id: null, text: null } });
+        }
+        catch (e) { }
+        if (datos != null) {
+            $('#cmbClienteCartera').append("<option value='" + datos.IdCartera + "'>" + datos.Cliente + ' - ' + datos.Cartera + "</option>");
+        }
+
+        $element = $('#cmbClienteCartera').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerCarterasXNombre", "Segmento")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+        $('#cmbClienteCartera').focus();
+        $element.select2("open");
+    }
+
+    function filterMatcher(params, data) {
+        data.parentText = data.parentText || "";
+
+        // Always return the object if there is nothing to compare
+        if ($.trim(params.term) === '') {
+            return data;
+        }
+
+        // Do a recursive check for options with children
+        if (data.children && data.children.length > 0) {
+            // Clone the data object if there are children
+            // This is required as we modify the object to remove any non-matches
+            var match = $.extend(true, {}, data);
+
+            // Check each child of the option
+            for (var c = data.children.length - 1; c >= 0; c--) {
+                var child = data.children[c];
+                child.parentText += data.parentText + " " + data.text;
+
+                var matches = filterMatcher(params, child);
+
+                // If there wasn't a match, remove the object in the array
+                if (matches == null) {
+                    match.children.splice(c, 1);
+                }
+            }
+
+            // If any children matched, return the new object
+            if (match.children.length > 0) {
+                return match;
+            }
+
+            // If there were no matching children, check just the plain object
+            return filterMatcher(params, match);
+        }
+
+        // If the typed-in term matches the text of this term, or the text from any
+        // parent term, then it's a match.
+        var original = (data.parentText + ' ' + data.text).toUpperCase();
+        var term = params.term.toUpperCase();
+
+
+        // Check if the text contains the term
+        if (original.indexOf(term) > -1) {
+            return data;
+        }
+
+        return null;
+    }
+
+    $(".linkMapear").click(function () {
+        $('#modalMapeo').modal('show');
+    });
+
+    $('#modalMapeo').on('shown.bs.modal', function () {
+        Utilidades.MostrarProgressPopUp();
+        PrepararCombosMapeo();
+    });
+
+    function PrepararCombosMapeo() {
+        var enable = true;
+        $("#btnGuardarMapeo").show();
+
+        for (var i = 1; i <= 38; i++) {
+            try {
+                $('#cmb' + i.toString()).html('').select2({ data: { id: null, text: null } });
+            }
+            catch (e) { }
+        }
+
+        $.ajax({
+            url: '@Url.Action("ObtenerColumnasSegmento", "Segmento")',
+            type: 'POST',
+            cache: false,
+            data: { idSegmento: $('#hidIdSegmento').val() },
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                var defaultValue = -1;
+
+                if (codigoRegreso == codigoCorrecto) {
+                    var lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                    for (var i = 1; i <= 35; i++) {
+                        $('#cmb' + i.toString()).select2({
+                            language: "es",
+                            placeholder: "Selecciona una opción",
+                            matcher: filterMatcher,
+                            allowClear: true,
+                            data: lstCatalogos[0]
+                        });
+                        defaultValue = -1;
+                        $.map(lstCatalogos[1], function (mapeo, index) {
+                            if (mapeo.IdColumnaDefaultSegmento == i) {
+                                defaultValue = mapeo.IdColumnaSegmento;
+                            }
+                        });
+                        $('#cmb' + i.toString()).val(defaultValue);
+                        $('#cmb' + i.toString()).trigger('change');
+                        $('#cmb' + i.toString()).prop("disabled", !enable);
+                    }
+                    Utilidades.OcultarProgressPopUp();
+                }
+                else {
+                    Utilidades.ErrorAjaxControladoPopUp(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjaxPopUp(xhr);
+            }
+        });
+    }
+
+    $("#btnGuardarMapeo").click(function () {
+        if ($('#cmb1').val() == null || $('#cmb1').val() == '' || $('#cmb1').val() == '-1') {
+            Utilidades.MostrarDialogoError("Aviso", "No ha mapeado el campo \"Crédito\".");
+            return;
+        }
+        if ($('#cmb2').val() == null || $('#cmb2').val() == '' || $('#cmb2').val() == '-1') {
+            Utilidades.MostrarDialogoError("Aviso", "No ha mapeado el campo \"Nombre\".");
+            return;
+        }
+        if ($('#cmb14').val() == null || $('#cmb14').val() == '' || $('#cmb14').val() == '-1') {
+            Utilidades.MostrarDialogoError("Aviso", "No ha mapeado el campo \"Importe Deuda\".");
+            return;
+        }
+        if (($('#cmb4').val() == null || $('#cmb4').val() == '' || $('#cmb4').val() == '-1') && //calle
+            ($('#cmb6').val() == null || $('#cmb6').val() == '' || $('#cmb6').val() == '-1') && //colonia
+            ($('#cmb9').val() == null || $('#cmb9').val() == '' || $('#cmb9').val() == '-1')) { // telefono
+            Utilidades.MostrarDialogoError("Aviso", "No ha mapeado el campo \"Teléfono fijo\".");
+            return;
+        }
+        if (($('#cmb9').val() == null || $('#cmb9').val() == '' || $('#cmb9').val() == '-1') && // telefono
+            (
+                ($('#cmb4').val() == null || $('#cmb4').val() == '' || $('#cmb4').val() == '-1') || //calle
+                ($('#cmb6').val() == null || $('#cmb6').val() == '' || $('#cmb6').val() == '-1')    //colonia
+            )) {
+            Utilidades.MostrarDialogoError("Aviso", "Los campos \"Colonia\" y \"Calle Número\" son obligatorios.");
+            return;
+        }
+        var arrayFiltros = [];
+        var objeto = null;
+        for (var i = 1; i <= 35; i++) {
+            objeto = new Object();
+            objeto.IdSegmento = $('#hidIdSegmento').val();
+            objeto.IdColumnaDefaultSegmento = i;
+            objeto.IdColumnaSegmento = $('#cmb' + i.toString()).val();
+            arrayFiltros.push(objeto);
+        }
+        Utilidades.MostrarProgressPopUp();
+        $.ajax({
+            url: '@Url.Action("InsertarMapeoSegmento", "Segmento")',
+            type: 'POST',
+            cache: false,
+            data: { lst: arrayFiltros },
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgressPopUp();
+                    if (objMod != null) {
+                        objMod.Mapeado = 1;
+                        tableR.row(rowR).data(objMod).draw(false);
+                    }
+                    Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                }
+                else {
+                    Utilidades.OcultarProgressPopUp();
+                    Utilidades.ErrorAjaxControladoPopUp(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.OcultarProgressPopUp();
+                Utilidades.ErrorAjaxPopUp(xhr);
+            }
+        });
+    });
+
+    function CargarDeudoresSuccess() {
+        Utilidades.MostrarProgress();
+        $.ajax({
+            url: '@Url.Action("CargarDeudores", "Segmento")',
+                type: 'POST',
+                cache: false,
+                data: { idSegmento: objMod.IdSegmento, segmento: objMod.Segmento, archivo: objMod.Archivo },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+                            var totalDeudores = json.Respuesta.RespuestaInformacion.Data.Info[0];
+                            var totalErrores = json.Respuesta.RespuestaInformacion.Data.Info[1];
+                            var totalesCorrectos = totalDeudores - totalErrores;
+                            objMod.TotalRegistros = totalesCorrectos;
+                            objMod.DeudoresCargados = 1;
+                            tableR.row(rowR).data(objMod).draw(false);
+
+                            if (totalDeudores > 0 && totalErrores == 0) {
+                                Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                            }
+                            else
+                                if (totalesCorrectos > 0 && totalErrores > 0) {
+                                    Utilidades.MostrarDialogoError("Aviso", "Se obtuvo información de deudores, sin embargo hubo algunos registros que no se pudieron cargar a base de datos.");
+                                }
+                                else
+                                    if (totalDeudores > 0 && totalErrores == totalDeudores) {
+                                        Utilidades.MostrarDialogoError("Aviso", "No se cargo ningún registro del archivo a base de datos.");
+                                    }
+                                    else
+                                        if (totalDeudores == 0) {
+                                            Utilidades.MostrarDialogoError("Aviso", "No se obtuvo información de deudores del archivo.");
+                                        }
+
+                            objMod = null;
+                            rowR = null;
+                        }
+                    } else {
+                        objMod = null;
+                        rowR = null;
+                        Utilidades.OcultarProgress();
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    objMod = null;
+                    rowR = null;
+                    Utilidades.OcultarProgress();
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function CargarDeudoresCancel() {
+            objMod = null;
+            rowR = null;
+        }
+
+        $('#modalEliminarDeudor').on('shown.bs.modal', function () {
+            $(".EliminarDeudores").val('');
+            var cloned = $(".EliminarDeudores").clone(true);
+            cloned.val("");
+            $(".EliminarDeudores").replaceWith(cloned);
+            $('#chkEliminar').prop('checked', true);
+        });
+
+        $('#modalEliminarDeudor').on('hidden.bs.modal', function () {
+            objMod = null;
+            rowR = null;
+        });
+
+        $("#btnEliminarDeudores").click(function () {
+            if ($("#eliminarDeudorForm").data('unobtrusiveValidation').validate()) {
+                if ($('#chkEliminar').is(":checked")) {
+                    Utilidades.MostrarConfirmacion('Aviso', 'Solo se desactivaran los deudores, de acuerdo a la información contenida del archivo de excel seleccionado, ¿Desea continuar?', EliminarInformacionDeudores, CancelarEliminarInformacionDeudores);
+                }
+                else {
+                    Utilidades.MostrarConfirmacion('Aviso', 'Se eliminaran los deudores, de acuerdo a la información contenida del archivo de excel seleccionado, ¿Desea continuar?', EliminarInformacionDeudores, CancelarEliminarInformacionDeudores);
+                }
+            }
+        });
+
+        function CancelarEliminarInformacionDeudores() {
+            objMod = null;
+            rowR = null;
+            Utilidades.OcultarProgressPopUp();
+            $(".EliminarDeudores").val('');
+            var cloned = $(".EliminarDeudores").clone(true);
+            cloned.val("");
+            $(".EliminarDeudores").replaceWith(cloned);
+            $('#modalEliminarDeudor').modal('hide');
+        }
+
+        function EliminarInformacionDeudores() {
+            Utilidades.MostrarProgressPopUp();
+
+            var formData = new FormData();
+            formData.append('pIdSegmento', objMod.IdSegmento);
+            formData.append('pEliminar', !$('#chkEliminar').is(":checked"));
+            formData.append('file', $("#eliminarDeudorForm" + ' input[type="file"]')[0].files['0']);
+
+            $.ajax({
+                url: '@Url.Action("EliminarInformacionDeudores", "Segmento")',
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgressPopUp();
+                        if (objMod != null) {
+                            objMod.DeudoresCargados = json.Respuesta.RespuestaInformacion.Data.Info;
+                            tableR.row(rowR).data(objMod).draw(false);
+                        }
+                        if ($('#chkEliminar').is(":checked")) {
+                            Utilidades.MostrarDialogo("Aviso", "Registros de deudores desactivados exitosamente.", true);
+                        }
+                        else {
+                            Utilidades.MostrarDialogo("Aviso", "Registros de deudores eliminados exitosamente.", true);
+                        }                        
+                    }
+                    else {
+                        Utilidades.OcultarProgressPopUp();
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.OcultarProgressPopUp();
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,31 @@
+﻿<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblNombre" id="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre del rol</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtNombreRol_B" class="form-control inputColumn inputpe tamLetra bookTipografia" name=" txtnombre" />
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscarAgregar">
+            <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+        </button>
+    </div>
+</div>
+
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable" id="myTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width: 80%;">Nombre</th>
+                    <th>Es Activo</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>

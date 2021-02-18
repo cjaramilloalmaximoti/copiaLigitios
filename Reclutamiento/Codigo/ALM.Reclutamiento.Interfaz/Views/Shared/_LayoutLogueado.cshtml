@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+@if (User.Identity.IsAuthenticated && @HttpContext.Current.Session.Contents.Count > 0)
+{
+    using (Html.BeginForm("CerrarSesion", "Inicio", FormMethod.Post, new { id = "logoutForm", @class = "nav navbar-nav" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div id="navbar" class="navbar-collapse collapse navbar-right">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <img class="LogoUserLog" src="~/Imagenes/UserLog.png" />
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>@Html.Label(@HttpContext.Current.Session["NombreCompleto"].ToString(), htmlAttributes: new { @class = "labelMenuNombreCompleto boldTipografia", id = "lblNombreCompletoHead" })</li>
+                        <li><label id="lblCorreoHead" class="labelMenuCorreo bookTipografia">@HttpContext.Current.Session["CorreoElectronico"].ToString()</label></li>
+                        <li role="separator" class="divider"></li>
+                        <li>@Html.ActionLink("Cambiar contraseña", "CambiarContrasenia", "Usuario", routeValues: null, htmlAttributes: new { id = "lnkCambiarContrasenia", @class = "linkMenu bookTipografia" })</li>
+                        <li>@Html.ActionLink("Cerrar sesión", "CerrarSesion", "Inicio", routeValues: null, htmlAttributes: new { id = "lnkCerrarSesion", @class = "linkMenu bookTipografia" })</li>
+                    </ul>
+                </li>
+            </ul>
+            <br class="esconderSalto" />
+            <ul id="navbar-dinamico" class="nav navbar-nav navbar-right"></ul>
+        </div>
+    }
+}

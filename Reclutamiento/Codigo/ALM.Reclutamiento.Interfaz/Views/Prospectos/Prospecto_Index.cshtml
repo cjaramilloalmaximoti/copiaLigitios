@@ -1,0 +1,2959 @@
+﻿@{
+    ViewBag.Title = "Prospectos";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+<style>
+    .modalAlto {
+        height: 95%;
+    }
+
+    .modalbody {
+        height: calc(90% - 120px);
+        overflow-y: scroll;
+    }
+
+    .row.no-gutter {
+        margin-left: 0;
+        margin-right: 0;
+    }
+        /*FSALAZAR 06/08/2019 REQ03042019 INI: Se hacen los ajustes necesarios para el modal que muestra de manera dinamica las  características y sus tipos de control*/
+        .row.no-gutter [class*='col-']:not(:first-child),
+        .row.no-gutter [class*='col-']:not(:last-child) {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+    .modal-lg {
+        min-width: 80%;
+    }
+    /*FSALAZAR 06/08/2019 REQ03042019 FIN */
+
+
+</style>
+
+
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-datetimepicker.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/CheckBox.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/font-awesome.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdProspecto", "0")
+@Html.Hidden("hidIdSexo", "0")
+@Html.Hidden("hidIdCiudad", "0")
+@Html.Hidden("hidIdEstadoCivil", "0")
+
+@Html.Hidden("hidIdProspectoDocumento", "0")
+@Html.Hidden("hidIdReferencia", "0")
+@Html.Hidden("hidIdBitacora", "0")
+@Html.Hidden("hidIdCaracteristica", "0")
+@Html.Hidden("txtUltimaFecha", "")
+
+<div id="divListado">
+    @Html.Partial("Prospecto_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Prospecto_Detalle", new ALM.Reclutamiento.Entidades.EProspecto())
+    </form>
+    <div id="divAcordeon">
+        @Html.Partial("~/Views/Shared/Acordeon_Listado.cshtml")
+    </div>
+</div>
+
+<div id="modalSeleccionarDireccion" class="modal fade modal-wide" role="dialog">
+    <form name="userFormDireccion" id="userFormDireccion" method="post" novalidate="">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Seleccionar Ciudad</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divSeleccionarDireccion" style="width:100%">
+                        @Html.Partial("~/Views/Shared/Ciudad.cshtml")
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="clear:both; text-align:right; width:98%">
+                        <button type="button" value="Guardar" id="btnGuardarDireccion" name="Guardar" class="btnGuardar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                        </button>
+                        <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+    <script src="@Url.Content("~/scripts/Acordeon_Caracteristicas.js?v=1.5")"></script>
+
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+    var rowR = null;
+    var objMod = null;
+    var objRef = null;
+    var tableR = null;
+    var listaSeleccionados = [];
+
+        const ColIniciales =
+            [
+                {
+                    title: 'Nombre', "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<input type="checkbox" id="cbx' + data + '" name="cbx' + data + '" onclick="AgregarALista('+data+');" value="' + data +'">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Nombre', "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Dirección', "data": "CiudadEstado", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    } },
+                {
+                    title: 'Fecha Nac', "data": "FechaNacimiento", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }, {
+                    title: 'Edad', "data": "Edad", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'EsActivo', "data": "Estatus", "autoWidth": false,
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    } }
+            ];
+    $(document).ready(function () {
+        Utilidades.MostrarProgress();
+
+        $('#fileFoto').hide();
+        $('#divProspectos').hide();
+        Inicializar();
+
+        //FSALAZAR 03/04/2019 REQ03042019 INI: Se crea la petición al servidor para cargar las características particulares
+        var getCaracteristicas;
+        obtenerCaracteristicasEspeciales();
+         //Integer Number
+        $(document).on("input", ".int-number", function (e) {
+          this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        //Decimal Number
+        $(document).on("input", ".decimal-number", function (e) {
+            this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+        });
+
+         $(document).on("focusout", ".decimal-number", function (e) {
+
+             if (this.value != "")
+             {
+                 this.value = parseFloat(this.value).toFixed(2);
+             }
+
+         });
+
+
+        $('#ModalCP').on('hidden.bs.modal', function () {
+
+            var contadorElementosSeleccionados = 0;
+
+            jQuery.each($("#caracteristicaParticular input"), function (item, filtro) {
+
+                if ($("#" + filtro.id).prop("checked"))
+                {
+                    contadorElementosSeleccionados++;
+                }
+
+            });
+
+
+            if (contadorElementosSeleccionados == 0)
+            {
+                $("#FiltroAvanzado").hide();
+            }
+            else
+            {
+                $("#FiltroAvanzado").show();
+            }
+
+
+        })
+
+
+          $(document).on("click", "#limpiarTodos", function (e) {
+
+           jQuery.each($("#caracteristicaParticular input"), function (item, filtro) {
+
+               $("#" + filtro.id).prop("checked",false);
+
+            });
+
+         });
+
+
+        //FSALAZAR 03/04/2019 REQ03042019 FIN
+
+        //Validar introducir solo numeros
+        $('#txtTelefonoMovil').keydown(function (event) {
+            if (event.keyCode == 46 || event.keyCode == 8) {
+            }
+            else {
+                if (event.keyCode < 95) {
+                    if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+                else {
+                    if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+
+        //Validar introducir solo numeros
+        $('#txtTelefonoOtro').keydown(function (event) {
+            if (event.keyCode == 46 || event.keyCode == 8) {
+            }
+            else {
+                if (event.keyCode < 95) {
+                    if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+                else {
+                    if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+
+        //Validar introducir solo numeros
+        $('#txtContacto_Telefono').keydown(function (event) {
+            if (event.keyCode == 46 || event.keyCode == 8) {
+            }
+            else {
+                if (event.keyCode < 95) {
+                    if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+                else {
+                    if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+
+        items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+        $('#cmbPais').html(items);
+        $('#cmbEstado').html(items);
+        $('#cmbCiudad').html(items);
+        $('#cmbColonia').html(items);
+
+        cargarPaises();
+        Utilidades.OcultarProgress();
+    });
+    function Inicializar() {
+        InicializarControles_AcordCarac('@Url.Action("Reemplazar", "AcordeonCaracteristicas")'.replace('Reemplazar', ''));
+
+        Origen_AcordCarac = 'Prospecto';
+        ObtenerCatalogos('Generos');
+        ObtenerCatalogos('EstadoCivil');
+        ObtenerCatalogos('Escolaridad');
+
+        $("#txtProspecto_B").focus();
+
+        $.fn.datepicker.defaults.format = "dd/m/yyyy";
+        $('#txtFechaNacimiento').datetimepicker({
+            locale: 'es',
+            date: new Date(),
+            format: 'dd/MM/yyyy'.toUpperCase()
+        });
+        $('#txtFechaContacto').datetimepicker({
+            locale: 'es',
+            date: new Date(),
+            format: 'dd/MM/yyyy'.toUpperCase()
+        });
+
+        //FSALAZAR 03/04/2019 REQ03042019 INI: Corrección del formato de fecha en el datetimepicker
+        $(function () {
+            $.validator.methods.date = function (value, element) {
+                return this.optional(element) || moment(value, "DD/MM/YYYY", true).isValid();
+            };
+        });
+        //FSALAZAR 03/04/2019 REQ03042019 FIN
+
+        tableR = $('#myTable').dataTable({
+
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarProspecto();
+                        }
+                },
+                {
+                        'text': '<img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" style="max-width: 25px;max-height: 15px;" /> Mostrar seleccionados',
+                        'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        MostrarLista();
+                        }
+                    }
+            ],
+            "columns": ColIniciales
+        });
+        domTable = document.getElementById('myTable');
+        fnDestroy = true;
+        $('#myTable tbody').on('click', 'a.btnEditar', function () {
+            rowR = tableR.row($(this).parents('tr'));
+            objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+            OcultarMostrarDiv(objMod);
+        });
+
+        $('#myTableDocumentos1').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarDocumento();
+                    }
+                }
+            ],
+            "columns":
+            [
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" }
+            ]
+        });
+        $('#myTableDocumentos').hide();
+
+        $('#myTableCaracteristicas').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarCaracteristicas();
+                    }
+                }
+            ],
+            "columns":
+            [
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" }
+            ]
+        });
+
+
+        $('#myTableCaracteristicas tbody').on('click', 'a.btnEditar', function () {
+            MostrarDetalleElementoSeleccionado_AcordCarac($('#myTableCaracteristicas').DataTable().row($(this).parents('tr')).data());
+        });
+
+        $('#myTableReferenciaLaboral').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarReferenciaLaboral();
+                    }
+                }
+            ],
+            "columns":
+            [
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" }
+            ]
+        });
+
+        $('#myTableReferenciaLaboral tbody').on('click', 'a.btnEditar', function () {
+            rowR = tableR.row($(this).parents('tr'));
+            objRef = $('#myTableReferenciaLaboral').DataTable().row($(this).parents('tr')).data();
+
+            MostrarOcultarReferenciaLaboral(objRef);
+        });
+
+        $('#myTableBitacora').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarBitacora();
+                    }
+                }
+            ],
+            "columns":
+            [
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" }
+            ]
+        });
+        }
+
+
+
+    $("#btnBuscar").click(function () {
+        Utilidades.MostrarProgress();
+        //LlenarGrid();
+        buscarProspectos();
+    });
+
+
+    $('#btnCancelar').on('click', function () {
+        //Limpiar controles
+        $('#hidIdProspecto').val("0");
+        IdOrigen_AcordCarac = 0;
+
+        $('#divDetalle').hide();
+        $('#divListado').show();
+
+        rowR = null;
+        objMod = null;
+
+        return false;
+    });
+
+    $('#btnGuardar').on('click', function () {
+        GuardarInformacionProspecto();
+        buscarProspectos();
+        return false;
+        });
+    //FSALAZAR 04/04/2019 REQ03042019 INI: Se inicializa el datetimepicker de manera dinámica
+    $('body').on('click', "#CalendarioControl", function () {
+
+            $('#TipoControlCaracteristica').datetimepicker({
+                locale: 'es',
+                format: 'dd/MM/yyyy'.toUpperCase()
+            });
+
+            $('#TipoControlCaracteristica').data("DateTimePicker").show();
+        });
+    //FSALAZAR 04/04/2019 REQ03042019 FIN
+
+    function ValidaRfc(rfcStr) {
+        var valid;
+        var strCorrecta = rfcStr;
+        if (rfcStr.length == 12) {
+            //strCorrecta = ' ' + rfcStr;
+            valid = '^(([A-Z]|[a-z]){3})([0-9]{6})((([A-Z]|[a-z]|[0-9]){3}))';
+        }
+        else {
+            //strCorrecta = rfcStr;
+            valid = '^(([A-Z]|[a-z]|\s){1})(([A-Z]|[a-z]){3})([0-9]{6})((([A-Z]|[a-z]|[0-9]){3}))';
+        }
+        var validRfc = new RegExp(valid);
+        var matchArray = strCorrecta.match(validRfc);
+        if (matchArray == null) {
+            //alert('Cadena:' + strCorrecta);
+            Utilidades.MostrarDialogoError("Aviso", "RFC incorrecto.");
+            return false;
+        }
+        else {
+            //alert('Cadena:' + strCorrecta);
+            return true;
+        }
+    }
+
+    function ValidarTelefono(telefono) {
+        var tel = telefono;
+
+        if (tel.length == 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function ObtenerCatalogos(catalogo) {
+        var items = null;
+        items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+        $.ajax({
+            url: '@Url.Action("ObtenerCatalogos", "Prospectos")',
+            type: 'POST',
+            cache: false,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                    if (lstCatalogosTemp != null) {
+
+                        $.each(lstCatalogosTemp, function (i, catalogo) {
+                            items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                        });
+                    }
+                    $('#cmb' + catalogo).html(items);
+                    if (catalogo === 'Generos') {
+                        $('#FiltroGenero').html(items);
+                    }
+                    if (catalogo === 'Escolaridad') {
+                        $('#FiltroEscolaridad').html(items);
+                    }
+                }
+            },
+            data: {
+                catalogo: catalogo
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+        function GuardarInformacionProspecto() {
+            debugger;
+            if ($('#txtRFC').val() !== "") {
+                if (!ValidaRfc($('#txtRFC').val())) {
+                    Utilidades.MostrarDialogoError("Aviso", "Formato de RFC incorrecto.");
+                }
+            }
+            if ($('#txtTelefonoMovil').val() !== "") {
+                if (!ValidarTelefono($('#txtTelefonoMovil').val())) {
+                    Utilidades.MostrarDialogoError("Aviso", "El telefono movil debe tener 10 digitos.");
+                }
+            }
+
+            if ($('#txtTelefonoOtro').val() !== "") {
+                if (!ValidarTelefono($('#txtTelefonoOtro').val())) {
+                    Utilidades.MostrarDialogoError("Aviso", "El otro telefono debe tener 10 digitos.");
+                }
+            }
+            Utilidades.MostrarProgress();
+            if ($('#hidIdProspecto').val() != '0') {
+                ActualizarProspecto();
+            }
+            else {
+                InsertarProspecto();
+            }
+        }
+
+    function AgregarProspecto() {
+        objMod = null;
+        rowR = null;
+        OcultarMostrarDiv(null);
+    }
+
+    function OcultarMostrarDiv(data) {
+        if (data != null) {
+            $('#hidIdProspecto').val(data.IdProspecto);
+            IdOrigen_AcordCarac = data.IdProspecto;
+            $('#txtNombre').val(data.Nombre);
+            $('#txtApellidos').val(data.Apellidos);
+            $('#txtFechaNacimiento').val(Utilidades.FormatearFechaMilisegundosString(data.FechaNacimiento));
+            $('#txtRFC').val(data.RFC);
+            $('#txtEmail').val(data.Email);
+            $('#txtTelefonoMovil').val(data.TelefonoMovil);
+            $('#txtTelefonoOtro').val(data.TelefonoOtro);
+            $('#cmbGeneros').val(data.IdSexo);
+            $('#hidClave').val(data.IdSexo);
+            $('#cmbGeneros').val(data.IdSexo);
+            $('#txtDireccion').val(data.Direccion);
+            $('#txtSalario').val(data.Salario);
+            $('#txtSalarioFinal').val(data.SalarioFinal);
+            $('#cmbCiudad').val(data.IdCiudad);
+            $('#cmbEstadoCivil').val(data.IdEstadoCivil);
+            $('#cmbEscolaridad').val(data.IdEscolaridad);
+            $('#txtComentario').val(data.Comentario);
+            $('#chkActivo').prop('disabled', false);
+            $('#chkActivo').prop('checked', data.Estatus);
+            $('#hidCp').val(data.CP);
+            $('#hidClaveColonia').val(data.Clave_Colonia);
+            $('#txtCP').val(data.CP);
+
+            if (data.Calle === "") {
+                $('#txtDireccionSeleccionada').val("");
+            } else {
+                $('#txtDireccionSeleccionada').val(data.Calle);
+            }
+
+
+
+            $('#txtFechaContacto').val(Utilidades.FormatearFechaMilisegundosString(data.FechaContacto));
+            $('#txtUltimaFecha').val(Utilidades.FormatearFechaMilisegundosString(data.FechaContacto));
+            $('#cmbNivelIngles').val(data.NivelIngles);
+
+
+            if (data.Foto) {
+                $('#imgFoto').attr('src', "../Documentos/Empresa" + @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.IdEmpresa + "/Prospecto/Foto/" + data.Foto);
+            } else {
+                $('#imgFoto').attr('src', "../imagenes/cargar.png");
+            }
+
+            $('#fileFoto').show();
+
+            buscarCP(data.CP);
+        }
+        else {
+            objMod = null;
+
+            $('#hidIdProspecto').val('0');
+            IdOrigen_AcordCarac = 0;
+            $('#txtNombre').val('');
+            $('#txtApellidos').val('');
+            $('#txtFechaNacimiento').data("DateTimePicker").date(new Date());
+            $('#txtFechaNacimiento').val("");
+            $('#txtFechaContacto').data("DateTimePicker").date(new Date());
+            $('#txtFechaContacto').val('');
+            $('#txtRFC').val('');;
+            $('#txtEmail').val('');;
+            $('#txtTelefonoMovil').val('');
+            $('#txtTelefonoOtro').val('');
+            $('#cmbGeneros').val('-1');
+            $('#txtDireccion').val('');
+            $('#txtSalario').val('');
+            $('#txtSalarioFinal').val('');
+            $('#cmbCiudad').val('-1');
+            $('#cmbEstadoCivil').val('-1');
+            $('#cmbEscolaridad').val('-1');
+            $('#txtComentario').val('');
+            $('#chkActivo').prop('disabled', true);
+            $('#chkActivo').prop('checked', true);
+            $('#hidCp').val('0');
+            $('#hidClaveColonia').val('0');
+            $('#txtCP').val('0');
+            $('#txtDireccionSeleccionada').val('0');
+            $('#cmbNivelIngles').val('-1');
+
+            $('#cmbPais').val('-1');
+            $('#cmbEstado').val('-1');
+            $('#cmbCiudad').val('-1');
+            $('#cmbColonia').val('-1');
+            $('#txtCP').val('');
+            $('#txtDireccion').val('');
+
+            $('#imgFoto').attr('src', "../imagenes/cargar.png");
+
+            $('#txtCP').focus();
+        }
+
+        if ($('#hidIdProspecto').val() == "0") {
+            $('#accordion').hide();
+            $('#accordion2').show();
+        } else {
+            $('#accordion').show();
+            $('#accordion2').hide();
+
+
+            ObtenerGrid_AcordCarac();
+            agregarListaDocumento();
+            agregarListaReferencia();
+            agregarListaBitacora();
+             Utilidades.OcultarProgress();
+        }
+        banBit = 0;
+        banCar = 0;
+        banRef = 0;
+        banDoc = 0;
+        cambiarIcono();
+        $('.panel-collapse.in').collapse('hide');
+
+        $('#divDetalle').show();
+        $('#divListado').hide();
+
+        $('#txtNombre').focus();
+
+        return false;
+    }
+
+    function buscarProspectoAgregado() {
+        var resultado = null;
+
+        resultado = $.ajax({
+            url: '@Url.Action("ObtenerProspectoId", "Prospectos")',
+            type: 'POST',
+            cache: false,
+            data: { Id: $('#hidIdProspecto').val() },
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.inseCodigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    resultado = json.Respuesta.RespuestaInformacion.Data.Info;
+                    LlenarGrid(resultado);
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    //FSALAZAR 03/04/2019 REQ03042019 INI: Se crea la petición al servidor para cargar las características particulares
+    function obtenerCaracteristicasEspeciales()
+    {
+        var paramsCaracteristicas = {
+            caracteristica: {
+                Nombre: null,
+                intEsActivo: 1,
+                Aprobada: 1
+            },
+            masFiltros: ""
+        };
+
+        var getControl;
+
+
+        $.ajax({
+            url: "@Url.Action("obtenerCaracteristicas", "Caracteristicas")",
+            type: "POST",
+            datatype: "json",
+            cache: false,
+            data: paramsCaracteristicas,
+            success: function (json)
+            {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto)
+                {
+                    Utilidades.OcultarProgress();
+                    getCaracteristicas = json.Respuesta.RespuestaInformacion.Data.Info;
+
+                    jQuery.each(getCaracteristicas, function (i, item)
+                    {
+
+
+
+                        $("#caracteristicaParticular").append('<div><div class="checkboxBootstrap" style="height: 30px; margin-top:5px;"> <label><input type="checkbox" IdCaracteristicaValor="' + item.IdCaracteristica + '"  class="form-control inputColumn cajaTexto tamLetra bookTipografia" name="idCaracteristica' + item.IdCaracteristica + '" id="idCaracteristica' + item.IdCaracteristica + '" onclick="habilitarCaracteristicaParticular(' + item.IdCaracteristica +');" /><span class="cr"><i class="cr-icon fa fa-check"></i></span>' + item.Nombre + '</label></div>' );
+
+
+                        getControl = GenerarControlCaracteristica(item.IdCaracteristica);
+
+                        if (getControl != null) {
+                            $("#ElementoTipoControl").append(getControl);
+                        }
+
+
+                    });
+                }
+                else
+                {
+                    Utilidades.ErrorAjaxControlado(json);
+                    getCaracteristicas = null; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                }
+            },
+            error: function (json)
+            {
+                Utilidades.ErrorAjax(json);
+                return "";
+
+            }
+        });
+
+    }
+
+    function GenerarControlCaracteristica(idCaracteristica)
+    {
+        var control = null;
+        var span = null;
+        var input = null;
+        var spanMensaje = null;
+        var controlInterno = null;
+        var filtro = null;
+
+        if (getCaracteristicas != null)
+        {
+
+            jQuery.each(getCaracteristicas, function (i, filtro) {
+
+                if (filtro.IdCaracteristica == idCaracteristica)
+                {
+                    switch (filtro.TipoControl) {
+                        case "Fecha":
+                            control = $('<div class="row no-gutter"></div>');
+                            controlInterno = $('<div class="input-group"></div>');
+                            span = $('<div class="col-sm-2"><span class="input-group-addon" style="height:35px;"><i class="fa fa-calendar"></i></span></div>');
+                            input = $('<div class="col-sm-5"><input disabled="disabled" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '_Inicio" tipocontrol="' + filtro.TipoControl + '" class="form-control inputColumn cajaTexto tamLetra bookTipografia datetimepickerZIndex" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'_Inicio" type="text" placeholder="Inicio: ' + filtro.Formato.toLowerCase() + '" data-format="' + filtro.Formato.toLowerCase().replace('mmmm', 'MM') + '" ' + '></div>');
+                            input2 = $('<div class="col-sm-5"><input disabled="disabled" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '_Fin" tipocontrol="' + filtro.TipoControl + '" class="form-control inputColumn cajaTexto tamLetra bookTipografia datetimepickerZIndex" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'_Fin" type="text" placeholder="Fin: ' + filtro.Formato.toLowerCase() + '" data-format="' + filtro.Formato.toLowerCase().replace('mmmm', 'MM') + '" ' + '></div>');
+                            spanMensaje = $('<span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="' + filtro.Nombre + '"></span>')
+                            controlInterno.append(span);
+                            controlInterno.append(input);
+                            controlInterno.append(input2);
+                            control.append(controlInterno);
+                            control.append(spanMensaje);
+
+
+                            break;
+                        case "Dicotómico":
+                            control = $('<div class="checkboxBootstrap" style="height: 30px; margin-top: 5px;"></div>');
+                            var label = $('<label></label>');
+                            input = $('<input disabled="disabled" type="checkbox" tipocontrol="' + filtro.TipoControl + '"  class="form-control inputColumn cajaTexto tamLetra bookTipografia" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'"  />');
+                            span = $('<span class="cr"><i class="cr-icon fa fa-check"></i></span>');
+                            label.append(input);
+                            label.append(span);
+                            control.append(label);
+                            break;
+                        case "Entero":
+
+                            control = $('<div class="row"></div>');
+                            input = $('<div class="col-sm-6"><input  placeholder="Valor Inicial" disabled="disabled" type="text" tipocontrol="' + filtro.TipoControl + '" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '_Inicio" class="form-control inputColumn cajaTexto tamLetra bookTipografia int-number" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'_Inicio" data-val="true" data-val-regex-pattern="-?\\d+' + (filtro.NumeroDecimales && filtro.NumeroDecimales > 0 ? "(\\.\\d{1," + filtro.NumeroDecimales.toString() + "})?" : "") + '" data-val-regex="Formato incorrecto" ' + ' value=""></div>');
+                            input2 = $('<div class="col-sm-6"><input placeholder="Valor Final" disabled="disabled" type="text" tipocontrol="' + filtro.TipoControl + '" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '_Fin" class="form-control inputColumn cajaTexto tamLetra bookTipografia int-number" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'_Fin" data-val="true" data-val-regex-pattern="-?\\d+' + (filtro.NumeroDecimales && filtro.NumeroDecimales > 0 ? "(\\.\\d{1," + filtro.NumeroDecimales.toString() + "})?" : "") + '" data-val-regex="Formato incorrecto" ' + ' value=""></div>');
+                            spanMensaje = $('<span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="' + filtro.Nombre + '"></span>')
+                            control.append(input);
+                            control.append(input2);
+                            control.append(spanMensaje);
+                            break;
+                        case "Moneda":
+                            control = $('<div class="row"></div>');
+                            input = $('<div class="col-sm-6"><input  placeholder="Valor Inicial" maxlength="10" disabled="disabled" type="text" tipocontrol="' + filtro.TipoControl + '" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '_Inicio" class="form-control inputColumn cajaTexto tamLetra bookTipografia decimal-number" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'_Inicio" data-val="true" data-val-regex-pattern="-?\\d+' + (filtro.NumeroDecimales && filtro.NumeroDecimales > 0 ? "(\\.\\d{1," + filtro.NumeroDecimales.toString() + "})?" : "") + '" data-val-regex="Formato incorrecto" ' + ' value=""></div>');
+                            input2 = $('<div class="col-sm-6"><input placeholder="Valor Final" maxlength="10" disabled="disabled" type="text" tipocontrol="' + filtro.TipoControl + '" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '_Fin" class="form-control inputColumn cajaTexto tamLetra bookTipografia decimal-number" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'_Fin" data-val="true" data-val-regex-pattern="-?\\d+' + (filtro.NumeroDecimales && filtro.NumeroDecimales > 0 ? "(\\.\\d{1," + filtro.NumeroDecimales.toString() + "})?" : "") + '" data-val-regex="Formato incorrecto" ' + ' value=""></div>');
+                            spanMensaje = $('<span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="' + filtro.Nombre + '"></span>')
+                            control.append(input);
+                            control.append(input2);
+                            control.append(spanMensaje);
+                            break;
+                        case "Título":
+                            control = $('<div></div>');
+                            input = $('<input  disabled="disabled" type="text" tipocontrol="' + filtro.TipoControl + '" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '" class="form-control inputColumn cajaTexto tamLetra bookTipografia" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'" ' + ' value="">');
+                            spanMensaje = $('<span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="' + filtro.Nombre + '"></span>')
+                            control.append(input);
+                            control.append(spanMensaje);
+                            break;
+                        case "Párrafo":
+                            control = $('<div></div>');
+                            input = $('<textarea  disabled="disabled" rows ="3" tipocontrol="' + filtro.TipoControl + '" name="TipoControlCaracteristica' + filtro.IdCaracteristica +'" class="form-control inputColumn cajaTexto inputpe tamLetra bookTipografia textArea" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'" ' + ' value="">');
+                            spanMensaje = $('<span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="' + filtro.Nombre + '"></span>')
+                            control.append(input);
+                            control.append(spanMensaje);
+                            break;
+                        case "Opcional":
+                            control = $('<div class="select2-wrapper"></div>');
+                            input = $('<select disabled="disabled" multiple="" style="height: 100%;" name="TipoControlCaracteristica' + filtro.IdCaracteristica + '" tipocontrol="' + filtro.TipoControl + '" class="js-example-basic-single form-control inputColumn cajaTexto tamLetra bookTipografia" id="TipoControlCaracteristica' + filtro.IdCaracteristica +'" ' + '><option>Nulo</option><option>Mínimo</option><option>Regular</option><option>Alto</option><option>Avanzado</option></select>');
+                            spanMensaje = $('<span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="' + filtro.Nombre + '"></span>')
+                            control.append(input);
+                            control.append(spanMensaje);
+                            control.append('<br/><br/>');
+                            break;
+                    }
+
+                }
+
+            });
+
+        }
+        return control;
+    }
+        function habilitarCaracteristicasGenerales(elemento) {
+            if ($("#filtro" + elemento + "Input").prop("checked")) {
+
+                if (elemento === 'Salario') {
+                    $("#" + elemento + "Inicial").prop("disabled", false);
+                    $("#" + elemento + "Final").prop("disabled", false);
+                } else
+                $("#Filtro" + elemento).prop("disabled", false);
+            } else {
+
+                if (elemento === 'Salario') {
+                    $("#" + elemento + "Inicial").prop("disabled", true);
+                    $("#" + elemento + "Final").prop("disabled", true);
+                } else
+                $("#Filtro" + elemento).prop("disabled", true);
+            }
+        }
+    //FSALAZAR 03/04/2019 REQ03042019 FIN
+
+        //JARAMILLO
+        function AgregarALista(elemento) {
+            if ($("#cbx" + elemento + "Input").prop("checked")) {
+                listaSeleccionados.push([$("#cbx" + elemento + "Input").val()]);
+            } else {
+                let count = 0;
+                let nombre1 = $("#cbx" + elemento + "Input").val();
+
+                while (count < listaSeleccionados.length) {
+                    if (listaSeleccionados[count] == nombre1) {
+                        listaSeleccionados.splice(count, 1);
+                        break;
+                    }
+                    count++;
+                }
+            }
+            
+        }
+
+        function MostrarLista() {
+            if (listaSeleccionados.length > 0) {
+                Utilidades.MostrarProgress();
+
+                //DESDE AQUI
+                 resultado = $.ajax({
+              
+                url: '@Url.Action("ObtenerProspectosCaracteristicasSeleccionados", "Prospectos")',
+
+                type: 'POST',
+                cache: false,
+               
+                     data: { listaSeleccionados: listaSeleccionados },
+
+                     success: function (json) {
+                         
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        resultado = json.Respuesta.RespuestaInformacion.Data.Info;
+
+                        LlenarColumnasSeleccionados(resultado);
+                        Utilidades.OcultarProgress();
+                        let count = 0;
+                        while (count < listaSeleccionados.length) {
+                            listaSeleccionados.splice(count);
+                            count++;
+                        }
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+
+                //HASTA AQUI
+
+            } else {
+                alert("No ha seleccionado ningun registro.");
+            }
+
+        }
+
+        //JARAMILLO
+
+
+    /*FSALAZAR 08/04/2019 REQ03042019 INI:Se crea una función que permita desbloquer los tipos de control por cada
+      característica particular seleccionada*/
+    function habilitarCaracteristicaParticular(IdCaracteristica)
+    {
+        if ($("#idCaracteristica" + IdCaracteristica).prop("checked"))
+        {
+                if ( ($("#TipoControlCaracteristica" + IdCaracteristica + "_Inicio").attr("data-format") && $("#TipoControlCaracteristica" + IdCaracteristica + "_Fin").attr("data-format") ))
+                {
+                    $("#TipoControlCaracteristica" + IdCaracteristica + "_Inicio").prop("disabled", false);
+                    $("#TipoControlCaracteristica" + IdCaracteristica + "_Inicio").datetimepicker({
+                        locale: 'es',
+                        date: new Date(),
+                        format: 'dd/MM/yyyy'.toUpperCase()
+                    });
+
+
+                    $("#TipoControlCaracteristica" + IdCaracteristica + "_Fin").prop("disabled", false);
+                    $("#TipoControlCaracteristica" + IdCaracteristica + "_Fin").datetimepicker({
+                        locale: 'es',
+                        date: new Date(),
+                        format: 'dd/MM/yyyy'.toUpperCase()
+                    });
+                }
+                else if ($("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").attr("tipocontrol") == "Entero" && $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").attr("tipocontrol") == "Entero")
+                {
+                      $("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").prop("disabled", false);
+                      $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").prop("disabled", false);
+                }
+                else if ($("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").attr("tipocontrol") == "Moneda" && $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").attr("tipocontrol") == "Moneda")
+                {
+                      $("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").prop("disabled", false);
+                      $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").prop("disabled", false);
+                }
+                else
+                {
+                    $("#TipoControlCaracteristica" + IdCaracteristica).prop("disabled", false);
+                }
+        }
+        else
+        {
+
+            if ( ( $("#TipoControlCaracteristica" + IdCaracteristica + "_Inicio").attr("data-format")  && $("#TipoControlCaracteristica" + IdCaracteristica + "_Fin").attr("data-format") ))
+            {
+                $("#TipoControlCaracteristica" + IdCaracteristica + "_Inicio").prop("disabled", true);
+                $("#TipoControlCaracteristica" + IdCaracteristica + "_Fin").prop("disabled", true);
+            }
+            else if ($("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").attr("tipocontrol") == "Entero" && $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").attr("tipocontrol") == "Entero")
+            {
+                    $("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").prop("disabled", true);
+                    $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").prop("disabled", true);
+            }
+            else if ($("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").attr("tipocontrol") == "Moneda" && $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").attr("tipocontrol") == "Moneda")
+            {
+                    $("#TipoControlCaracteristica" + IdCaracteristica+ "_Inicio").prop("disabled", true);
+                    $("#TipoControlCaracteristica" + IdCaracteristica+ "_Fin").prop("disabled", true);
+            }
+            else
+            {
+               $("#TipoControlCaracteristica" + IdCaracteristica).prop("disabled", true);
+            }
+
+
+        }
+    }
+
+    //FSALAZAR 03/04/2019 REQ03042019 FIN
+
+    function buscarProspectos()
+    {
+        var resultado = null;
+        //FSALAZAR 04/04/2019 REQ03042019 INI: Se obtienen el valor dependiendo del tipo de control
+        var caracterisTicasParticularesArray = [];
+        var contadorErrores = 0;
+
+        jQuery.each(getCaracteristicas, function (i, filtro) {
+
+            if ($("#idCaracteristica" + filtro.IdCaracteristica).prop("checked"))
+            {
+                if ( ($("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").attr("data-format") && $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Fin").attr("data-format") ))
+                {
+                    var fechaInicioTemp = $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").val().split('/');
+                    var fechaInicio = fechaInicioTemp[2] + "/" + fechaInicioTemp[1] + "/" + fechaInicioTemp[0];
+
+                    var fechaFinTemp = $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Fin").val().split('/');
+                    var fechaFin = fechaFinTemp[2] + "/" + fechaFinTemp[1] + "/" + fechaFinTemp[0];
+
+                    var fechaInicioComparar = new Date(fechaInicioTemp[2], fechaInicioTemp[1],fechaInicioTemp[0]);
+                    var fechaFinComparar = new Date(fechaFinTemp[2], fechaFinTemp[1],fechaFinTemp[0]);
+
+                    if (fechaInicioComparar > fechaFinComparar)
+                    {
+                        contadorErrores++;
+                        alert("Error, en los campos de tipo fecha el valor inicial no puede ser mayor al final");
+                    }
+
+                    var rangoFechas = fechaInicio + "," + fechaFin;
+                    caracterisTicasParticularesArray.push({ IdCaracteristica: filtro.IdCaracteristica, TipoControl: $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").attr("tipocontrol"), ValorTipoControl: rangoFechas });//Basta con uno de los rango de fecha para determinar el tipo de control
+                }
+                else
+                {
+                        if ($("#TipoControlCaracteristica" + filtro.IdCaracteristica).attr("tipocontrol") == "Dicotómico")
+                        {
+                            if ($('#TipoControlCaracteristica' + filtro.IdCaracteristica).prop('checked'))
+                            {
+                                caracterisTicasParticularesArray.push({ IdCaracteristica: filtro.IdCaracteristica, TipoControl:$("#TipoControlCaracteristica" + filtro.IdCaracteristica).attr("tipocontrol"), ValorTipoControl: "true" });
+                            }
+                            else
+                            {
+                                caracterisTicasParticularesArray.push({ IdCaracteristica: filtro.IdCaracteristica, TipoControl:$("#TipoControlCaracteristica" + filtro.IdCaracteristica).attr("tipocontrol"), ValorTipoControl: "false" });
+                            }
+
+                        }
+                        else if ($("#TipoControlCaracteristica" + filtro.IdCaracteristica+ "_Inicio").attr("tipocontrol") == "Entero" && $("#TipoControlCaracteristica" + filtro.IdCaracteristica+ "_Fin").attr("tipocontrol") == "Entero")
+                        {
+                            if (parseInt($("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").val()) > parseInt($("#TipoControlCaracteristica" + filtro.IdCaracteristica+ "_Fin").val())   )
+                            {
+                                contadorErrores++;
+                                alert("Error, en los campos de tipo entero el valor inicial no puede ser mayor al final");
+                                return false;
+                            }
+
+
+                            var rangoEnteros = $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").val() + "," + $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Fin").val();
+                            caracterisTicasParticularesArray.push({ IdCaracteristica: filtro.IdCaracteristica, TipoControl: $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").attr("tipocontrol"), ValorTipoControl: rangoEnteros });
+                        }
+                        else if ($("#TipoControlCaracteristica" + filtro.IdCaracteristica+ "_Inicio").attr("tipocontrol") == "Moneda" && $("#TipoControlCaracteristica" + filtro.IdCaracteristica+ "_Fin").attr("tipocontrol") == "Moneda")
+                        {
+
+                            if ($("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").val().length > 13 || $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Fin").val().length > 13) {
+                                contadorErrores++;
+                                alert('Error, Límite de números permitidos en los campos de tipo moneda');
+                                return false;
+                            }
+                            else if ( parseFloat($("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").val()) > parseFloat($("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Fin").val()) )
+                            {
+                                contadorErrores++;
+                                alert("Error, en los campos de tipo moneda el valor inicial no puede ser mayor que el valor final");
+                                return false;
+                            }
+
+                            var rangoMoneda = $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").val() + "," + $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Fin").val();
+                            caracterisTicasParticularesArray.push({ IdCaracteristica: filtro.IdCaracteristica, TipoControl: $("#TipoControlCaracteristica" + filtro.IdCaracteristica + "_Inicio").attr("tipocontrol"), ValorTipoControl: rangoMoneda });
+                        }
+                        else
+                        {
+                            var arrayValorControl = $("#TipoControlCaracteristica" + filtro.IdCaracteristica).val();
+                            var NuevoValorTipoControl = "";
+
+                            for (i = 0; i < arrayValorControl.length; i++)
+                            {
+
+                                if (i > 0)
+                                {
+                                    NuevoValorTipoControl += ",";
+                                }
+
+                                NuevoValorTipoControl += " \"" + arrayValorControl[i] + "\"";
+
+                            }
+
+                            caracterisTicasParticularesArray.push({ IdCaracteristica: filtro.IdCaracteristica, TipoControl:$("#TipoControlCaracteristica" + filtro.IdCaracteristica).attr("tipocontrol"),ValorTipoControl:NuevoValorTipoControl });
+
+                        }
+                }
+
+
+            }
+
+        });
+
+        let arrayCaracteristicasGenerales = [];
+        if ($("#filtroSalarioInput").prop("checked")) {
+            arrayCaracteristicasGenerales.push({ Nombre: "Salario", Valor: $("#SalarioInicial").val() + ',' + $("#SalarioFinal").val() });
+        }
+        if ($("#filtroGeneroInput").prop("checked")) {
+            let arrValor = $("#FiltroGenero").val();
+            let NuevoValor = "";
+            for (i = 0; i < arrValor.length; i++) {
+                if (i > 0) {
+                    NuevoValor += ",";
+                }
+                NuevoValor += arrValor[i];
+            }
+            arrayCaracteristicasGenerales.push({ Nombre: "Genero", Valor: NuevoValor });
+        }
+        if ($("#filtroEscolaridadInput").prop("checked")) {
+            let arrValor = $("#FiltroEscolaridad").val();
+            let NuevoValor = "";
+            for (i = 0; i < arrValor.length; i++) {
+                if (i > 0) {
+                    NuevoValor += ",";
+                }
+                NuevoValor += arrValor[i];
+            }
+            arrayCaracteristicasGenerales.push({ Nombre: "Escolaridad", Valor: NuevoValor });
+        }
+        if ($("#filtroNivelInput").prop("checked")) {
+            let arrValor = $("#FiltroNivel").val();
+            let NuevoValor = "";
+            for (i = 0; i < arrValor.length; i++) {
+                if (i > 0) {
+                    NuevoValor += ",";
+                }
+                NuevoValor += ""+arrValor[i]+"";
+            }
+            arrayCaracteristicasGenerales.push({ Nombre: "Nivel", Valor: NuevoValor });
+        }
+        //FSALAZAR 04/04/2019 REQ03042019 FIN
+        if (contadorErrores == 0)
+        {
+             resultado = $.ajax({
+                //FSALAZAR 04/04/2019 REQ03042019 INI: Se cambia la URL con la nueva función
+                //url: Url.Action("ObtenerProspectos", "Prospectos"),
+                url: '@Url.Action("ObtenerProspectosCaracteristicas", "Prospectos")',
+                //FSALAZAR 04/04/2019 REQ03042019 FIN
+                type: 'POST',
+                cache: false,
+                //FSALAZAR 04/04/2019 REQ03042019 INI: Se padan los nuevos parámetros junto con los ya existentes
+                 //data: { nombre: $('#txtProspecto_B').val(), activo: $('#cmbEstatus').val() },
+                 data: { nombre: $('#txtProspecto_B').val(), activo: $('#cmbEstatus').val(), ListaCaracteristicas: caracterisTicasParticularesArray, ListaCaracteristicasGenerales: arrayCaracteristicasGenerales },
+                //FSALAZAR 04/04/2019 REQ03042019 FIN
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        resultado = json.Respuesta.RespuestaInformacion.Data.Info;
+                        valores = json.Respuesta.RespuestaInformacion.Data.Valores;
+                        caracteristicas = json.Respuesta.RespuestaInformacion.Data.Caracteriticas;
+                        LlenarColumnas(resultado, valores, caracteristicas);
+                        Utilidades.OcultarProgress();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+        else
+        {
+            Utilidades.OcultarProgress();
+        }
+
+        }
+
+
+        let Valores, caracteristicas;
+        let nuevasColumnas = [];
+        let aux=0;
+        let fnDestroy;
+        var domTable, htmlTable = '<table id="myTable" class="myTable"><tbody></tbody></table>';
+        function LlenarColumnasSeleccionados(resultado) {
+            nuevasColumnas = [];
+            nuevasColumnas = [
+                {
+                    title: 'Nombre', "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            aux++;
+                            return $('<input type="checkbox" id="cbx' + aux + 'Input" name="cbx' + aux + 'Input" value="' + data + '"  class="btnEditar id" onclick="AgregarALista(' + aux + ');" >')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Nombre', "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Dirección', "data": "CiudadEstado", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Fecha Nac', "data": "FechaNacimiento", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Edad', "data": "Edad", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'EsActivo', "data": "Estatus", "autoWidth": false,
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+            ];
+            if (fnDestroy) {
+                if ($.fn.DataTable.fnIsDataTable(domTable)) {
+                    tableR.fnDestroy(true);
+                    $('#divSubMarcoGrid').append(htmlTable);
+                }
+            } else {
+                if ($.fn.DataTable.fnIsDataTable(domTable)) {
+                    tableR.destroy(true);
+                    $('#divSubMarcoGrid').append(htmlTable);
+                }
+            }
+            /*if (carac !== []) {
+                for (var i = 0; i < carac.length; i++) {
+                    nuevasColumnas.push({
+                        title: carac[i].Nombre, id: carac[i].Nombre, data: carac[i].Nombre.replace(".","_"), type: "text", render: function (data, type, full, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    });
+                    var nombre = carac[i].Nombre.replace(".", "_");
+                    var objetoVacio = new Object();
+                    objetoVacio[nombre] = "";
+                    for (var k = 0; k < resultado.length; k++) {
+                        resultado[k] = Object.assign(resultado[k], objetoVacio);
+                    }
+                }
+                if (valores !== []) {
+                    for (var i = 0; i < valores.length; i++) {
+                        var arrSplit = valores[i].Valores.split(",");
+                        var ObjetoValores = new Object();
+                        for (var j = 0; j < arrSplit.length; j++) {
+                            var splitval = arrSplit[j].split(";");
+                            var nombre = splitval[0].replace(".", "_");
+                            var valor = splitval[1];
+                            ObjetoValores[nombre] = valor;
+
+                        }
+                        for (var k = 0; k < resultado.length; k++) {
+                            if (resultado[k].IdProspecto === valores[i].IdProspecto) {
+                                resultado[k] = Object.assign(resultado[k], ObjetoValores);
+                                break;
+                            }
+                        }
+                        console.log(ObjetoValores);
+
+                    }
+                }
+            }
+            */
+
+            if ($("#filtroSalarioInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Salario Inicial", id: "Salario", data: "Salario", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+                nuevasColumnas.push({
+                     title: "Salario Final", id: "SalarioFinal", data: "SalarioFinal", type: "text", render: function (data, type, full, meta) {
+                         if (type === 'display') {
+                             return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                 .wrap('<div></div>')
+                                 .text(data)
+                                 .parent()
+                                 .html();
+                         }
+                         else {
+                             return data;
+                         }
+                     } });
+            }
+            if ($("#filtroGeneroInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Genero", id: "NombreSexo", data: "NombreSexo", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+            }
+            if ($("#filtroEscolaridadInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Escolaridad", id: "NombreEscolaridad", data: "NombreEscolaridad", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+            }
+            if ($("#filtroNivelInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Nivel Ingles", id: "NivelIngles", data: "NivelIngles", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+            }
+
+            LlenarGrid(resultado);
+            domTable = document.getElementById('myTable');
+            fnDestroy = false;
+        }
+
+        function LlenarColumnas(resultado, valores, carac) {
+            nuevasColumnas = [];
+            nuevasColumnas = [
+                {
+                    title: 'IdProspecto', "data": "IdProspecto", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            aux++;
+                            return $('<input type="checkbox" id="cbx' + aux + 'Input" name="cbx' + aux + 'Input" value="' + data + '"  class="btnEditar id" onclick="AgregarALista(' + aux + ');" >')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Nombre', "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Dirección', "data": "CiudadEstado", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Fecha Nac', "data": "FechaNacimiento", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'Edad', "data": "Edad", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    title: 'EsActivo', "data": "Estatus", "autoWidth": false,
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+            ];
+            if (fnDestroy) {
+                if ($.fn.DataTable.fnIsDataTable(domTable)) {
+                    tableR.fnDestroy(true);
+                    $('#divSubMarcoGrid').append(htmlTable);
+                }
+            } else {
+                if ($.fn.DataTable.fnIsDataTable(domTable)) {
+                    tableR.destroy(true);
+                    $('#divSubMarcoGrid').append(htmlTable);
+                }
+            }
+            if (carac !== []) {
+                for (var i = 0; i < carac.length; i++) {
+                    nuevasColumnas.push({
+                        title: carac[i].Nombre, id: carac[i].Nombre, data: carac[i].Nombre.replace(".","_"), type: "text", render: function (data, type, full, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    });
+                    var nombre = carac[i].Nombre.replace(".", "_");
+                    var objetoVacio = new Object();
+                    objetoVacio[nombre] = "";
+                    for (var k = 0; k < resultado.length; k++) {
+                        resultado[k] = Object.assign(resultado[k], objetoVacio);
+                    }
+                }
+                if (valores !== []) {
+                    for (var i = 0; i < valores.length; i++) {
+                        var arrSplit = valores[i].Valores.split(",");
+                        var ObjetoValores = new Object();
+                        for (var j = 0; j < arrSplit.length; j++) {
+                            var splitval = arrSplit[j].split(";");
+                            var nombre = splitval[0].replace(".", "_");
+                            var valor = splitval[1];
+                            ObjetoValores[nombre] = valor;
+
+                        }
+                        for (var k = 0; k < resultado.length; k++) {
+                            if (resultado[k].IdProspecto === valores[i].IdProspecto) {
+                                resultado[k] = Object.assign(resultado[k], ObjetoValores);
+                                break;
+                            }
+                        }
+                        console.log(ObjetoValores);
+
+                    }
+                }
+            }
+
+
+            if ($("#filtroSalarioInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Salario Inicial", id: "Salario", data: "Salario", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+                nuevasColumnas.push({
+                     title: "Salario Final", id: "SalarioFinal", data: "SalarioFinal", type: "text", render: function (data, type, full, meta) {
+                         if (type === 'display') {
+                             return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                 .wrap('<div></div>')
+                                 .text(data)
+                                 .parent()
+                                 .html();
+                         }
+                         else {
+                             return data;
+                         }
+                     } });
+            }
+            if ($("#filtroGeneroInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Genero", id: "NombreSexo", data: "NombreSexo", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+            }
+            if ($("#filtroEscolaridadInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Escolaridad", id: "NombreEscolaridad", data: "NombreEscolaridad", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+            }
+            if ($("#filtroNivelInput").prop("checked")) {
+                nuevasColumnas.push({
+                    title: "Nivel Ingles", id: "NivelIngles", data: "NivelIngles", type: "text", render: function (data, type, full, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                });
+            }
+
+            LlenarGrid(resultado);
+            domTable = document.getElementById('myTable');
+            fnDestroy = false;
+        }
+        function LlenarGrid(resul) {
+        tableR = $('#myTable').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "data": resul,
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarProspecto();
+                        }
+                },
+                  {
+                        'text': '<img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" style="max-width: 25px;max-height: 15px;" /> Mostrar seleccionados',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            MostrarLista();
+                        }
+                    }
+            ],
+            "columns": nuevasColumnas
+        });
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(objMod);
+            });
+    }
+
+        function ActualizarProspecto() {
+            debugger;
+        var formData = new FormData();
+
+        var files = $("#fileFoto").get(0).files;
+
+        formData.append('IdProspecto', $('#hidIdProspecto').val());
+        formData.append('Nombre', $('#txtNombre').val());
+        formData.append('Apellidos', $('#txtApellidos').val());
+        formData.append('Clave_Colonia', $('#hidClaveColonia').val());
+        formData.append('CP', $('#txtCP').val());
+        formData.append('Direccion', $('#txtDireccion').val());
+        formData.append('FechaNacimiento', $('#txtFechaNacimiento').val());
+        formData.append('FechaContacto', $('#txtFechaContacto').val());
+        formData.append('UltimaFecha', $('#txtUltimaFecha').val());
+        formData.append('RFC', $('#txtRFC').val());
+        formData.append('Email', $('#txtEmail').val());
+        formData.append('TelefonoMovil', $('#txtTelefonoMovil').val());
+        formData.append('TelefonoOtro', $('#txtTelefonoOtro').val());
+        formData.append('IdSexo', $('#cmbGeneros').val());
+        formData.append('Salario', $('#txtSalario').val());
+        formData.append('IdEstadoCivil', $('#cmbEstadoCivil').val());
+        formData.append('IdEscolaridad', $('#cmbEscolaridad').val());
+        formData.append('Estatus', $('#chkActivo').is(":checked"));
+        formData.append('Foto', $('#txtFoto').val());
+        formData.append('NivelIngles', $('#cmbNivelIngles option:selected').text());
+        formData.append('Comentario', $('#txtComentario').val());
+        formData.append('file', files[0]);
+            formData.append('Calle', $("#txtDireccionSeleccionada").val());
+            formData.append('SalarioFinal', $('#txtSalarioFinal').val());
+
+        $.ajax({
+            url: '@Url.Action("ActualizarProspecto", "Prospectos")',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    if (objMod != null) {
+                        objMod.IdProspecto = $('#hidIdProspecto').val(),
+                        objMod.Nombre = $('#txtNombre').val(),
+                        objMod.Apellidos = $('#txtApellidos').val(),
+                        objMod.Clave_Colonia = $('#hidClaveColonia').val(),
+                        objMod.CP = $('#hidCP').val(),
+                        objMod.Direccion = $('#txtDireccion').val(),
+                        objMod.FechaNacimiento = $('#txtFechaNacimiento').val(),
+                        objMod.RFC = $('#txtRFC').val(),
+                        objMod.Email = $('#txtEmail').val(),
+                        objMod.TelefonoMovil = $('#txtTelefonoMovil').val(),
+                        objMod.TelefonoOtro = $('#txtTelefonoOtro').val(),
+                        objMod.IdSexo = $('#cmbGeneros').val(),
+                        objMod.Salario = $('#txtSalario').val(),
+                        objMod.IdCiudad = $('#cmbCiudad').val(),
+                        objMod.IdEstadoCivil = $('#cmbEstadoCivil').val(),
+                        objMod.IdEscolaridad = $('#cmbEscolaridad').val(),
+                        objMod.Estatus = $('#chkActivo').is(":checked"),
+                            objMod.Comentario = $('#txtComentario').val(),
+                            objMod.Calle = $("#txtDireccionSeleccionada").val()
+                        tableR.row(rowR).data(objMod).draw(false);
+
+                    }
+                    Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    Utilidades.OcultarProgress();
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+        function InsertarProspecto() {
+            if ($('#txtNombre').val() != "" && $('#txtApellidos').val() != "") {
+                if ($('#txtEmail').val() != "") {
+                    var formData = new FormData();
+
+                    var files = $("#fileFoto").get(0).files;
+
+                    formData.append('IdProspecto', $('#hidIdProspecto').val());
+                    formData.append('Nombre', $('#txtNombre').val());
+                    formData.append('Apellidos', $('#txtApellidos').val());
+                    formData.append('Clave_Colonia', $('#hidClaveColonia').val());
+                    formData.append('CP', $('#txtCP').val());
+                    formData.append('Direccion', $('#txtDireccion').val());
+                    formData.append('FechaNacimiento', $('#txtFechaNacimiento').val() === ""? "null" : $('#txtFechaNacimiento').val());
+                    formData.append('RFC', $('#txtRFC').val());
+                    formData.append('Email', $('#txtEmail').val());
+                    formData.append('TelefonoMovil', $('#txtTelefonoMovil').val());
+                    formData.append('TelefonoOtro', $('#txtTelefonoOtro').val() ) ;
+                    formData.append('IdSexo', $('#cmbGeneros').val());
+                    formData.append('Salario', $('#txtSalario').val());
+                    formData.append('SalarioFinal', $('#txtSalarioFinal').val());
+                    formData.append('IdEstadoCivil', $('#cmbEstadoCivil').val());
+                    formData.append('IdEscolaridad', $('#cmbEscolaridad').val());
+                    formData.append('Estatus', $('#chkActivo').is(":checked"));
+                    formData.append('Foto', $('#txtFoto').val());
+                    formData.append('NivelIngles', $('#cmbNivelIngles option:selected').text());
+                    formData.append('Comentario', $('#txtComentario').val());
+                    formData.append('file', files[0]);
+                    formData.append('Calle', $("#txtDireccionSeleccionada").val());
+                    formData.append('FechaContacto', $('#txtFechaContacto').val() === "" ? "null" : $('#txtFechaContacto').val() );
+
+                    $.ajax({
+                        url: '@Url.Action("InsertarProspecto", "Prospectos")',
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        data: formData,
+                        success: function (json) {
+                            var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                            var codigoCorrecto = '"OK"';
+
+                            if (codigoRegreso == codigoCorrecto) {
+
+                                $('#hidIdProspecto').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                                IdOrigen_AcordCarac = json.Respuesta.RespuestaInformacion.Data.Info;
+                                Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de usuarios.");
+
+                                if ($('#hidIdProspecto').val() == "0") {
+                                    $('#accordion').hide();
+                                    $('#accordion2').show();
+                                } else {
+                                    $('#accordion').show();
+                                    $('#accordion2').hide();
+
+                                    agregarListaDocumento();
+                                    //buscarProspectoAgregado();
+
+                                    Utilidades.OcultarProgress();
+                                }
+                            }
+                            else {
+                                Utilidades.ErrorAjaxControlado(json);
+                            }
+                        },
+                        error: function (xhr) {
+                            Utilidades.ErrorAjax(xhr);
+                        }
+                    });
+                } else {
+                    Utilidades.MostrarDialogoError("Error", "El campo E-mail no debe estar vacías", false);
+                }
+            } else {
+                Utilidades.MostrarDialogoError("Error", "El campo Nombres o Apellidos no debe estar vacías", false);
+            }
+    }
+
+    //PopUp Documento
+    function AgregarDocumento() {
+        Utilidades.MostrarProgress();
+
+        $('#cmbDocumentos').val('-1');
+        $('#txtNombreDocumento').val('');
+        $('#txtUrlDocumento').val('');
+
+        var cloned = $(".RutaFile").clone(true);
+        cloned.val("");
+        $(".RutaFile").replaceWith(cloned);
+
+        $('#modalSeleccionarDocumento').modal('show');
+        PrepararSeleccionDocumentos();
+        Utilidades.OcultarProgress();
+    }
+
+    $('#btnGuardarDocumento').on('click', function () {
+        //Utilidades.MostrarProgress();
+        if ($("#userFormDocs").data('unobtrusiveValidation').validate()) {
+            if ($("#cmbDocumentos").val() == '-1' || $("#txtNombreDocumento").val() == '' || $("#userFormDocs" + ' input[type="file"]')[0].files['0'] == null) {
+                alert('No se introdujeron los datos necesarios.');
+            } else {
+                InsertarDocumento();
+                agregarListaDocumento();
+            }
+        }
+    });
+
+    function InsertarDocumento() {
+        var formData = new FormData();
+
+        var fileD = $('.RutaFile').get(0).files;
+
+        formData.append('IdProspecto', $('#hidIdProspecto').val());
+        formData.append('IdDocumento', $('#cmbDocumentos').val());
+        formData.append('Nombre', $('#txtNombreDocumento').val());
+        formData.append('Url', $('#txtUrlDocumento').val());
+        formData.append('file', fileD[0]);
+        formData.append('origen', 'Prospecto');
+
+        $.ajax({
+            url: '@Url.Action("insertarDocsProspecto", "Documentos")',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    //$('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                    Utilidades.MostrarDialogo("Aviso", "Documento agregado exitosamente.");
+
+                    var cloned = $(".RutaFile").clone(true);
+                    cloned.val("");
+                    $(".RutaFile").replaceWith(cloned);
+
+                    //Ocultar PopUp
+                    $('#modalSeleccionarDocumento').modal('hide');
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function agregarListaDocumento() {
+        $('#myTableDocumentos1').dataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("obtenerDocsProspecto", "Documentos")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { IdProspecto: $('#hidIdProspecto').val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarDocumento();
+                    }
+                }
+            ],
+            "columns":
+            [
+                {
+                    "data": "IdDocumento", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "descDocumento", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Nombre", "autoWidth": false, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                    },
+                    {
+                        "data": "Nombre", "autoWidth": false, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                {
+                    "data": "Url", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $("<a  onmouseover=\"\" style=\"cursor: pointer;\" class=\"btnEditar Contacto_Nombre\" onClick=\"downloadFile('" + String(data) + "', 'Prospecto','" + String(data) + "');\"><img src=\"@Url.Content("~/Imagenes/DownloadON.png")\" onmouseover=\"this.src='@Url.Content("~/Imagenes/Download.png")'\" onmouseout=\"this.src='@Url.Content("~/Imagenes/DownloadON.png")'\" style=\"width:22px; height:25px\"></a>")
+                                    .wrap('<div></div>')
+                                    .parent()
+                                    .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+            ]
+        });
+
+        $('#myTableDocumentos').hide();
+    }
+
+        function downloadFile(pFileName, pOrigen, pNombreOriginal) {
+
+            const url = '@Url.Action("DownloadFile", "Documentos")?origen=' + pOrigen + '&fileName=' + pFileName + '&nombreOriginal=' + pNombreOriginal;
+
+            window.open(url, '_blank');
+        }
+
+
+    //PopUp Agregar Caracteristica
+    function AgregarCaracteristicas() {
+        Utilidades.MostrarProgress();
+
+        LimpiarControles_AcordCarac();
+        $('#modalSeleccionarCaracteristica').modal('show');
+        //PrepararSeleccionDocumentos();
+        Utilidades.OcultarProgress();
+    }
+
+
+    //PopUp Referencia Laboral
+    function AgregarReferenciaLaboral() {
+        objRef = null;
+        rowR = null;
+
+        MostrarOcultarReferenciaLaboral(objRef);
+    }
+
+    function MostrarOcultarReferenciaLaboral(objRef) {
+        if (objRef != null) {
+            $('#txtEmpresa').val(objRef.Empresa);
+            $('#txtDomicilio').val(objRef.Domicilio);
+            $('#txtContacto').val(objRef.Contacto);
+            $('#txtContacto_Email').val(objRef.Contacto_Email);
+            $('#txtContacto_Telefono').val(objRef.Contacto_Telefono);
+            $('#txtMotivoSeparacion').val(objRef.MotivoSeparacion);
+            $('#txtPuesto').val(objRef.Puesto);
+            $('#txtTiempoLaborado').val(objRef.TiempoLaborado);
+            $('#txtComentarioReferencia').val(objRef.Comentario);
+            $('#hidIdReferencia').val(objRef.IdReferencia);
+        } else {
+            $('#txtEmpresa').val('');
+            $('#txtDomicilio').val('');
+            $('#txtContacto').val('');
+            $('#txtContacto_Email').val('');
+            $('#txtContacto_Telefono').val('');
+            $('#txtMotivoSeparacion').val('');
+            $('#txtPuesto').val('');
+            $('#txtTiempoLaborado').val('');
+            $('#txtComentarioReferencia').val('');
+            $('#hidIdReferencia').val('0');
+        }
+
+        $('#modalSeleccionarReferencia').modal('show');
+    }
+
+    $('#btnGuardarReferenciaLaboral').on('click', function () {
+        //Validar FormReferenciaLaboral
+        if ($("#userFormReferencia").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgress();
+            if ($('#hidIdReferencia').val() == 0) {
+                //Insertar
+                InsertarReferenciaLaboral();
+            } else {
+                //Actualizar
+                ActualizarReferenciaLaboral();
+            }
+
+            agregarListaReferencia();
+        }
+    });
+
+    function InsertarReferenciaLaboral() {
+        if (ValidarTelefono($('#txtContacto_Telefono').val())) {
+            var params = {
+                referencia: {
+                    IdProspecto: $('#hidIdProspecto').val(),
+                    Empresa: $('#txtEmpresa').val(),
+                    Domicilio: $('#txtDomicilio').val(),
+                    Contacto: $('#txtContacto').val(),
+                    Contacto_Email: $('#txtContacto_Email').val(),
+                    Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                    MotivoSeparacion: $('#txtMotivoSeparacion').val(),
+                    Puesto: $('#txtPuesto').val(),
+                    TiempoLaborado: $('#txtTiempoLaborado').val(),
+                    Comentario: $('#txtComentarioReferencia').val()
+                }
+            };
+
+            $.ajax({
+                url: '@Url.Action("insertarReferenciaLaboral", "ReferenciasLaborales")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        //$('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Referencia agregada exitosamente.");
+
+                        //Ocultar PopUp
+                        $('#modalSeleccionarReferencia').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+        else {
+                    Utilidades.MostrarDialogoError("Aviso", "El telefono del contacto debe tener 10 digitos.");
+        }
+    }
+
+    function ActualizarReferenciaLaboral() {
+        if (ValidarTelefono($('#txtContacto_Telefono').val())) {
+            var params = {
+                referencia: {
+                    IdReferencia: $('#hidIdReferencia').val(),
+                    IdProspecto: $('#hidIdProspecto').val(),
+                    Empresa: $('#txtEmpresa').val(),
+                    Domicilio: $('#txtDomicilio').val(),
+                    Contacto: $('#txtContacto').val(),
+                    Contacto_Email: $('#txtContacto_Email').val(),
+                    Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                    MotivoSeparacion: $('#txtMotivoSeparacion').val(),
+                    Puesto: $('#txtPuesto').val(),
+                    TiempoLaborado: $('#txtTiempoLaborado').val(),
+                    Comentario: $('#txtComentarioReferencia').val()
+                }
+            };
+
+            $.ajax({
+                url: '@Url.Action("actualizarReferenciaLaboral", "ReferenciasLaborales")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        //$('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Referencia actualizada exitosamente.");
+
+                        //Ocultar PopUp
+                        $('#modalSeleccionarReferencia').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+        else {
+                    Utilidades.MostrarDialogoError("Aviso", "El telefono del contacto debe tener 10 digitos.");
+        }
+    }
+
+    function agregarListaReferencia() {
+        $('#myTableReferenciaLaboral').dataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtenerReferenciaLaboral", "ReferenciasLaborales")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { IdProspecto: $('#hidIdProspecto').val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarReferenciaLaboral();
+                    }
+                }
+            ],
+            "columns":
+            [
+                {
+                    "data": "Empresa", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Domicilio", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Contacto", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Contacto_Email", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Contacto_Telefono", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "MotivoSeparacion", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Puesto", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "TiempoLaborado", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+            ]
+        });
+    }
+
+
+
+    //PopUp Bitacora
+    function AgregarBitacora() {
+        $('#txtComentarioBitacora').val('');
+        $('#txtComentarioBitacora').focus();
+        $('#modalSeleccionarBitacora').modal('show');
+    }
+
+    $('#btnGuardarBitacora').on('click', function () {
+        //Validar FormReferenciaLaboral
+
+        if ($('#txtComentarioBitacora').val() == '') {
+            Utilidades.MostrarDialogoError('Error', 'No se introdujeron todos los datos.');
+        } else {
+            InsertarBitacora();
+            agregarListaBitacora();
+        }
+    });
+
+    function InsertarBitacora() {
+        var params = {
+            bitacora: {
+                IdProspecto: $('#hidIdProspecto').val(),
+                Comentario: $('#txtComentarioBitacora').val()
+            }
+        };
+
+        $.ajax({
+            url: '@Url.Action("insertarBitacora", "Bitacora")',
+            type: 'POST',
+            cache: false,
+            data: params,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    //$('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                    Utilidades.MostrarDialogo("Aviso", "Registro agregado a Bitacora exitosamente.");
+
+                    //Ocultar PopUp
+                    $('#modalSeleccionarBitacora').modal('hide');
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function agregarListaBitacora() {
+        $('#myTableBitacora').dataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "aaSorting": [[0, "desc"]],
+            "ajax": {
+                "url": "@Url.Action("ObtenerBitacora", "Bitacora")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { IdProspecto: $('#hidIdProspecto').val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarBitacora();
+                    }
+                }
+            ],
+            "columns":
+            [
+                {
+                    "data": "FechaCreacion", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar RechaCreacion">')
+                                .wrap('<div></div>')
+                                .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Comentario", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar Comentario">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                {
+                    "data": "Quienagrego", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="" class="btnEditar Quienagrego">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+            ]
+        });
+    }
+
+    //Cargar Imagen
+    $('#preview').hover(
+        function () {
+            $(this).find('a').fadeIn();
+        }, function () {
+            $(this).find('a').fadeOut();
+        }
+    )
+    $('#file-select').on('click', function (e) {
+        e.preventDefault();
+
+        $('#fileFoto').click();
+    })
+
+    $('#fileFoto').change(function () {
+        //var file = (this.files[0].name).toString();
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#preview img').attr('src', e.target.result);
+            $('#txtFoto').val('');
+            $('#txtFoto').val(e.target.result);
+        }
+
+        reader.readAsDataURL(this.files[0]);
+    });
+
+    //PopUp Direccion
+    $(".lnkDireccion").click(function () {
+        //Utilidades.MostrarProgressPopUp();
+        $('#modalSeleccionarDireccion').modal('show');
+        //PrepararSeleccionMunicipio();
+    });
+
+    function AgregarDireccion() {
+        Utilidades.MostrarProgress();
+
+        $('#cmbPais').val('-1');
+        $('#cmbEstado').val('-1');
+        $('#cmbCiudad').val('-1');
+        $('#cmbColonia').val('-1');
+        $('#txtCP').val('');
+        $('#txtDireccion').val('');
+
+        $('#modalSeleccionarDireccion').modal('show');
+        //PrepararSeleccionDocumentos();
+        Utilidades.OcultarProgress();
+    }
+
+    //Seleccionar Direccion PopUp
+    $('#btnGuardarDireccion').on('click', function () {
+        var control = '';
+
+        if ($('#cmbPais').val() == '-1') {
+            control = "cmbPais";
+        } else if ($('#cmbEstado').val() == '-1') {
+            control = "cmbEstado";
+        } else if ($('#cmbCiudad').val() == '-1') {
+            control = "cmbCiudad";
+        } else if ($('#cmbColonia').val() == '-1') {
+            control = "cmbColonia";
+        } else if ($('#txtCP').val() == '') {
+            control = "txtCP";
+        } else if ($('#txtDireccionSeleccionada').val() == '') {
+            control = "txtDireccionSeleccionada";
+        }
+
+        if (control == '') {
+            var colonia = $('#cmbColonia').val().split('|');
+
+            $('#hidIdCiudad').val($('#cmbCiudad').val());
+            $('#hidClaveColonia').val(colonia[0]);
+            $('#hidCP').val($('#txtCP').val());
+            $('#txtDireccion').val($('#txtDireccionSeleccionada').val() + ", " + $('#cmbColonia option:selected').text() + ", " + $('#txtCP').val() + "\n" + $('#cmbCiudad option:selected').text() + ", " + $('#cmbEstado option:selected').text());
+
+            $('#modalSeleccionarDireccion').modal('hide');
+        } else {
+            $('#' + control).focus();
+            Utilidades.MostrarDialogoError('Error', 'No se introdujeron todos los datos.');
+        }
+    });
+
+    $('#lnkCP').on('click', function () {
+        if ($('#txtCP').val() != '') {
+            buscarCP($('#txtCP').val());
+        }
+    });
+
+    $('#cmbPais').change(function () {
+        if ($('#cmbPais').val() != -1) {
+            Utilidades.MostrarProgress();
+            cargarEstados($('#cmbPais').val());
+        } else {
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+            $('#txtCP').val('');
+            $('#cmbEstado').html(items);
+            $('#cmbCiudad').html(items);
+            $('#cmbColonia').html(items);
+            $('cmbEstado').attr('disabled', 'enabled');
+        }
+    });
+
+    $('#cmbEstado').change(function () {
+        if ($('#cmbEstado').val() != -1) {
+            Utilidades.MostrarProgress();
+            cargarCiudades($('#cmbEstado').val());
+        } else {
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbCiudad').html(items);
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+
+        if ($('#cmbEstado').val() == -2) {
+            cargarEstados($('#cmbPais').val());
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbCiudad').html(items);
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+    });
+
+    $('#cmbCiudad').change(function () {
+        if ($('#cmbCiudad').val() != -1) {
+            Utilidades.MostrarProgress();
+            cargarColonias($('#cmbCiudad').val(), '');
+            Utilidades.OcultarProgress();
+        } else {
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+
+        if ($('#cmbCiudad').val() == -2) {
+            cargarCiudades($('#cmbEstado').val());
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $('#cmbColonia').html(items);
+            $('#txtCP').val('');
+        }
+    });
+
+    $('#cmbColonia').change(function () {
+        if ($('#cmbColonia').val() != -1) {
+            var cp = $('#cmbColonia').val().split('|');
+            $('#txtCP').val(cp[1]);
+        }
+    });
+
+
+    function ObtenerGrid_AcordCarac() {
+        $('#myTableCaracteristicas').dataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtCaracteristicasPorProspecto", "AcordeonCaracteristicas")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { idOrigen: IdOrigen_AcordCarac, origen: Origen_AcordCarac },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarCaracteristicas();
+                    }
+                }
+            ],
+            "columns":
+            [
+                {
+                    "data": "Caracteristica", "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Caracteristica">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                    {
+                        "data": "ValorColumna", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar ValorColumna">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                        {
+                            "data": "IdProspectoCaracteristica", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $("<a  onmouseover=\"\" style=\"cursor: pointer;\" class=\"Contacto_Nombre\" onClick=\"EliminarValorCaracteristica('" + String(data) + "');\"><img src=\"@Url.Content("~/Imagenes/DeleteON.png")\" onmouseover=\"this.src='@Url.Content("~/Imagenes/Delete.png")'\" onmouseout=\"this.src='@Url.Content("~/Imagenes/DeleteON.png")'\" style=\"width:22px; height:25px\"></a>")
+                                            .wrap('<div></div>')
+                                            .parent()
+                                            .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+            ]
+        });
+        }
+
+        document.querySelectorAll(".thumbnail img").forEach(el=>{
+            el.addEventListener("click", function (ev) {
+                ev.stopPropagation();
+                if ($('#hidIdProspecto').val() != 0) {
+                    this.parentNode.classList.add("active");
+                }
+                console.log("Click");
+	        })
+        });
+
+        document.querySelectorAll(".thumbnail").forEach(el=>{
+	        el.addEventListener("click",function(ev){
+                this.classList.remove("active");
+                console.log("Clock");
+	        })
+        });
+
+    </script>
+}

@@ -1,0 +1,27 @@
+﻿@model ALM.Reclutamiento.Entidades.EClaseApoyoValidacion
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="lblNombre" id="lblNombre" class="labelColumn tamLetra regularTipografia">Còdigo</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                @Html.TextBoxFor(m => m.Texto, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtTexto" })
+                @Html.ValidationMessageFor(model => model.Texto, null, new { @class = "text-danger" })
+            </div>
+        </div>        
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <hr />
+        <button type="button" value="Guardar" id="btnGuardar" name="Guardar" class="btnGuardar pull-right">
+            Ingresar
+        </button>
+    </div>
+</div>
+<div id="containerProgressPopUp" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>

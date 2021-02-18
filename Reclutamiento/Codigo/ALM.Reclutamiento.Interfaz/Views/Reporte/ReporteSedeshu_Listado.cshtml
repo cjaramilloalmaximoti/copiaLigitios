@@ -1,0 +1,80 @@
+﻿<br />
+
+<div class="divMarcoBusqueda">
+    <h3>Captura de Datos</h3>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+                <label for="lblFechaApoyo" id="lblFechaApoyo" class="labelColumn tamLetra regularTipografia">Fecha Apoyo</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+                <input type="text" id="txtFechaApoyo" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtFechaApoyo" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="divMarcoBusqueda">
+    <h3>Filtros</h3>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+                <label for="lblFechaInicio" id="lblNombre" class="labelColumn tamLetra regularTipografia">Fecha Inicio</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+                <div id="divFechaNacimientoString">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" id="txtFechaInicio" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtFechaInicio" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+                <label for="lblFechaFin" id="lblNombre" class="labelColumn tamLetra regularTipografia">Fecha Fin</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+                <div id="divFechaNacimientoString">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" id="txtFechaFin" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtFechaFin" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8" style="clear:both; text-align:right; width:100%">
+            <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscar">
+                <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="divMarcoGrid" id="idMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable myTableBeneficiario" id="myTableBeneficiario1">
+            <thead>
+                <tr>
+                    <th>Matricula</th>
+                    <th>Nombre</th>
+                    <th>P. Apellido</th>
+                    <th>S. Apellido</th>
+                    <th>Fecha Nac.</th>
+                    <th>Sexo</th>
+                    <th>CURP</th>
+                    <th>Municipio</th>
+                    <th>Direccion</th>
+                    <th>Codigo Postal</th>
+                    <th>Dependencia</th>
+                    <th>Proyecto</th>
+                    <th>Programa</th>
+                    <th>Cantidad</th>
+                    <th>Inversion</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>

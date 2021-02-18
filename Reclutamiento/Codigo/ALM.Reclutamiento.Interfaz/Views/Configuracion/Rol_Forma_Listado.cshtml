@@ -1,0 +1,45 @@
+﻿<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <input type="text" id="txtNombreRol_Permiso" class="form-control inputpe tamLetra bookTipografia" disabled="disabled" name="txtNombre" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblNombre" id="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre de la forma</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtNombreForma_B" class="form-control inputpe tamLetra bookTipografia" name="txtNombre" />
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnCancelarPermisoListado" name="Cancelar" class="btnCancelar">
+            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+        </button>
+        <button type="button" value="Buscar" id="btnBuscarFormas" name="Buscar" class="btnGuardar">
+            <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+        </button>
+    </div>
+</div>
+
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid" style="width: 100%;">
+        <table class="myTable" id="myTableRol">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width: 20%;">Nombre Forma</th>
+                    <th style="width: 60%;">Descripción</th>
+                    <th style="width: 10%;">Es opción menú</th>
+                    <th style="width: 10%;">Relacionado con el Rol</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+

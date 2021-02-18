@@ -1,0 +1,502 @@
+﻿@{
+    ViewBag.Title = "Seguimiento a Deudor";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<style>
+    .body-content {
+        width: 95% !important;
+    }
+</style>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#menu1">Trabajar Por Segmento</a></li>
+    <li><a data-toggle="tab" href="#menu2">Buscar Deudor</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="menu1" class="tab-pane fade in active">
+        @Html.Partial("SeguimientoDeudor_PorSegmento")
+    </div>
+    <div id="menu2" class="tab-pane fade">
+        @Html.Partial("SeguimientoDeudor_PorDeudor")
+    </div>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+    var objModXSegmento = null;
+    var tableRXSegmento = null;
+    var objModXDeudor = null;
+    var tableRXDeudor = null;
+    var recargar = null;
+    var nombreDeudor = null;
+    var global = null;
+
+    $(document).ready(function () {
+        recargar = '@TempData["Recargar"]';
+        nombreDeudor = '@TempData["NombreDeudor"]';
+        global = '@TempData["Global"]';
+        InicializarPorSegmento();
+        if (recargar == 'true' && nombreDeudor != "null") {
+            $("#txtNombre_B").val(nombreDeudor);
+            $("#chkGlobal").prop('checked', global == 'true' ? true : false);
+            $('[href="#menu2"]').tab('show');
+            LlenarGridXDeudor();
+        }
+        else {
+            InicializarXDeudor();
+        }
+    });
+
+    function InicializarPorSegmento() {
+
+        tableRXSegmento = $('#myTable').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtenerSegmentosPorAnalista", "SeguimientoDeudor")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+            ],
+            "columns": [
+                    {
+                        "data": "Cliente", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Cliente">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Cartera", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Cartera">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Segmento", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Segmento">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+            ]
+        });
+        $('#myTable tbody').on('click', 'a.btnEditar', function () {
+            objModXSegmento = $('#myTable').DataTable().row($(this).parents('tr')).data();
+            EstablecerNavegacionDeudor(objModXSegmento.IdSegmento, null, "nulo", "nulo");
+        });
+    }
+
+    function InicializarXDeudor() {
+        $('#myTableXDeudor').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons: [
+            ],
+            "columns": [
+                    {
+                        "data": "ClienteCartera", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir ClienteCartera">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Segmento", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Segmento">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Credito", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Credito">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                   {
+                       "data": "FechaVencimientoString", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir FechaVencimientoString">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "ImporteDeudaString", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir ImporteDeudaString">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "DiasdeMoraString", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir DiasdeMoraString">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "Propia", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Propia">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   }
+            ]
+        });
+        $('#myTableXDeudor tbody').on('click', 'a.btnEditar', function () {
+            objModXDeudor = $('#myTableXDeudor').DataTable().row($(this).parents('tr')).data();
+            EstablecerNavegacionDeudor(objModXDeudor.IdSegmento, objModXDeudor.IdDeudor, $("#txtNombre_B").val(), $('#chkGlobal').is(":checked") ? 'true' : 'false');
+        });
+    }
+
+    $("#btnBuscar").click(function () {
+        Utilidades.MostrarProgress();
+        LlenarGridXDeudor();
+    });
+
+    function LlenarGridXDeudor() {
+        tableRXDeudor = $('#myTableXDeudor').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtenerDeudoresPorAnalista", "SeguimientoDeudor")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { nombre: $("#txtNombre_B").val(), global: $('#chkGlobal').is(":checked") },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+            ],
+            "columns": [
+                    {
+                        "data": "ClienteCartera", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir ClienteCartera">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Segmento", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Segmento">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                {
+                    "data": "Credito", "autoWidth": true, "sClass": "columnaCentro",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir Credito">')
+                            .wrap('<div></div>')
+                            .text(data)
+                            .parent()
+                            .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                   {
+                       "data": "FechaVencimientoString", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir FechaVencimientoString">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "ImporteDeudaString", "autoWidth": true, "sClass": "columnaDerecha",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir ImporteDeudaString">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "DiasdeMoraString", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar linkOmitir DiasdeMoraString">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                    {
+                        "data": "Propia", "autoWidth": true,
+                        "targets": 'no-sort',
+                        "bSortable": false,
+                        "render": function (data, type, row, meta) {
+                            return (row.Propia == 0 ? ' <a href="#" class="ControlEditar btnEditar linkOmitir" name="lnkDeudores"> <img src="@Url.Content("~/Imagenes/AsignadoOtroAnalista.png")" id="imgDeudor" onmouseover="this.src=\'@Url.Content("~/Imagenes/AsignadoOtroAnalistaON.png")\'" onmouseout="this.src=\'@Url.Content("~/Imagenes/AsignadoOtroAnalista.png")\'" title="Lo tiene asignado otro Analista"></img></a>' : '')
+                        }
+                    }
+            ]
+        });
+        if (recargar == 'true') {
+            $('#myTableXDeudor tbody').on('click', 'a.btnEditar', function () {
+                objModXDeudor = $('#myTableXDeudor').DataTable().row($(this).parents('tr')).data();
+                EstablecerNavegacionDeudor(objModXDeudor.IdSegmento, objModXDeudor.IdDeudor, $("#txtNombre_B").val(), $('#chkGlobal').is(":checked") ? 'true' : 'false');
+            });
+        }
+        else {
+            recargar == 'false'
+        }
+    }
+
+    function EstablecerNavegacionDeudor(idSegmento, idDeudor, nombre, global) {
+        Utilidades.MostrarProgress();
+        var params = {
+            idSegmento: idSegmento,
+            idDeudor: idDeudor,
+            nombre: nombre,
+            global: global
+        };
+        $.ajax({
+            url: '@Url.Action("EstablecerNavegacionDeudor", "SeguimientoDeudor")',
+            type: 'POST',
+            cache: false,
+            data: params,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                var codigoCorrecto = '"OK"';
+                if (codigoRegreso == codigoCorrecto) {
+                    window.location.href = '@Url.Action("SeguimientoDeudor_Deudor", "SeguimientoDeudor")';
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+</script>
+}

@@ -1,0 +1,44 @@
+Kenia Madrazo de la Rosa
+
+Cómo te va?
+como te ha ido con la cuarentena?
+
+Me presento, yo Soy Samuel Alcaraz, yo trabajo como arquitecto de Software en la empresa
+
+Hablame un poquito de tu experiencia profesional
+Cual sería uno de los logros mas importantes para ti de tus trabajos anteriores?
+
+Que es lo que mas te gusta del desarrollo de software
+Que es lo que menos te gusta del desarrollo de software
+
+¿Cuáles son sus productos tecnológicos favoritos y menos favoritos, y por qué?
+
+¿Cómo mantiene actualizadas sus habilidades tecnológicas?
+Te gusta trabajar en equipo? por que ?
+
+Metodologías de desarrollo?
+
+
+¿Control de código fuente? (GIT, TFS)
+
+NET CORE
+
+Microsoft Azure
+
+DevOps
+
+Servicios Web
+
+Desarrollo Escritorio
+
+Desarrollo Web
+
+Desarrollo Movil
+
+Hobbies
+
+¿Cuándo podrías empezar a trabajar?
+¿Tienes alguna pregunta? 
+¿Hay algo que quieras añadir?
+
+

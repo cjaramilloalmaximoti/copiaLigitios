@@ -1,0 +1,273 @@
+﻿@{
+    ViewBag.Title = "Reporte Sabana Deudores";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<div id="divListado">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("RptSabanaDeudores_Listado")
+    </form>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+    var rowR = null;
+    var objMod = null;
+    var tableR = null;
+
+    $(document).ready(function () {
+        Inicializar();
+    });
+
+    function Inicializar() {
+        FormatearCmbTipoEstatus();
+        FormatearCmbClienteCarteraFiltro();
+        FormatearCmbAnalistaFiltro();
+        FormatearCmbSegmentoFiltro();
+    }
+
+    function FormatearCmbTipoEstatus() {
+        var lista = [];
+        lista.push({ id: 1, text: 'Estatus' });
+        lista.push({ id: 2, text: 'Alias de Estatus' });
+        $element = $('#cmbTipoEstatus').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            matcher: filterMatcher,
+            allowClear: true,
+            data: lista
+        });
+        var lista2 = [];
+        lista2.push({ id: -1, text: 'TODOS' });
+        lista2.push({ id: 1, text: 'ACTIVOS' });
+        lista2.push({ id: 0, text: 'INACTIVOS' });
+        $element = $('#cmbEstatus').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            matcher: filterMatcher,
+            allowClear: true,
+            data: lista2
+        });
+    }
+
+    function FormatearCmbClienteCarteraFiltro() {
+        $element = $('#cmbClienteCarteraFiltro').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerCarteras", "RptSabanaDeudores")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+    }
+
+    function FormatearCmbAnalistaFiltro() {
+        $element = $('#cmbAnalistaFiltro').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerUsuariosAnalista", "RptSabanaDeudores")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term,
+                        filtro: true
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+    }
+
+    function FormatearCmbSegmentoFiltro() {
+        $element = $('#cmbSegmentoFiltro').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerSegmentos", "RptSabanaDeudores")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+    }
+
+    function filterMatcher(params, data) {
+        data.parentText = data.parentText || "";
+
+        // Always return the object if there is nothing to compare
+        if ($.trim(params.term) === '') {
+            return data;
+        }
+
+        // Do a recursive check for options with children
+        if (data.children && data.children.length > 0) {
+            // Clone the data object if there are children
+            // This is required as we modify the object to remove any non-matches
+            var match = $.extend(true, {}, data);
+
+            // Check each child of the option
+            for (var c = data.children.length - 1; c >= 0; c--) {
+                var child = data.children[c];
+                child.parentText += data.parentText + " " + data.text;
+
+                var matches = filterMatcher(params, child);
+
+                // If there wasn't a match, remove the object in the array
+                if (matches == null) {
+                    match.children.splice(c, 1);
+                }
+            }
+
+            // If any children matched, return the new object
+            if (match.children.length > 0) {
+                return match;
+            }
+
+            // If there were no matching children, check just the plain object
+            return filterMatcher(params, match);
+        }
+
+        // If the typed-in term matches the text of this term, or the text from any
+        // parent term, then it's a match.
+        var original = (data.parentText + ' ' + data.text).toUpperCase();
+        var term = params.term.toUpperCase();
+
+
+        // Check if the text contains the term
+        if (original.indexOf(term) > -1) {
+            return data;
+        }
+
+        return null;
+    }
+
+
+
+    $("#btnGenerar").click(function () {
+        if ($("#userForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgress();
+            $.ajax({
+                url: '@Url.Action("ObtenerReporteSabana", "RptSabanaDeudores")',
+                    type: 'POST',
+                    cache: false,
+                    data: { pIdCartera: $('#cmbClienteCarteraFiltro').val(), pIdUsuario: $("#cmbAnalistaFiltro").val(), pIdSegmento: $("#cmbSegmentoFiltro").val(), pIdTipoEstatus: $("#cmbTipoEstatus").val(), pActivo: $("#cmbEstatus").val() },
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            if (json.Respuesta.RespuestaInformacion.Data.Info && json.Respuesta.RespuestaInformacion.Data.Info != '') {
+                                window.location = '@Url.Action("RptSabanaDeudores_Exportar", "RptSabanaDeudores")' + '?nombreArchivo=' + json.Respuesta.RespuestaInformacion.Data.Info;
+                                Utilidades.OcultarProgress();
+                            }
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+        });
+
+    </script>
+}

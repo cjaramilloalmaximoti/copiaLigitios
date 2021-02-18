@@ -1,0 +1,324 @@
+﻿
+@{
+    ViewBag.Title = "Categorias";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<script src="~/scripts/jquery-3.1.1.min.js"></script>
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/css/bootstrap-datetimepicker.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+
+
+@Html.Hidden("hiddenIdCategoria", "0")
+
+<div id="divCategoriaListado">
+    @Html.Partial("Categoria_Listado")
+</div>
+
+<div id="divCategoriaDetalle" style="display:none; width:100%">
+    <form name="userForm1" id="userForm1" method="post" novalidate="">
+        @Html.Partial("Categoria_Detalle", new ALM.Reclutamiento.Entidades.ECategoria())
+    </form>
+</div>
+
+@section scripts{
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <!-- <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script> -->
+    <script src="@Url.Content("~/scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Estilo/lang/bootstrap-datepicker.es.min.js")"></script>
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+        var rowR = null;
+        var objMod = null;
+        var tableR = null;
+        var ciudadB = null;
+
+        $(document).ready(function () {
+            $("#txtNombre").focus();
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCategoria();
+                        }
+                    }
+                ],
+                "columns": [
+                    { "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "Estatus", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "FechaCreacion", "autoWidth": true, "sClass": "columnaIzquierda" }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(objMod);
+            });
+        });
+        $('#txtDetalleNombre').on('keydown', function () {
+            return false;
+        });
+        $("#btnBuscar").click(function () {
+            LlenarGrid();
+        });
+
+        $("#btnGuardar").click(function () {
+            GuardarInformacion();
+        });
+        $("#btnCancelar").click(function () {
+            objMod = null;
+            rowR = null;
+            $('#hiddenIdCategoria').val(0);
+            $("#divCategoriaListado").show();
+            $("#divCategoriaDetalle").hide();
+        });
+
+        function LlenarGrid()
+        {
+            tableR = $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("obtenerCategorias", "Categorias")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: {
+                        Nombre: $("#txtNombre").val(),
+                        Estatus: $("#slctEstatus").val(),
+
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return "";
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCategoria();
+                        }
+                    }
+                ],
+                "columns": [
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Estatus", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                .wrap('<div></div>')
+                                .text((data == 0) ? "No": "Si")
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaCreacion", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaCreacion">')
+                                .wrap('<div></div>')
+                                .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(objMod);
+            });
+        }
+
+        function AgregarCategoria() {
+            objMod = null;
+            rowR = null;
+            $('#hiddenIdCategoria').val(0);
+            OcultarMostrarDiv(null);
+        }
+
+        function OcultarMostrarDiv(data)
+        {
+            if (data != null) {
+                $("#hiddenIdCategoria").val(data.IdCategoria),
+                $("#txtDetalleNombre").val(data.Nombre)
+                if (data.Estatus > 0) { $("#chkEstatus").prop('checked', true) } else { $("#chkEstatus").prop('checked', false); };
+            }
+            else {
+                objMod = null;
+                $("#txtDetalleNombre").val(''),
+                $("#chkEstatus").prop('checked', true);
+            }
+
+            $("#divCategoriaListado").hide();
+            $("#divCategoriaDetalle").show();
+        }
+
+        function GuardarInformacion() {
+            if ($("#userForm1").data('unobtrusiveValidation').validate())
+            {
+                Utilidades.MostrarProgress();
+                if ($('#hiddenIdCategoria').val() != '0') {
+                    Actualizar();
+                }
+                else {
+                    Insertar();
+                }
+                LlenarGrid();
+                $("#divCategoriaDetalle").hide();
+                $("#divCategoriaListado").show();
+            }
+        }
+
+        function Actualizar()
+        {
+            var sts = 0;
+            if ($('#chkEstatus').is(":checked") == true) {
+                sts = 1;
+            } else {
+                sts = 0;
+            }
+
+            var params = {
+                categoria:
+                    {
+                        IdCategoria: $('#hiddenIdCategoria').val(),
+                        Nombre: $('#txtDetalleNombre').val(),
+                        Estatus: sts
+                    }
+            };
+            $.ajax({
+                url: '@Url.Action("ActualizarCategoria", "Categorias")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success:
+                    function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            if (objMod != null) {
+                                objMod.Idcategoria = $('#hiddenIdCategoria').val();
+                                objMod.Nombre = $('#txtDetalleNombre').val();
+                                if (objMod.Estatus > 0) { $('#chkEstatus').prop('checked', true); } else { $('#chkEstatus').prop('checked', false) };
+                                //  tableR.row(rowR).data(objMod).draw(false);
+                            }
+
+                            Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function Insertar()
+        {
+            var sts = 0;
+            if ($("#chkEstatus").is(":checked")) { sts = 1; } else { sts = 0; };
+            var params =
+                {
+                    categoria: {
+                            Nombre: $("#txtDetalleNombre").val(),
+                            Estatus: sts
+                        }
+                };
+            $.ajax ({
+                url: '@Url.Action("InsertarCategoria", "Categorias")',
+                type: 'POST',
+                cache: false,
+                 data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#hidIdCaracteristicaGeneral').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+    </script>
+}

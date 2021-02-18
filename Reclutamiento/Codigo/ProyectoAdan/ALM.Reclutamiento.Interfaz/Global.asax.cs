@@ -1,0 +1,22 @@
+﻿using ALM.Empresa.Negocio;
+using System.Web.Mvc;
+using System.Web.Optimization;
+using System.Web.Routing;
+
+namespace ALM.Empresa.Interfaz
+{
+    public class MvcApplication : System.Web.HttpApplication
+    {
+        protected void Application_Start()
+        {
+            AreaRegistration.RegisterAllAreas();
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            NClaseEstatica.EstablecerLstReemplazarMVC();
+            NClaseEstatica.EstablecerLstEmpresa();
+            NClaseEstatica.EstablecerLstParametros();
+            NClaseEstatica.EstablecerRutaPublicado(Server.MapPath("~"));
+        }
+    }
+}

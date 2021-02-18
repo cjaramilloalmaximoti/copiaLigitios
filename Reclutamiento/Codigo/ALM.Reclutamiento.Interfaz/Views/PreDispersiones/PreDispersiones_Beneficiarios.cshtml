@@ -1,0 +1,44 @@
+﻿<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable myTableBeneficiario" id="myTableBeneficiario">
+            <thead>
+                <tr>
+                    <th>Índice</th>
+                    <th >Beneficiario</th>
+                    <th >CURP</th>
+                    <th >Ciclo</th>
+                    <th >Año Fiscal</th>
+                    <th >Fecha Pago</th>
+                    <th >Unidad</th>
+                    <th >Inversión</th>
+                    <th >Promedio</th>
+                    <th >Modalidad</th>
+                    <th >Convenio</th>
+                    <th >SubConvenio</th>
+                    <th >Centro Receptor</th>
+                    <th>No Identificados</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <hr />
+        <a href="#" class="ControlEditar lnkAprobar btnEditar pull-right @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantallaLink("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Aprobar)" style="font-size: 20px; margin-right: 30px;"
+           @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantalla("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Aprobar)>
+            <span class="glyphicon glyphicon-ok"></span>Aprobar
+        </a>
+        <a href="#" class="ControlEditar lnkRevertir btnEditar pull-right @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantallaLink("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Revertir)" style="font-size: 20px; margin-right: 50px;"
+           @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantalla("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Revertir)>
+            <span class="glyphicon glyphicon-share-alt fa-flip-horizontal"></span>Revertir
+        </a>
+    </div>
+</div>
+
+
+<div id="containerProgressPopUp" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>

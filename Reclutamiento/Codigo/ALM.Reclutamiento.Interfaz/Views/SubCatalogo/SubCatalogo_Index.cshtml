@@ -1,0 +1,708 @@
+﻿@{
+    ViewBag.Title = @ViewData["TituloCatalogo"];
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/css/bootstrap-datetimepicker.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hIdSubCatalogo", "0")
+
+
+<div id="divListado">
+    @Html.Partial("SubCatalogo_Listado")
+</div>
+
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="catalogoform" id="catalogoform" method="post" novalidate="">
+        @Html.Partial("SubCatalogo_Detalle", new ALM.Reclutamiento.Entidades.ESubCatalogo())
+    </form>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+        var objMod = null;
+        var tbObjModNombre = null;
+        var tbObjModCatalogo = null;
+        var tbObjModEsActivo = null;
+        var tbObjModClave = null;
+        var IdTipoCatalogo = null;
+        var IdTipoCatalogo_SubCatalogo = null;
+        var NombreCatalogo = null;
+        var lstCatalogos = null;
+        var lstControlesCatalogos = null;
+        var NombreSubCatalogo = null;
+        var NombreControlPrimerCatalogo = null;
+        var IdPrimerCatalogo = null;
+        var NombreControlCatalogoGuardar = null;
+        var llenandoCombosEdicion = 0;
+        var llenandoCombosEdicionTemp = 0;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+            Utilidades.MostrarProgress();
+
+            IdTipoCatalogo =  @TempData["IdTipoCatalogo"];
+            IdTipoCatalogo_SubCatalogo = @TempData["IdTipoCatalogo_SubCatalogo"];
+            NombreCatalogo = '@TempData["NombreCatalogo"]';
+            NombreSubCatalogo = '@TempData["NombreSubCatalogo"]';
+
+            var items = "<option value='-1' class='form-control tamLetra bookTipografia'>TODOS</option>";
+            items += "<option value='1' class='form-control tamLetra bookTipografia'>ACTIVOS</option>";
+            items += "<option value='0' class='form-control tamLetra bookTipografia'>INACTIVOS</option>";
+
+            $("#lblCatalogoPadre").text(NombreCatalogo);
+            $("#cmbEs").html(items);
+            $("#txtNombre_B").focus();
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                               {
+                                   'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                                   'className': 'btnAgregarGrid',
+                                   'action': function (e, dt, node, config) {
+                                       AgregarDetalle();
+                                   }
+                               }
+                ],
+                "columns": [
+                            {
+                                "data": "IdSubCatalogo", "autoWidth": true, "visible": false
+                            },
+                           {
+                               "data": "Catalogo", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                               {
+                                   "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                                {
+                                    "data": "EsActivo", "autoWidth": true,
+                                    "render": function (data, type, row, meta) {
+                                        if (type === 'display') {
+                                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                            .wrap('<div></div>')
+                                            .text(data == true ? 'Si' : 'No')
+                                            .parent()
+                                            .html();
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
+
+
+                ]
+            });
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                //alert("Dist click en editar");
+                indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                tbObjModNombre = $(this).parents('tr').find('.Nombre')[0];
+                tbObjModCatalogo = $(this).parents('tr').find('.Catalogo')[0];
+                tbObjModEsActivo = $(this).parents('tr').find('.Estatus')[0];
+                tbObjModClave = $(this).parents('tr').find('.Clave')[0];
+                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(data);
+            });
+
+            GenerarCombosCatalogos();
+        }
+
+        $("#btnBuscar").click(function () {
+            $('#hIdSubCatalogo').val("0");
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hIdSubCatalogo').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            indexRowObjMod = null;
+            tbObjModNombre = null;
+            tbObjModCatalogo = null;
+            tbObjModEsActivo = null;
+            tbObjModClave = null;
+
+            return false;
+        });
+
+        $('#btnGuardar').on('click', function () {
+            if (lstControlesCatalogos != null) {
+                var comboInvalido=null;
+                $.each(lstControlesCatalogos, function (i, catalogo) {
+                    if ($('#' + catalogo.NombreControl).val() == null || $('#' + catalogo.NombreControl).val() == "-1") {
+                        comboInvalido = catalogo.NombreLabel;
+                    }
+                });
+                if(comboInvalido!=null){
+                    Utilidades.MostrarDialogoError("Aviso", "Debe seleccionar un " + comboInvalido + ".");
+                    return false;
+                }
+            }
+            if ($("#catalogoform").data('unobtrusiveValidation').validate()) {
+                var idParametro = $('#hIdSubCatalogo').val();
+                Utilidades.MostrarProgress();
+                if (idParametro != "0") {
+                    ActualizarCatalogo();
+                }
+                else {
+                    GuardarCatalogo();
+                }
+            }
+            return false;
+        });
+
+
+
+
+
+        function LlenarGrid() {
+            $('#myTable').DataTable({
+                //destroy: true,
+                //"bFilter": true,
+                //"paging": true,
+                //"pageLength": 10,
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerSubCatalogoDeCatalogoPadre", "SubCatalogo")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: {
+                        IdTipoCatalogo: IdTipoCatalogo,
+                        Nombre: $('#txtNombre_B').val(),
+                        EsActivoFiltro: $('#cmbEs').val()
+
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        //alert(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+
+                    },
+
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarDetalle();
+                            }
+                        }
+                ],
+                "columns": [
+                   {
+                       "data": "IdSubCatalogo", "autoWidth": true, "visible": false
+                   },
+                   {
+                       "data": "Catalogo", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Catalogo">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                       {
+                           "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "EsActivo", "autoWidth": true,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                   .wrap('<div></div>')
+                                   .text(data == true ? 'Si' : 'No')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       }
+                ]
+            });
+        }
+
+        function OcultarMostrarDiv(data) {
+            var items = '';
+            if (data != null) {
+                objMod = data;
+                $('#hIdSubCatalogo').val(data.IdSubCatalogo);
+            }
+            if (data != null) {
+                objMod = data;
+                ConfigurarCombosEdicion();
+                $('#txtClaveDet').val(data.Clave);
+                $('#txtNombreDet').val(data.Nombre);
+                $('#txtDescripcionDet').val(data.Descripcion);
+                $('#chkEstatus').prop('disabled', false);
+                $('#chkEstatus').prop('checked', data.EsActivo);
+
+            } else {
+                LlenarComboListadoCatalogo('-1');
+                $('#txtClaveDet').val('');
+                $('#txtNombreDet').val('');
+                $('#txtDescripcionDet').val('');
+                $('#chkEstatus').prop('disabled', true);
+                $('#chkEstatus').prop('checked', true);
+                ComboCatalogo_Change(NombreControlPrimerCatalogo, '-1');
+            }
+            $('#divListado').hide();
+            $('#divDetalle').show();
+            $('#' + NombreControlPrimerCatalogo).focus();
+
+            return false;
+        }
+
+        function ConfigurarCombosEdicion(){
+            llenandoCombosEdicionTemp = llenandoCombosEdicion;
+            Utilidades.MostrarProgress();
+            $.ajax({
+                url: '@Url.Action("ObtIdsCatalogosDelSubCatalogo", "SubCatalogo")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstIdsCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstIdsCatalogosTemp != null) {
+                            var indiceTemp = 0;
+                            var entidad = null;
+                            $.each(lstIdsCatalogosTemp, function (i, catalogo) {
+                                entidad = lstControlesCatalogos[indiceTemp];
+                                if((indiceTemp + 1) == llenandoCombosEdicion){
+                                    llenandoCombosEdicionTemp--;
+                                    LlenarComboListadoCatalogo(catalogo.IdSeleccion);
+                                    if(llenandoCombosEdicionTemp == 0){
+                                        Utilidades.OcultarProgress();
+                                    }
+                                }
+                                else{
+                                    ObtInfoSubCatalogoPorIdPadre(catalogo.IdCatalogo, catalogo.IdTipoCatalogo, catalogo.IdSeleccion, entidad.NombreControl);
+                                }
+                                indiceTemp++;
+                            });
+                        }
+                        else{
+                            Utilidades.OcultarProgress();
+                        }
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    idSubCatalogo: $('#hIdSubCatalogo').val()
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function AgregarDetalle() {
+            $('#hIdSubCatalogo').val("0");
+            OcultarMostrarDiv(null);
+        }
+
+        function LlenarComboListadoCatalogo(idCatalogoTemp) {
+            var items = null;
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+            if (lstCatalogos != null) {
+                $.each(lstCatalogos, function (i, catalogo) {
+                    if (idCatalogoTemp == catalogo.IdCatalogo) {
+                        items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                    }
+                    else
+                        if (catalogo.EsActivo) {
+                            items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                        }
+                });
+            }
+            $('#' + NombreControlPrimerCatalogo).html(items);
+            $('#' + NombreControlPrimerCatalogo).val(idCatalogoTemp);
+        }
+
+        function GenerarCombosCatalogos(){
+            var divControl =  $("#divControl");
+            var divNuevoCombo = null;
+            var divLabelCombo = null;
+            var labelCombo = null;
+            var divCombo = null;
+            var combo = null;
+
+            $.ajax({
+                url: '@Url.Action("ObtenerCatalogosDelSubCatalogo", "SubCatalogo")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstControlesCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstControlesCatalogos != null) {
+                            var primeroTemp =true;
+                            $.each(lstControlesCatalogos, function (i, catalogo) {
+
+                                if(NombreControlCatalogoGuardar==null){
+                                    NombreControlCatalogoGuardar = catalogo.NombreControl;
+                                }
+                                NombreControlPrimerCatalogo = catalogo.NombreControl;
+                                IdPrimerCatalogo = catalogo.IdCatalogo;
+
+                                llenandoCombosEdicion = llenandoCombosEdicion + 1;
+
+                                divNuevoCombo = $('<div  class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px"></div>');
+                                divLabelCombo = $('<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4"></div>');
+                                labelCombo = $('<label for=' + catalogo.NombreControl + ' class="labelColumn tamLetra regularTipografia" id="lblCombo">' + catalogo.NombreLabel + '</label>');
+                                divCombo = $('<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">');
+                                combo = $('<select id=' + catalogo.NombreControl + ' class="form-control tamLetra bookTipografia"></select>');
+                                if(!primeroTemp){
+                                    combo.change(function () {
+                                        ComboCatalogo_Change(this.id, this.value);
+                                    });
+                                }
+                                primeroTemp = false;
+                                divLabelCombo.append(labelCombo);
+                                divCombo.append(combo);
+                                divNuevoCombo.append(divLabelCombo);
+                                divNuevoCombo.append(divCombo);
+
+                                divControl.prepend(divNuevoCombo);
+                            });
+                        }
+
+                        ObtenerListadoCatalogo();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    idCatalogo: IdTipoCatalogo
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ComboCatalogo_Change(id, value){
+            var items = null;
+            $.each(lstControlesCatalogos, function (i, catalogo) {
+                if(catalogo.NombreControl == id){
+                    return false;
+                }
+                if(catalogo.NombreControlPadre != id){
+                    items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+                    $('#' + catalogo.NombreControl).html(items);
+                    $('#' + catalogo.NombreControl).val(-1);
+                }
+                else{
+                    ObtInfoSubCatalogoPorIdPadre(value, catalogo.IdCatalogo, '-1', catalogo.NombreControl);
+                }
+            });
+        }
+
+        function ObtInfoSubCatalogoPorIdPadre(idCatalogoP, idTipoCatalogoP, idCatalogoSeleccionado, nombreControl){
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+            if(idCatalogoP!='-1'){
+                Utilidades.MostrarProgress();
+                $.ajax({
+                    url: '@Url.Action("ObtInfoSubCatalogoPorIdPadre", "SubCatalogo")',
+                    type: 'POST',
+                    cache: false,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                            if (lstCatalogosTemp != null) {
+                                $.each(lstCatalogosTemp, function (i, catalogo) {
+                                    if (idCatalogoSeleccionado == catalogo.IdCatalogo) {
+                                        items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                                    }
+                                    else
+                                        if (catalogo.EsActivo) {
+                                            items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                                        }
+                                });
+                            }
+                            $('#' + nombreControl).html(items);
+                            $('#' + nombreControl).val(idCatalogoSeleccionado);
+                            if(llenandoCombosEdicionTemp > 0){
+                                llenandoCombosEdicionTemp--;
+                            }
+                            if(llenandoCombosEdicionTemp == 0){
+                                Utilidades.OcultarProgress();
+                            }
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    data: {
+                        idCatalogo: idCatalogoP,
+                        idTipoCatalogo : idTipoCatalogoP
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            else{
+                $('#' + nombreControl).html(items);
+                $('#' + nombreControl).val(idCatalogoSeleccionado);
+            }
+        }
+
+        function ObtenerListadoCatalogo() {
+            var items = null;
+            $.ajax({
+                url: '@Url.Action("ObtCatalogoDelSubCatalogo", "SubCatalogo")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                        items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+                        $("#" + NombreControlPrimerCatalogo).html(items);
+
+                        Utilidades.OcultarProgress();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    idCatalogo: IdPrimerCatalogo
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarCatalogo() {
+            $.ajax({
+                url: '@Url.Action("ActualizarSubCatalogo", "SubCatalogo")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdSubCatalogo : $('#hIdSubCatalogo').val(),
+                    IdTipoCatalogo:IdTipoCatalogo,
+                    IdCatalogo:$('#' + NombreControlCatalogoGuardar).val(),
+                    Clave: $('#txtClaveDet').val(),
+                    Nombre: $('#txtNombreDet').val(),
+                    Descripcion: $('#txtDescripcionDet').val(),
+                    EsActivo:$('#chkEstatus').is(":checked")
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+                            objMod.Clave = $('#txtClaveDet').val();
+                            objMod.Nombre = $('#txtNombreDet').val();
+                            objMod.Descripcion = $('#txtDescripcionDet').val();
+                            objMod.Catalogo = $('#' + NombreControlCatalogoGuardar + ' option:selected').text();
+                            objMod.IdCatalogo = $('#' + NombreControlCatalogoGuardar).val();
+                            objMod.EsActivo = $('#chkEstatus').is(":checked");
+                            ActualizarObjetoEnTabla();
+                        }
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+
+        function GuardarCatalogo() {
+            $.ajax({
+                url: '@Url.Action("InsertarSubCatalogo", "SubCatalogo")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdTipoCatalogo:IdTipoCatalogo,
+                    IdCatalogo:  $('#' + NombreControlCatalogoGuardar).val(),
+                    Clave: $('#txtClaveDet').val(),
+                    Nombre: $('#txtNombreDet').val(),
+                    Descripcion: $('#txtDescripcionDet').val()
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto)
+                    {
+                        Utilidades.OcultarProgress();
+                        $('#hIdSubCatalogo').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de " + NombreSubCatalogo + ".");
+                    }
+                    else
+                    {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarObjetoEnTabla()
+        {
+            tbObjModNombre.text = objMod.Nombre;
+            tbObjModCatalogo.text = objMod.Catalogo;
+            tbObjModEsActivo.text = objMod.EsActivo == true ? 'Si' : 'No';
+            tbObjModClave.text = objMod.Clave;
+        }
+
+    </script>
+}

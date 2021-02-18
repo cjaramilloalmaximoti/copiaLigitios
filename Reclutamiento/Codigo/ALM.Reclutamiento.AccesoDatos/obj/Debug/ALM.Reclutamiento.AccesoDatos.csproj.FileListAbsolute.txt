@@ -1,0 +1,9 @@
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\bin\Debug\ALM.Reclutamiento.AccesoDatos.dll.config
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\bin\Debug\ALM.Reclutamiento.AccesoDatos.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\bin\Debug\ALM.Reclutamiento.AccesoDatos.pdb
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\bin\Debug\MySql.Data.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\obj\Debug\ALM.Reclutamiento.AccesoDatos.csprojAssemblyReference.cache
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\obj\Debug\ALM.Reclutamiento.AccesoDatos.csproj.CoreCompileInputs.cache
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\obj\Debug\ALM.Reclutamiento.AccesoDatos.csproj.CopyComplete
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\obj\Debug\ALM.Reclutamiento.AccesoDatos.dll
+C:\Users\cesar\source\repos\Reclutamiento\Codigo\ALM.Reclutamiento.AccesoDatos\obj\Debug\ALM.Reclutamiento.AccesoDatos.pdb

@@ -1,0 +1,36 @@
+﻿<div class="divMarcoBusqueda_Acordeon">
+    <div class="row">
+        <form name="userFormCaracteristicaFiltro" id="userFormCaracteristicaFiltro" method="post" novalidate="">
+            <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                    <label for="lblDocumento" class="labelColumn tamLetra regularTipografia">Categoría</label>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-8 col-lg-8">
+                    <div class="select2-wrapper">
+                        <select name="ddlCategoria" class="js-example-basic-single form-control inputColumn tamLetra bookTipografia" id="ddlCategoria" data-val-required="Dato requerido" data-val="true" required></select>
+                        <span class="text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="ddlCategoria"></span>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                    <button type="button" value="Buscar" id="btnBuscar_AcordCarac" name="Buscar" class="btnBuscarAgregar">
+                        <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br />
+    <br />
+    <br />
+    <form name="userFormCaracteristicaControlesDinamicos" id="userFormCaracteristicaControlesDinamicos" method="post" novalidate="">
+        <div id="divFiltrosControles" class="row">
+        </div>
+    </form>
+</div>
+<div id="containerProgressPopUp" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>

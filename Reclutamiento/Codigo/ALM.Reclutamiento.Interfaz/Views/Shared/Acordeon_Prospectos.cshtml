@@ -1,0 +1,74 @@
+﻿@model ALM.Reclutamiento.Entidades.EProspecto
+<div class="divMarcoBusqueda">
+    <!--<div class="row">
+        @*<form name="userFormCaracteristicaFiltro" id="userFormCaracteristicaFiltro" method="post" novalidate="">*@
+        <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="lblProspecto" class="labelColumn tamLetra regularTipografia">Caracteristicas</label>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-8 col-lg-8">
+                <div class="divMarcoBusqueda" id="divCaracteristicasProspecto" style="overflow:auto; height:200px;">
+                    <ul class="list-group checked-list-box" id="ulCaracteristicasProspecto"></ul>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <button type="button" value="Buscar" id="btnBuscar_AcordCaracPros" name="Buscar" class="btnBuscarAgregar">
+                    <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+                </button>
+                <button type="button" value="Agregar" id="btnAgregar_AcordCaracPros" name="Agregar" class="btnBuscarAgregar">
+                    <img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" /> Agregars
+                </button>
+            </div>
+        </div>
+    </div>-->
+    <div class="modal-body modalbody">
+        <div id="divSeleccionarCaracteristica" style="width:100%">
+            @Html.Partial("Acordeon_Caracteristicas2") 
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="clear:both; text-align:right; width:98%">
+            <button type="button" value="Guardar" id="btnGuardarCaracteristicas2" name="Guardar2" class="btnGuardar pull-right">
+                <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+            </button>
+
+            <button type="button" value="BuscarProsp" data-dismiss="modal" name="btnBuscarProsp2" id="btnBuscarProsp2" class="btnBuscar pull-right">
+                <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar Prospecto
+            </button>
+
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <div class="divMarcoGrid">
+            <div class="divSubMarcoGrid">
+                <table class="myTable" id="myTableProspectosPorCaracteristicas">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Nombre</th>
+                            <th style="width: 25%;">Dirección</th>
+                            <th style="width: 10%;">Fecha Nac.</th>
+                            <th style="width: 10%;">Tel. Movil</th>
+                            <th style="width: 10%;">Sexo</th>
+                            <th style="width: 15%;">Seleccionar</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    @*</form>*@
+
+
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+
+        </div>
+    </div>
+</div>

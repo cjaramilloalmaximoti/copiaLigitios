@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{67F702F5-A0C0-4312-9947-26A272362FEE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ALM.Reclutamiento.Datos</RootNamespace>
+    <AssemblyName>ALM.Reclutamiento.Datos</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ALM.Correo">
+      <HintPath>..\DLLs\ALM.Correo.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\DLLs\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CadenaConexion.cs" />
+    <Compile Include="Conexion.cs" />
+    <Compile Include="DBitacora.cs" />
+    <Compile Include="DCaracteristicas.cs" />
+    <Compile Include="DCatalogo.cs" />
+    <Compile Include="DCategoria.cs" />
+    <Compile Include="DCIudad.cs" />
+    <Compile Include="DCliente.cs" />
+    <Compile Include="DCodigoPostal.cs" />
+    <Compile Include="DDocumento.cs" />
+    <Compile Include="DEmpresa.cs" />
+    <Compile Include="DForma.cs" />
+    <Compile Include="DFormaPermiso.cs" />
+    <Compile Include="DFormaRol.cs" />
+    <Compile Include="DParametro.cs" />
+    <Compile Include="DProspecto.cs" />
+    <Compile Include="DProspectoCaracteristica.cs" />
+    <Compile Include="DReemplazarMVC.cs" />
+    <Compile Include="DReferenciaLaboral.cs" />
+    <Compile Include="DRol.cs" />
+    <Compile Include="DRolUsuario.cs" />
+    <Compile Include="DSegmento.cs" />
+    <Compile Include="DSubCatalogo.cs" />
+    <Compile Include="DUsuario.cs" />
+    <Compile Include="DVacantes.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ALM.Reclutamiento.AccesoDatos\ALM.Reclutamiento.AccesoDatos.csproj">
+      <Project>{318a264a-7aa3-4e66-b910-f04e26467596}</Project>
+      <Name>ALM.Reclutamiento.AccesoDatos</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ALM.Reclutamiento.Entidades\ALM.Reclutamiento.Entidades.csproj">
+      <Project>{189f24cd-57df-4d3e-afca-21c94cac0df3}</Project>
+      <Name>ALM.Reclutamiento.Entidades</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ALM.Reclutamiento.Utilerias\ALM.Reclutamiento.Utilerias.csproj">
+      <Project>{fa80a11e-246a-42aa-9451-3b220cc4f278}</Project>
+      <Name>ALM.Reclutamiento.Utilerias</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

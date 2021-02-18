@@ -1,0 +1,7 @@
+SQL Server
+ususario: almaximoti_dev
+password: almaximotidev2019@
+
+Mysql Server
+ususario: root
+password: almaximotidev2019@

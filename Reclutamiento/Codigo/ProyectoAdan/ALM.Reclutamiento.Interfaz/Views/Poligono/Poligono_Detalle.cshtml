@@ -1,0 +1,113 @@
+﻿@model ALM.Empresa.Entidades.EPoligono
+<h5>Editar.</h5>
+<hr />
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Clave, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Clave, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtClave" })
+                @Html.ValidationMessageFor(model => model.Clave, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Nombre, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtNombre" })
+                @Html.ValidationMessageFor(model => model.Nombre, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Latitud, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Latitud, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtLatitud" })
+                @Html.ValidationMessageFor(model => model.Latitud, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Longitud, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Longitud, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtLongitud" })
+                @Html.ValidationMessageFor(model => model.Longitud, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="cmbCategoriaPoligono" class="labelColumn tamLetra regularTipografia" id="lblPoligono">Categoría Polígono</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbCategoriaPoligono" class="form-control tamLetra bookTipografia">
+                    <option value="">SELECCIONE...</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.PoligonoKML, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-11 col-sm-7 col-md-7 col-lg-7">
+                @Html.TextBoxFor(m => m.PoligonoKML, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtPoligonoKML", @readonly = "readonly" })
+                @Html.ValidationMessageFor(model => model.PoligonoKML, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 mostrarLink" style="margin-top:5px; visibility:visible !important;">
+                <a href="#" class="ControlEditar lnkPoligonoKML" style="display:inline !important; visibility:visible !important;">
+                    <span class="glyphicon glyphicon-search"></span>
+                </a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.ColorRGB, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.ColorRGB, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtColorRGB" })
+                @Html.ValidationMessageFor(model => model.ColorRGB, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.EsActivo, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8" style="margin-top:5px">
+                <input type="checkbox" id="chkEstatus" checked="checked" />
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnGuardar" name="Guardar" class="btnGuardarDespuesLink pull-right">
+            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+        </button>
+        <button type="button" value="Buscar" id="btnCancelar" name="Cancelar" class="btnCancelar pull-right">
+            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+        </button>
+    </div>
+</div>
+
+<style>
+    /* CSS REQUIRED */
+    .state-icon {
+        left: -5px;
+    }
+
+    .list-group-item-primary {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+    }
+
+    /* DEMO ONLY - REMOVES UNWANTED MARGIN */
+    .well .list-group {
+        margin-bottom: 0px;
+    }
+</style>
+
+
+
+

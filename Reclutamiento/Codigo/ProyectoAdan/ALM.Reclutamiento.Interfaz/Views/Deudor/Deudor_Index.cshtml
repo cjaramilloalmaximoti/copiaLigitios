@@ -1,0 +1,747 @@
+﻿@{
+    ViewBag.Title = "Asignación a Deudor";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<style>
+    .body-content {
+        width: 95% !important;
+    }
+    .modal.modal-wide .modal-dialog {
+        width: 500px !important;
+    }
+
+    .dataTables_scrollBody thead {
+        visibility: hidden !important;
+    }
+</style>
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<div id="divListado">
+    <form name="deudorForm" id="deudorForm" method="post" novalidate="">
+        @Html.Partial("Deudor_Listado")
+    </form>
+</div>
+
+<div id="modalAnalista" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar AnalistaNombre a Deudores</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeleccionarMunicipio" style="width:100%">
+                    <form name="analistaForm" id="analistaForm" method="post" novalidate="">
+                        @Html.Partial("Deudor_Analista")
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+        var rowR = null;
+        var objMod = null;
+        var tableR = null;
+        var cuantosSeleccionados = 0;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+            $("#txtCartera_B").focus();
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                ],
+                "columns": [
+                        {
+                            "data": "Credito", "autoWidth": true, "sClass": "columnaCentro",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Segmento">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                       {
+                           "data": "FechaVencimientoString", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaVencimientoString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "ImporteDeudaString", "autoWidth": true, "sClass": "columnaDerecha",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar ImporteDeudaString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "AnalistaNombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar AnalistaNombre">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "DiasdeMoraString", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar DiasdeMoraString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "Ciudad", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Ciudad">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "TelFijo", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar TelFijo">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "FechaUltimoContactoString", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaUltimoContactoString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "Seleccionado", "autoWidth": true, "bSortable": false,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Seleccionado">')
+                                   .wrap('<div></div>')
+                                   .text(data == true ? 'Si' : 'No')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       }
+                ]
+            });
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+            });
+            
+            FormatearCmbClienteCarteraFiltro();
+            FormatearCmbAnalistaFiltro();
+            FormatearCmbSegmentoFiltro();
+        }
+
+        function FormatearCmbClienteCarteraFiltro() {
+            $element = $('#cmbClienteCarteraFiltro').select2({
+                language: "es",
+                placeholder: "Selecciona una opción",
+                allowClear: true,
+                ajax: {
+                    type: 'POST',
+                    url: '@Url.Action("ObtenerCarteras", "Deudor")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            cadenaBuscar: params.term
+                        };
+                    },
+                    processResults: function (json, page) {
+                        if (json.Respuesta) {
+                            var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                            var codigoCorrecto = '"OK"';
+                            if (codigoRegreso == codigoCorrecto) {
+                                return {
+                                    results: json.Respuesta.RespuestaInformacion.Data.Info
+                                };
+
+                            }
+                            else {
+                                Utilidades.ErrorAjaxControlado(json);
+                                if (errorAjax != null) {
+                                    errorAjax(json);
+                                }
+                            }
+                        }
+                        else {
+                            window.location.href = urlAccesoDenegado;
+                        }
+                    },
+                    cache: true
+                },
+                minimumInputLength: 3,
+            });
+        }
+
+        function FormatearCmbAnalistaFiltro() {
+            $element = $('#cmbAnalistaFiltro').select2({
+                language: "es",
+                placeholder: "Selecciona una opción",
+                allowClear: true,
+                ajax: {
+                    type: 'POST',
+                    url: '@Url.Action("ObtenerUsuariosAnalista", "Deudor")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            cadenaBuscar: params.term,
+                            filtro: true
+                        };
+                    },
+                    processResults: function (json, page) {
+                        if (json.Respuesta) {
+                            var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                            var codigoCorrecto = '"OK"';
+                            if (codigoRegreso == codigoCorrecto) {
+                                return {
+                                    results: json.Respuesta.RespuestaInformacion.Data.Info
+                                };
+
+                            }
+                            else {
+                                Utilidades.ErrorAjaxControlado(json);
+                                if (errorAjax != null) {
+                                    errorAjax(json);
+                                }
+                            }
+                        }
+                        else {
+                            window.location.href = urlAccesoDenegado;
+                        }
+                    },
+                    cache: true
+                },
+                minimumInputLength: 3,
+            });
+        }
+
+        function FormatearCmbSegmentoFiltro() {
+            $element = $('#cmbSegmentoFiltro').select2({
+                language: "es",
+                placeholder: "Selecciona una opción",
+                allowClear: true,
+                ajax: {
+                    type: 'POST',
+                    url: '@Url.Action("ObtenerSegmentos", "Deudor")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            cadenaBuscar: params.term
+                        };
+                    },
+                    processResults: function (json, page) {
+                        if (json.Respuesta) {
+                            var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                            var codigoCorrecto = '"OK"';
+                            if (codigoRegreso == codigoCorrecto) {
+                                return {
+                                    results: json.Respuesta.RespuestaInformacion.Data.Info
+                                };
+
+                            }
+                            else {
+                                Utilidades.ErrorAjaxControlado(json);
+                                if (errorAjax != null) {
+                                    errorAjax(json);
+                                }
+                            }
+                        }
+                        else {
+                            window.location.href = urlAccesoDenegado;
+                        }
+                    },
+                    cache: true
+                },
+                minimumInputLength: 3,
+            });
+        }
+
+        $("#btnBuscar").click(function () {
+            if ($("#deudorForm").data('unobtrusiveValidation').validate()) {
+                Utilidades.MostrarProgress();
+                LlenarGrid();
+            }
+        });
+
+        function LlenarGrid() {
+            tableR = $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "scrollY": "500px",
+                "scrollCollapse": true,
+                "paging": false,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerDeudores", "Deudor")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            cuantosSeleccionados = 0;
+                            $('#lblCuantosSeleccionados').text('0 Seleccionados');
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: { pIdCartera: $('#cmbClienteCarteraFiltro').val(), pIdUsuario: $("#cmbAnalistaFiltro").val(), pIdSegmento: $("#cmbSegmentoFiltro").val() },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [{
+                    'text': '<img class="imagBotones" style="max-width: 15px;max-height: 15px;" /><span class="glyphicon glyphicon-user"></span> Asignar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AsignarDeudorAnalista();
+                    }
+                }
+                ],
+                "columns": [
+                        {
+                            "data": "Credito", "autoWidth": true, "sClass": "columnaCentro",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Segmento">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                       {
+                           "data": "FechaVencimientoString", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaVencimientoString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "ImporteDeudaString", "autoWidth": true, "sClass": "columnaDerecha",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar ImporteDeudaString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "AnalistaNombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<label  onmouseover="" style="cursor: pointer;" id="lbl' + row.IdDeudor + '" class="btnEditar AnalistaNombre">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "DiasdeMoraString", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar DiasdeMoraString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "Ciudad", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Ciudad">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "TelFijo", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar TelFijo">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "FechaUltimoContactoString", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaUltimoContactoString">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "Seleccionado", "autoWidth": true, "bSortable": false,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<input type="checkbox" id="chk' + row.IdDeudor + '" class="chkDeudor" AnalistaNombre="' + row.AnalistaNombre + '" onclick="chkDeudor(this);"/>')
+                                   .wrap('<div></div>')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       }
+                ]
+            });
+
+        }
+
+        function chkDeudor(control) {            
+            if (control.checked) {
+                cuantosSeleccionados++;
+                $('#lblCuantosSeleccionados').text(cuantosSeleccionados.toString() + ' Seleccionados');
+            }
+            else {
+                cuantosSeleccionados--;
+                $('#lblCuantosSeleccionados').text(cuantosSeleccionados.toString() + ' Seleccionados');
+            }
+        };
+
+        $("#chkTodos").change(function () {
+            var check = $(this).is(":checked");
+            cuantosSeleccionados = 0;
+            $('.chkDeudor').each(function () {
+                this.checked = check;
+                cuantosSeleccionados++;
+            });
+            if (check) {
+                $('#lblCuantosSeleccionados').text(cuantosSeleccionados.toString() + ' Seleccionados');
+            }
+            else {
+                $('#lblCuantosSeleccionados').text('0 Seleccionados');
+            }
+        });
+
+        function AsignarDeudorAnalista() {
+            var lista = ObtenerSeleccionados();
+            if (lista == null || lista.length == 0) {
+                Utilidades.MostrarDialogoError("Aviso", "No ha seleccionado algún deudor para asignar.");
+            }
+            else {
+                $('#modalAnalista').modal('show');
+            }
+            return false;
+        }
+
+        function ObtenerSeleccionados() {
+            var lista = [];
+            $('.chkDeudor').each(function () {
+                if (this.checked) {
+                    lista.push(parseInt(this.id.replace('chk', '')));
+                }
+            });
+            return lista;
+        }
+
+        function SetAnalistaListado() {
+            $('.chkDeudor').each(function () {
+                if (this.checked) {
+                    $("#lbl" + this.id.replace('chk', '')).text($('#cmbIdAnalista option:selected').text());
+                }
+            });
+        }
+
+        $('#modalAnalista').on('shown.bs.modal', function () {
+            FormatearCmbAnalista();
+        });
+
+        function FormatearCmbAnalista() {
+            try {
+                $('#cmbIdAnalista').html('').select2({ data: { id: null, text: null } });
+            }
+            catch (e) { }
+
+            $element = $('#cmbIdAnalista').select2({
+                language: "es",
+                placeholder: "Selecciona una opción",
+                allowClear: true,
+                ajax: {
+                    type: 'POST',
+                    url: '@Url.Action("ObtenerUsuariosAnalista", "Deudor")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            cadenaBuscar: params.term,
+                            filtro: false
+                        };
+                    },
+                    processResults: function (json, page) {
+                        if (json.Respuesta) {
+                            var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                            var codigoCorrecto = '"OK"';
+                            if (codigoRegreso == codigoCorrecto) {
+                                return {
+                                    results: json.Respuesta.RespuestaInformacion.Data.Info
+                                };
+
+                            }
+                            else {
+                                Utilidades.ErrorAjaxControlado(json);
+                                if (errorAjax != null) {
+                                    errorAjax(json);
+                                }
+                            }
+                        }
+                        else {
+                            window.location.href = urlAccesoDenegado;
+                        }
+                    },
+                    cache: true
+                },
+                minimumInputLength: 3,
+            });
+            $('#cmbIdAnalista').focus();
+            $element.select2("open");
+        }
+
+        $('#btnAsignar').on('click', function () {
+            if ($("#analistaForm").data('unobtrusiveValidation').validate()) {
+                if (ValidarAsignados()) {
+                    Utilidades.MostrarConfirmacion('Aviso', 'Se asignarán al analista seleccionado registros de deudores que ya habían sido asignados, ¿Desea continuar?', AsignarAnalista, null);
+                }
+                else {
+                    AsignarAnalista();
+                }
+            }
+            return false;
+        });
+
+        function ValidarAsignados() {
+            var reultado = false;
+            $('.chkDeudor').each(function () {
+                if (this.checked && $(this).attr('AnalistaNombre') != '') {
+                    reultado = true;
+                }
+            });
+            return reultado;
+        }
+
+        function AsignarAnalista() {
+            var params = {
+                lstDeudores: ObtenerSeleccionados(),
+                idAnalista: $('#cmbIdAnalista').val()
+            };
+            $.ajax({
+                url: '@Url.Action("ActualizarDeudoresAnalista", "Deudor")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        SetAnalistaListado();
+                        Utilidades.OcultarProgress();
+                        $('#modalAnalista').modal('hide');
+                        Utilidades.MostrarDialogo("Aviso", "Registros asignados exitosamente a analista. Favor de actualizar el listado de deudores.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+    </script>
+}

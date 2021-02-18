@@ -1,0 +1,1 @@
+alter table prospecto add column SalarioFinal float null

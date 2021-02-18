@@ -1,0 +1,86 @@
+﻿@model ALM.Empresa.Entidades.EDatosContactoDeudor
+<div class="row">
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Telefono, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.Telefono, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtTelefonoCD" })
+            @Html.ValidationMessageFor(model => model.Telefono, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Validado, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.CheckBoxFor(m => m.Validado, new { @class = "", id = "chkValidadoCD", })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.CorreoElectronico, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.CorreoElectronico, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtCorreoElectronicoCD" })
+            @Html.ValidationMessageFor(model => model.CorreoElectronico, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.CalleNum, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.CalleNum, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtCalleNumCD" })
+            @Html.ValidationMessageFor(model => model.CalleNum, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Colonia, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.Colonia, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtColoniaCD" })
+            @Html.ValidationMessageFor(model => model.Colonia, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Ciudad, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.Ciudad, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtCiudadCD" })
+            @Html.ValidationMessageFor(model => model.Ciudad, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Estado, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.Estado, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtEstadoCD" })
+            @Html.ValidationMessageFor(model => model.Estado, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Comentarios, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+            @Html.TextAreaFor(m => m.Comentarios, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia textArea", id = "txtComentarioCD", rows = "4" })
+            @Html.ValidationMessageFor(model => model.Comentarios, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+</div>
+<div style="clear:both; text-align:right; width:100%">
+    <br />
+    <hr />
+
+</div>
+<div id="containerProgressPopUp" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>
+

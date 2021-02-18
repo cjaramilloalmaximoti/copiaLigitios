@@ -1,0 +1,44 @@
+﻿<br />
+
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="lblOficio" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Oficio</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtPredispersionOficio" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtPredispersionOficio" />
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <select id="cmbEstatus" class="form-control tamLetra bookTipografia" style="visibility:hidden"></select>
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscar">
+            <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+        </button>
+    </div>
+</div>
+
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable" id="myTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="width: 15%;">Oficio-Anexo</th>
+                    <th style="width: 10%;">Fecha Carga</th>
+                    <th style="width: 12%;">Usuario</th>
+                    <th style="width: 12%;">Nombre Archivo</th>
+                    <th style="width: 18%;">Inversión Total / Oficio</th>
+                    <th style="width: 12%;">Beneficiarios Válidos</th>
+                    <th>Operaciones</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+

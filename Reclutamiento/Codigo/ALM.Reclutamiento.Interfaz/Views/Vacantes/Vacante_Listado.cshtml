@@ -1,0 +1,93 @@
+﻿<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblVacanteNombre" id="lblVacanteNombre" class="labelColumn tamLetra regularTipografia">Título</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtVacanteNombre" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtVacanteNombre" placeholder="Título" />
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="cmbEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Activo</label>
+            </div>
+
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbEstatus" class="form-control tamLetra bookTipografia">
+                    <option value="-1">Todos</option>
+                    <option value="1">Activos </option>
+                    <option value="0">Inactivos</option>
+                </select>
+            </div>
+
+        </div>
+        <!--Nuevo campos-->
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <!-- Tipo Contrato -->
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblTipoContrato" id="lblTipoContrato" class="labelColumn tamLetra regularTipografia">Tipo de Contrato </label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbTipoContratoFiltro" class="form-control tamLetra bookTipografia"></select>
+            </div>
+        </div>
+        <!--Cliente-->
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblCliente" id="lblCliente" class="labelColumn tamLetra regularTipografia">Cliente</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtCliente" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtCliente" placeholder="Cliente" />
+            </div>
+        </div>
+        <!--End Cliente-->
+        <!-- Tipo Jornada --><!--
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblTipJornada" id="lblTipoJornada" class="labelColumn tamLetra regularTipografia">Tipo de Jornada </label>
+            </div>
+
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbTipoJornadaFiltro" class="form-control tamLetra bookTipografia"></select>
+            </div>
+        </div>-->
+        <!--End Tipo Jornada -->
+        <div style="clear:both; text-align:right; width:100%">
+            <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscarAgregar" style="margin-right:2.3%">
+                <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+            </button>
+        </div>
+    </div>
+</div>
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable" id="myTable">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Título</th>
+                    <th style="width: 30%;">Descripción</th>
+                    <th style="width: 15%;">F. Contratación</th>
+                    <th style="width: 15%;">Número Vacantes</th>
+                    <th style="width: 15%;">Es Activo</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<style>
+    #myTable {
+    border-bottom: none;
+    }
+
+    #marcoGrid {
+    border-bottom:none;
+    
+    }
+</style>
+
+
+
+

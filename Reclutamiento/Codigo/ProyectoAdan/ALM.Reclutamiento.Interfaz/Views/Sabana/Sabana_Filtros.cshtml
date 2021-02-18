@@ -1,0 +1,579 @@
+﻿
+<br />
+
+<div id="modalSeleccionarModalidad" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Seleccionar Modalidad</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeleccionarModalidad" style="width:100%">
+                    @Html.Partial("Modalidad_Select")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalSeleccionarMunicipio" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Seleccionar Municipio</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeleccionarMunicipio" style="width:100%">
+                    @Html.Partial("Municipio_Select")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalSeleccionarEscuela" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Seleccionar Escuela</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeleccionarEscuela" style="width:100%">
+                    @Html.Partial("Escuela_Select")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div id="divFiltros">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px;margin-bottom:5px;">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1" >
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Fecha del:</label>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-5">
+                <div id="divFecha">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control" id="txtFechaInicio" name="date"
+                               placeholder="dd/mm/yyyy" data-format="dd/mm/yyyy" style="z-index:0">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1">
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">al:</label>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-5">
+                <div id="divFecha">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control txtFecha" id="txtFechaFin" name="date"
+                               placeholder="dd/mm/yyyy" data-format="dd/mm/yyyy" style="z-index:0">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-1">
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Modalidad(es):</label>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-11">
+                <div class="s2-example">
+                    <p>
+                        <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbModalidades" style="width: 100%"></select>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Municipio(s):</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                <div class="s2-example">
+                    <p>
+                        <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbMunicipios" style="width: 100%"></select>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Escuela(s):</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                <div class="s2-example">
+                    <p>
+                        <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbEscuelas" style="width: 100%"></select>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                    <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Tipo(s) de Escuela:</label>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                    <div class="s2-example">
+                        <p>
+                            <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbTiposEscuela" style="width: 100%"></select>
+                        </p>
+                    </div>
+                </div>
+        </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                    <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Grupo(s) de Instituciones:</label>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                    <div class="s2-example">
+                        <p>
+                            <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbGrupoInstituciones" style="width: 100%"></select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Género(s):</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                <div class="s2-example">
+                    <p>
+                        <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbGeneros" style="width: 100%"></select>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Nivel(s):</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                <div class="s2-example">
+                    <p>
+                        <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbNiveles" style="width: 100%"></select>
+                    </p>
+                </div>
+            </div>
+        </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+                    <label for="txtEstado_B" id="lblEstado_B" class="labelColumn tamLetra regularTipografia">Tipos(s) Apoyo:</label>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-10 col-lg-11">
+                    <div class="s2-example">
+                        <p>
+                            <select class="js-example-basic-multiple js-states form-control" multiple="multiple" id="cmbTiposApoyos" style="width: 100%"></select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8" style="clear:both; text-align:right; width:100%">
+            <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscar">
+                <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+            </button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script src="@Url.Content("~/Scripts/jquery-3.1.1.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/jquery-3.1.1.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/scripts/sabana/modales.js")"></script>
+<script type="text/javascript">
+
+    function InicializarFiltros() {
+        $(".js-example-basic-multiple").select2({
+            language: "es",
+            placeholder: "Seleccione las opciones"
+        });
+
+        var urls = [
+        '@Url.Action("ObtCatalogoGeneros", "Sabana")',
+        '@Url.Action("ObtCatalogoNiveles", "Sabana")',
+        '@Url.Action("ObtCatalogoTiposApoyos", "Sabana")',
+        '@Url.Action("ObtCatalogoGrupoInstituciones", "Sabana")',
+        '@Url.Action("ObtCatalogoTiposEscuela", "Sabana")'
+        ];
+
+        var urlContinentes = '@Url.Action("ObtCatalogoContinente", "Sabana")';
+        var urlPaises = '@Url.Action("ObtCatalogoPais", "Sabana")';
+        var urlEstados = '@Url.Action("ObtCatalogoEstado", "Sabana")';
+        var urlMunicipios = '@Url.Action("ObtSubcatalogoMunicipiosPopUp", "Sabana")';
+
+
+        var urlProyectos = '@Url.Action("ObtCatalogoProyecto", "Sabana")';
+        var urlProgramas = '@Url.Action("ObtCatalogoPrograma", "Sabana")';
+        var urlModalidades = '@Url.Action("ObtCatalogoModalidad", "Sabana")';
+
+        var urlEscuelas = "@Url.Action("ObtenerEscuelas", "Sabana")";
+
+        var urlDtLanguaje = "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")";
+
+        var combos = ["#cmbGeneros", "#cmbNiveles", "#cmbTiposApoyos", "#cmbGrupoInstituciones", "#cmbTiposEscuela"]
+
+        var eventoDeseleccionDisparado = false;
+
+        var popupMunicipios = null;
+        var popupEscuelas = null;
+        var popupModalidades = null;
+
+        CargarDatosIniciales(urls,combos,0);
+
+        //seleccion fechas
+        $.fn.datepicker.defaults.format = "dd/M/yyyy";
+
+        $('#txtFechaInicio').datepicker({
+            language: "es",
+            autoclose: true,
+            todayHighlight: true,
+            orientation: "top auto",
+            format: "dd/M/yyyy",
+            pick12HourFormat: true
+        });
+
+        $('#txtFechaFin').datepicker({
+            language: "es",
+            autoclose: true,
+            todayHighlight: true,
+            orientation: "top auto",
+            format: "dd/M/yyyy",
+            pick12HourFormat: true
+        });
+
+
+        //seleccion modalidades
+        $('#cmbModalidades').on('select2:opening', function (event) {
+
+            event.preventDefault();
+
+
+            if (!eventoDeseleccionDisparado) {
+
+                if (popupModalidades == null) {
+                    popupModalidades = new ModalidadesPopup(urlProyectos, urlProgramas, urlModalidades, urlDtLanguaje, function () { Utilidades.MostrarProgressElementPopUp(document.getElementById('modalidadContainerProgressPopUp')); }, function () { Utilidades.OcultarProgressElementPopUp(document.getElementById('modalidadContainerProgressPopUp')); });
+
+                    popupModalidades.PrepararSeleccionModalidades();
+                }
+
+
+                $('#modalSeleccionarModalidad').modal('show');
+
+
+            }
+
+            eventoDeseleccionDisparado = false;
+
+        })
+
+        $('#cmbModalidades').on('select2:unselecting', function (event) {
+
+            eventoDeseleccionDisparado = true;
+
+        })
+
+        $('#myTableModalidades').on('modalidad_selected', function (event, data) {
+
+            var idSelected = data.IdModalidad;
+            var exists = false;
+            var existingOption = null;
+
+            $("#cmbModalidades option").each(function () {
+
+                if (this.value == idSelected && this.selected == true) {
+                    existingOption = this;
+                    exists = true;
+
+                    return false;
+                }
+
+            });
+
+
+            if (!exists) {
+
+                var option = new Option(data.Nombre, data.IdModalidad, true, true);
+                var $element = $('#cmbModalidades').select2({
+                    language: "es",
+                    placeholder: "Seleccione las opciones"
+                });
+
+                $element.append(option);
+
+            }
+
+        });
+
+       //seleccion municipios
+        $('#cmbMunicipios').on('select2:opening', function (event) {
+
+            event.preventDefault();
+
+
+            if (!eventoDeseleccionDisparado) {
+
+                if (popupMunicipios == null) {
+                    popupMunicipios = new MunicipiosPopup(urlContinentes, urlPaises, urlEstados, urlMunicipios, urlDtLanguaje, function () { Utilidades.MostrarProgressElementPopUp(document.getElementById('municipioContainerProgressPopUp')); }, function () { Utilidades.OcultarProgressElementPopUp(document.getElementById('municipioContainerProgressPopUp')); });
+
+                    popupMunicipios.PrepararSeleccionMunicipio();
+                }
+
+
+                $('#modalSeleccionarMunicipio').modal('show');
+
+
+            }
+
+            eventoDeseleccionDisparado = false;
+
+        })
+
+        $('#cmbMunicipios').on('select2:unselecting', function (event) {
+
+            eventoDeseleccionDisparado = true;
+
+        })
+
+        $('#myTableMunicipios').on('municipio_selected', function (event,data) {
+
+            var idSelected = data.IdMunicipio;
+            var exists = false;
+            var existingOption = null;
+
+            $("#cmbMunicipios option").each(function () {
+
+                if (this.value == idSelected && this.selected ==true) {
+                    existingOption = this;
+                    exists = true;
+
+                    return false;
+                }
+
+            });
+
+
+            if (!exists) {
+
+                var option = new Option(data.Nombre, data.IdMunicipio, true, true);
+                var $element = $('#cmbMunicipios').select2({
+                    language: "es",
+                    placeholder: "Seleccione las opciones"
+                });
+
+                $element.append(option);
+
+            }
+
+        });
+
+
+
+        //seleccion Escuelas
+
+        $('#cmbEscuelas').on('select2:opening', function (event) {
+
+            event.preventDefault();
+
+
+            if (!eventoDeseleccionDisparado) {
+
+                if (popupEscuelas == null) {
+                    popupEscuelas = new EscuelasPopup(urlEscuelas, urlDtLanguaje,function () { Utilidades.MostrarProgressElementPopUp(document.getElementById('escuelaContainerProgressPopUp')); }, function () { Utilidades.OcultarProgressElementPopUp(document.getElementById('escuelaContainerProgressPopUp')); });
+
+                    popupEscuelas.PrepararSeleccionEscuela();
+                }
+
+
+                $('#modalSeleccionarEscuela').modal('show');
+
+
+            }
+
+            eventoDeseleccionDisparado = false;
+
+        })
+
+        $('#cmbEscuelas').on('select2:unselecting', function (event) {
+
+            eventoDeseleccionDisparado = true;
+
+        })
+
+        $('#myTableEscuela').on('escuela_selected', function (event, data) {
+
+            var idSelected = data.IdEscuela;
+            var exists = false;
+            var existingOption = null;
+
+            $("#cmbEscuelas option").each(function () {
+
+                if (this.value == idSelected && this.selected == true) {
+                    existingOption = this;
+                    exists = true;
+
+                    return false;
+                }
+
+            });
+
+
+            if (!exists) {
+
+                var option = new Option(data.Nombre, data.IdEscuela, true, true);
+                var $element = $('#cmbEscuelas').select2({
+                    language: "es",
+                    placeholder: "Seleccione las opciones"
+                });
+
+                $element.append(option);
+
+            }
+
+        });
+
+
+    }
+
+
+    function CargarDatosIniciales(urls, combos, index) {
+
+        if (index >= urls.length) {
+            Utilidades.OcultarProgressContainer();
+            return;
+        }
+
+
+        if (index == 0) {
+            Utilidades.MostrarProgressContainer();
+        }
+
+
+        $.ajax({
+            url: urls[index],
+            type: 'POST',
+            cache: false,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    var lista = json.Respuesta.RespuestaInformacion.Data.Info;
+
+                    if (lista != null) {
+                        var option = null;
+
+
+                        var $element = $(combos[index]).select2({
+                            language: "es",
+                            placeholder: "Seleccione las opciones"
+                        });
+
+
+
+                        {
+
+                            $.each(lista, function (i, item) {
+                                option = new Option(item.Nombre, item.IdCatalogo, true, false);
+                                $element.append(option);
+                            });
+
+                         }
+
+
+
+
+                    }
+
+                    CargarDatosIniciales(urls,combos,index+1);
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            data: {
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+
+    $("#btnBuscar").click(function () {
+        var listaModalidades = [];
+        var listaMunicipios = [];
+        var listaGeneros = [];
+        var listaNiveles = [];
+        var listaTiposApoyos = [];
+        var listaEscuelas = [];
+        var listaTiposEscuela = [];
+        var listaGruposInstituciones = [];
+        //validar fechas
+        var fechaIni = Utilidades.ProcesarFecha($('#txtFechaInicio').val(), 2)
+        var fechaFin = Utilidades.ProcesarFecha($('#txtFechaFin').val(), 2)
+
+        if (fechaIni != '' && fechaFin != ''&&(fechaIni.getTime()>fechaFin.getTime()))
+        {
+
+            Utilidades.MostrarDialogoError("Aviso", "La fecha inicial debe ser menor o igual a la fecha final.");
+            return;
+        }
+
+
+        $("#cmbMunicipios option:selected").each(function () {
+            listaMunicipios.push(this.value);
+        });
+
+        $("#cmbModalidades option:selected").each(function () {
+            listaModalidades.push(this.value);
+        });
+
+        $("#cmbEscuelas option:selected").each(function () {
+            listaEscuelas.push(this.value);
+        });
+
+        $("#cmbNiveles option:selected").each(function () {
+            listaNiveles.push(this.value);
+        });
+
+        $("#cmbGeneros option:selected").each(function () {
+            listaGeneros.push(this.value);
+        });
+
+        $("#cmbTiposApoyos option:selected").each(function () {
+            listaTiposApoyos.push(this.value);
+        });
+
+        $("#cmbTiposEscuela option:selected").each(function () {
+            listaTiposEscuela.push(this.value);
+        });
+
+        $("#cmbGrupoInstituciones option:selected").each(function () {
+            listaGruposInstituciones.push(this.value);
+        });
+
+        $('#divFiltros').trigger('seach_request', {
+            "FechaInicio": Utilidades.ProcesarFecha($('#txtFechaInicio').val(), 0), "FechaFin": Utilidades.ProcesarFecha($('#txtFechaFin').val(),0), "Modalidades": listaModalidades.join(','),
+            "Escuelas": listaEscuelas.join(','), "Generos": listaGeneros.join(','), "Niveles": listaNiveles.join(','), "Municipios": listaMunicipios.join(','), "TiposEscuela": listaTiposEscuela.join(','), "GrupoInstituciones": listaGruposInstituciones.join(','),"TiposApoyos":listaTiposApoyos.join(',')
+        });
+
+    });
+</script>

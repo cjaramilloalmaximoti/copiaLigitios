@@ -1,0 +1,76 @@
+﻿@model ALM.Empresa.Entidades.EUsuario
+@{
+    ViewBag.Title = "Reestablecer contraseña";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+@using (Html.BeginForm("ReestablecerContraseniaUsuario", "Inicio", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", id = "myform", role = "form" }))
+{
+
+
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.IdUsuario, new { id = "hdnIdUser" })
+    @Html.HiddenFor(m => m.CodigoRecuperaContrasenia, new { id = "hdnCodigoRecuperacion" })
+
+    <h4>Capture su nueva contraseña.</h4>
+    <hr />
+
+    @Html.ValidationMessage("CustomError", null, new { @class = "text-danger-Fuerte bookTipografia" })
+
+
+    <div class="divPosicionLogin Retroceder">
+        @Html.LabelFor(m => m.Contrasenia, new { @class = "col-md-2 control-label TamLetra regularTipografia" })
+
+
+        @Html.PasswordFor(m => m.Contrasenia, new { @class = "form-control  TamLetra taminput bookTipografia" })
+        @Html.ValidationMessageFor(model => model.Contrasenia, null, new { @class = "text-danger bookTipografia", @style = "margin-left:40.75%" })
+    </div>
+    <div class="divPosicionLogin Retroceder">
+        @Html.LabelFor(m => m.ConfirmarContrasenia, new { @class = "col-md-2 control-label TamLetra regularTipografia" })
+
+        @Html.PasswordFor(m => m.ConfirmarContrasenia, new { @class = "form-control  TamLetra taminput bookTipografia" })
+        @Html.ValidationMessageFor(model => model.ConfirmarContrasenia, null, new { @class = "text-danger bookTipografia", @style = "margin-left:40.75%" })
+
+    </div>
+
+
+    <br />
+    <div class="divOlvideContrasena">
+        <input type="submit" value="Guardar" id="btnGuardar" class=@ViewData["btnActivo"] />
+        <br />
+        @Html.ActionLink("Ir a  Acceso", "AccesoUsuario", "Usuario", new { @class = "bookTipografia" })
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="">
+
+
+        $(document).ready(function () {
+            var desabilitar = "@ViewData["DisableControles"].ToString().Trim()";
+            
+            if (desabilitar == "true") {
+                $("#Contrasenia").attr("disabled", "disabled");
+                $("#ConfirmarContrasenia").attr("disabled", "disabled");
+                $("#btnGuardar").attr("disabled", "disabled");
+            }
+            else {
+                $("#Contrasenia").removeAttr("disabled");
+                $("#ConfirmarContrasenia").removeAttr("disabled");
+                $("#btnGuardar").removeAttr("disabled");
+            }
+        });
+        function ValidaReinicioContrasenia() {
+
+
+            //$("#Contrasenia").attr("disabled", "disabled");
+            //$("#ConfirmarContrasenia").attr("disabled", "disabled");
+            //$("#btnGuardar").attr("disabled", "disabled");
+            Utilidades.MostrarDialogo("Mensaje", "Su contraseña sera cambiada enseguida, ya la puede usar para accesar al sistema");
+        }
+
+
+    </script>
+}
+
+

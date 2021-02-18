@@ -1,0 +1,75 @@
+﻿<br />
+
+<div class="divMarcoBusqueda">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+                <label for="lblFechaInicio" id="lblNombre" class="labelColumn tamLetra regularTipografia">Fecha Inicio</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+                <div id="divFechaNacimientoString">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" id="txtFechaInicio" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtFechaInicio" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3">
+                <label for="lblFechaFin" id="lblNombre" class="labelColumn tamLetra regularTipografia">Fecha Fin</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+                <div id="divFechaNacimientoString">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="text" id="txtFechaFin" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtFechaFin" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8" style="clear:both; text-align:right; width:100%">
+            <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscar">
+                <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="divMarcoGrid" id="idMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable myTableBeneficiario" id="myTableBeneficiario1">
+            <thead>
+                <tr>
+                    <th>Identificador</th>
+                    <th>Nombre</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Sexo</th>
+                    <th>CURP</th>
+                    <th>Domicilio</th>
+                    <th>Colonia</th>
+                    <th>C.P.</th>
+                    <th>Municipio</th>
+                    <th>Teléfono</th>
+                    <th>Celular</th>
+                    <th>Correo Eléct.</th>
+                    <th>Escuela</th>
+                    <th>Tipo Escuela</th>
+                    <th>Municipio Escuela</th>
+                    <th>Grado</th>
+                    <th>Calificación</th>
+                    <th>Dependencia</th>
+                    <th>Proyecto</th>
+                    <th>Programa</th>
+                    <th>Modalidad</th>
+                    <th>Nivel</th>
+                    <th>Cant. Pagos</th>
+                    <th>Fecha Pago</th>
+                    <th>Apoyo</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>

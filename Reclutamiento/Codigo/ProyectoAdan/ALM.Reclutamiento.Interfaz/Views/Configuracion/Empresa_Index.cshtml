@@ -1,0 +1,206 @@
+﻿@model ALM.Empresa.Entidades.EEmpresa
+@{
+    ViewBag.Title = "Información de la Empresa";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<form name="empresaForm" id="empresaForm" method="post" novalidate="">
+    <div class="divMarcoBusqueda">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    @Html.LabelFor(m => m.Dominio, new { @class = "control-label tamLetra regularTipografia" })
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    @Html.TextBoxFor(m => m.Dominio, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtDominio" })
+                    @Html.ValidationMessageFor(model => model.Dominio, null, new { @class = "text-danger tamLetra bookTipografia" })
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    @Html.LabelFor(m => m.ProductKey, new { @class = "control-label tamLetra regularTipografia" })
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    @Html.TextAreaFor(m => m.ProductKey, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia textArea", id = "txtProductKey", rows = "2" })
+                    @Html.ValidationMessageFor(model => model.ProductKey, null, new { @class = "text-danger tamLetra bookTipografia" })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    @Html.LabelFor(m => m.Administrador, new { @class = "control-label tamLetra regularTipografia" })
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    @Html.TextBoxFor(m => m.Administrador, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtAdministrador" })
+                    @Html.ValidationMessageFor(model => model.Administrador, null, new { @class = "text-danger tamLetra bookTipografia" })
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    @Html.LabelFor(m => m.Contraseña, new { @class = "control-label tamLetra regularTipografia" })
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    @Html.PasswordFor(m => m.Contraseña, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtContraseña" })
+                    @Html.ValidationMessageFor(model => model.Contraseña, null, new { @class = "text-danger tamLetra bookTipografia" })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    @Html.LabelFor(m => m.NombreComercial, new { @class = "control-label tamLetra regularTipografia" })
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    @Html.TextBoxFor(m => m.NombreComercial, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtNombreComercial" })
+                    @Html.ValidationMessageFor(model => model.NombreComercial, null, new { @class = "text-danger tamLetra bookTipografia" })
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+                <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                    @Html.LabelFor(m => m.RutaLogo, new { @class = "control-label tamLetra regularTipografia" })
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                    @Html.TextBoxFor(m => m.RutaLogo, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtRutaLogo", disabled = "disabled" })
+                    @Html.TextBoxFor(model => model.RutaLogo_2, new { @type = "file", @class = "input-file form-control inputColumn inputpe tamLetra bookTipografia RutaLogo", placeholder = "Logo", style = "width:100%;" })
+                    @Html.ValidationMessageFor(model => model.RutaLogo_2, null, new { @class = "text-danger tamLetra bookTipografia" })
+                </div>
+            </div>
+        </div>
+        <div style="clear:both; text-align:right; width:99%">
+            <hr />
+            <button type="button" value="Guardar" id="btnGuardar" name="Guardar" class="btnGuardar pull-right">
+                <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+            </button>
+            <button type="button" value="Cancelar" id="btnCancelar" name="Cancelar" class="btnCancelar pull-right">
+                <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+            </button>
+        </div>
+    </div>
+</form>
+
+@section scripts {
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+
+        var empresa = null;
+
+        $(document).ready(function () {
+            Utilidades.MostrarProgress();
+            Inicializar();
+        });
+
+        function Inicializar() {
+            var items = null;
+            $.ajax({
+                url: '@Url.Action("ObtenerEmpresa", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    Utilidades.OcultarProgress();
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        empresa = json.Respuesta.RespuestaInformacion.Data.Info;
+                        EstablecerValores();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+            if (!$('#txtContraseña').next().hasClass("sauron"))
+                $('#txtContraseña').sauron();
+            $('#txtDominio').focus();
+        }
+
+        function EstablecerValores() {
+            if (empresa && empresa != null) {
+                $('#txtDominio').val(empresa.Dominio);
+                $('#txtProductKey').val(empresa.ProductKey);
+                $('#txtAdministrador').val(empresa.Administrador);
+                $('#txtContraseña').val(empresa.Contraseña);
+                $('#txtNombreComercial').val(empresa.NombreComercial);
+                $('#txtRutaLogo').val(empresa.RutaLogo);
+            }
+            else {
+                $('#txtDominio').val('');
+                $('#txtProductKey').val('');
+                $('#txtAdministrador').val('');
+                $('#txtContraseña').val('');
+                $('#txtNombreComercial').val('');
+                $('#txtRutaLogo').val('');
+            }
+        }
+
+        $('#btnCancelar').on('click', function () {
+            $(".input-file").val('');
+            EstablecerValores();
+            return false;
+        });
+
+        $('#btnGuardar').on('click', function () {
+            if ($("#empresaForm").data('unobtrusiveValidation').validate()) {
+                Utilidades.MostrarProgress();
+
+                var formData = new FormData();
+                formData.append('pDominio', $('#txtDominio').val());
+                formData.append('pProductKey', $('#txtProductKey').val());
+                formData.append('pAdministrador', $('#txtAdministrador').val());
+                formData.append('pContraseña', $('#txtContraseña').val());
+                formData.append('pNombreComercial', $('#txtNombreComercial').val());
+                formData.append('pRutaLogo', $('#txtRutaLogo').val());
+                formData.append('file', $("#empresaForm" + ' input[type="file"]')[0].files['0']);
+
+                $.ajax({
+                    url: '@Url.Action("ActualizarEmpresa", "Configuracion")',
+                    type: 'POST',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            empresa.Dominio = $('#txtDominio').val();
+                            empresa.ProductKey = $('#txtProductKey').val();
+                            empresa.Administrador = $('#txtAdministrador').val();
+                            empresa.Contraseña = $('#txtContraseña').val();
+                            empresa.NombreComercial = $('#txtNombreComercial').val();
+                            if ($("#empresaForm" + ' input[type="file"]')[0].files['0'] != null) {
+                                empresa.RutaLogo = $("#empresaForm" + ' input[type="file"]')[0].files['0'].name;
+                            }
+                            else {
+                                empresa.RutaLogo = $('#txtRutaLogo').val();
+                            }
+                            $('#txtRutaLogo').val(empresa.RutaLogo);
+                            $(".input-file").val('');
+                            $("#idLogotipoIzquierdo").attr("src", json.Respuesta.MensajeUsuario);
+                            $('#lblNombreCompletoHead').text(empresa.Administrador + ' (ALM)');
+                            $('#lblCorreoHead').text(empresa.Administrador + empresa.Dominio);
+                            Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+            return false;
+        });
+
+    </script>
+}

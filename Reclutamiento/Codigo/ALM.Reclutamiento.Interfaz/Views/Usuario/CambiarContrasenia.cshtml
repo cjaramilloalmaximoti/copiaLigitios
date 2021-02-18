@@ -1,0 +1,139 @@
+﻿@model ALM.Reclutamiento.Entidades.EUsuario
+@{
+    ViewBag.Title = "Cambiar Contraseña";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+
+<style>
+    .custom-combobox {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-combobox-toggle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin-left: -1px;
+        padding: 0;
+    }
+
+    .custom-combobox-input {
+        margin: 0;
+        padding: 5px 10px;
+    }
+
+</style>
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<form name="usuarioform" id="usuarioform" method="post" novalidate="">
+    @Html.AntiForgeryToken()
+    <h4>Capture los siguientes datos para modificar su contraseña.</h4>
+    <hr />
+    <div style="border: 0px solid #000000">
+        <div id="detalles" class="form-group col-lg-8 col-md-8 col-sm-12" style="border: 1px solid Highlight;">
+            <div class="row">
+                <div class="form-group col-lg-12 col-md-12 col-sm-12">
+                    @Html.ValidationMessage("CustomError", null, new { @class = "text-danger bookTipografia" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                    @Html.LabelFor(m => m.Contrasenia, new { @class = "control-label tamLetra" })
+                </div>
+                <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                    @Html.PasswordFor(m => m.Contrasenia, new { data_bind = "value:Contrasenia", @class = "form-control tamLetra taminput bookTipografia", id = "txtContrasenia" })
+                    <div id="suaronContrasenia" class="sauron" style="top: 7px; width: 14.44px; height: 14.44px; right: 115px;"></div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                </div>
+                <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9" style="margin-top:10px;">
+                    @Html.ValidationMessageFor(model => model.Contrasenia, null, new { @class = "text-danger bookTipografia" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                    @Html.LabelFor(m => m.ConfirmarContrasenia, new { @class = "control-label tamLetra" })
+                </div>
+                <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                    @Html.PasswordFor(m => m.ConfirmarContrasenia, new { @class = "form-control tamLetra taminput bookTipografia", id = "txtConfirmarContrasenia" })
+                    <div id="suaronConfirmarContrasenia" class="sauron" style="top: 7px; width: 14.44px; height: 14.44px; right: 115px;"></div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                </div>
+                <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9" style="margin-top:10px;">
+                    @Html.ValidationMessageFor(model => model.ConfirmarContrasenia, null, new { @class = "text-danger bookTipografia" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <input id="hfIdUsuario" name="idUsuario" value="0" type="hidden" />
+    <input id="hfUsuarioId" name="usuarioId" value="0" type="hidden" />
+    <input type="hidden" value="@ViewBag.ApiUrl" id="hfApiUrl" />
+    <div class="form-group row">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" id="btnSave" class="btnGuardar" onclick="guardarUsuarioCambioContrasenia()"><img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar</button>
+        <input id="ApiUrl" name="rutaUsuarioApiController" value="" type="hidden" />
+    </div>
+
+</form>
+
+@section scripts {
+    <script type="text/javascript">
+        function guardarUsuarioCambioContrasenia() {
+            var pwConfirmado = $('#txtContrasenia').val() == $('#txtConfirmarContrasenia').val();
+
+            if ($("#usuarioform").data('unobtrusiveValidation').validate() && pwConfirmado) {
+                Utilidades.MostrarProgress();
+                ActualizarContrasenia();
+            }
+            else {
+                Utilidades.OcultarProgress();
+            }
+        }
+
+        function ActualizarContrasenia() {
+            $.ajax({
+                url: '@Url.Action("ActualizarContraseniaUserLog", "Usuario")',
+                type: 'POST',
+                cache: false,
+                data: { contrasenia: $('#txtContrasenia').val() },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        $('#txtContrasenia').val('');
+                        $('#txtConfirmarContrasenia').val('');
+                        Utilidades.OcultarProgress();
+                        Utilidades.MostrarDialogo("Aviso", "Contraseña actualizada exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        $("#suaronContrasenia").mousedown(function (event) {
+            $("#txtContrasenia").attr("type", "text");
+        });
+
+        $("#suaronContrasenia").mouseup(function (event) {
+            $("#txtContrasenia").attr("type", "password");
+        });
+
+        $("#suaronConfirmarContrasenia").mousedown(function (event) {
+            $("#txtConfirmarContrasenia").attr("type", "text");
+        });
+
+        $("#suaronConfirmarContrasenia").mouseup(function (event) {
+            $("#txtConfirmarContrasenia").attr("type", "password");
+        });
+    </script>
+}

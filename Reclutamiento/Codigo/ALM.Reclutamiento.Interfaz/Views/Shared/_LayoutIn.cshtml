@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="@Url.Content("~/Fonts/ionicons/ionicons.min.css?v=1.0" )" rel="stylesheet" type="text/css" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="@Url.Content("~/Estilo/General.css?v=1.25")" rel="stylesheet" type="text/css" />
+    <title></title>
+</head>
+<body>
+    <div class="container containerHeader">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    }
+                    <script>
+
+                    </script>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a href="#" class="navbar-left"><img id="idLogotipoIzquierdo" class="LogotipoIzquierdo" src="" /></a>
+                        <div class="nav navbar-nav">
+                            <div class="col-xs-12 col-sm-6 col-md-12 col-lg-12">
+                                <a href="#" class="navbar-brand" id="lnkLogoIzquierdo">Sistema Reclutamiento de Personal</a>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-12 col-lg-12">
+                                <label class="navbar-brand-ViewBag" id="lblViewBag">@ViewBag.Title</label>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="#" class="navbar-left"><img id="idLogotipoIzquierdo" class="LogotipoIzquierdo" src="~/Imagenes/LogoPrincipal.png" /> </a>
+                        <div class="nav navbar-nav">
+                            @Html.ActionLink("Sistema Reclutamiento de Personal", "Index", "Inicio", new { area = "" }, new { @class = "navbar-brand", id = "lnkLogoIzquierdo" })
+                        </div>
+                    }
+
+                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    @Html.Partial("_LayoutLogueado")
+                }
+            </div><!--/.container-fluid -->
+        </nav>
+    </div>
+    @Html.Hidden("archivoDescarga", "")
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+
+    </div>
+
+    <div id="containerProgress" class="containerProgress">
+        <div class="contentImageProgress">
+            <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+        </div>
+        <div class="backgroundProgress">
+        </div>
+    </div>
+
+    <script src="@Url.Content("~/Scripts/jquery-3.1.1.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/jquery-3.1.1.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Estilo/Bootstrap3_3_7/js/bootstrap.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/modernizr-2.6.2.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/sweetalert-dev.js?v=1.0")"></script>
+    <script src="@Url.Content("~/scripts/bootstrap-datepicker.js")"></script>
+    <script src="@Url.Content("~/scripts/bootstrap-datepicker.es.min.js")"></script>
+    <script src="@Url.Content("~/scripts/Utilidades.js?v=1.9")"></script>
+    @RenderSection("scripts", required: false)
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            var timeout = @FormsAuthentication.Timeout.TotalMilliseconds;
+            var time = @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.SegundosAntesFinalizarTimeOut;
+            var rutaImgLogo="@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.RutaLogo";
+            var rutaRelativa="@Url.Content("~/")";
+            var EsSuperAdmin = "@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.EsSuperAdministrador";
+
+            urlSesionFin = '@Url.Action("SesionFinalizada", "Inicio")';
+            var wintimeout;
+            var timeInactive = timeout- time;
+
+            $(document).ready(function () {
+                $("#idLogotipoIzquierdo").attr("src", rutaRelativa + rutaImgLogo);
+                ObtenerInformacionMenu();
+                SetWinTimeout();
+            });
+
+            function ObtenerInformacionMenu() {
+                Utilidades.MostrarProgress();
+                $.ajax({
+                    url: '@Url.Action("ObtenerListadoMenu", "Menu")',
+                    type: 'POST',
+                    cache: false,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            MostrarMenu(json.Respuesta.RespuestaInformacion);
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+
+            function MostrarMenu(lstPermisos) {
+                MostrarMenuRecursivo(lstPermisos, $("#navbar-dinamico"), 1, 1, false);
+            }
+
+            function MostrarMenuRecursivo(lstPermisos, navbar, id, idFormaOrdenada, esInterno) {
+                if (lstPermisos.Data && lstPermisos.Data.Info && lstPermisos.Data.Info.length > 0) {
+                    var liDropdown = null;
+                    var uDropdown = null;
+                    var aDropdown = null;
+                    var spanDropdown = null;
+                    var li = null;
+                    var a = null;
+                    var u = null;
+
+                    if( window.applicationBaseUrl == null){
+                        window.applicationBaseUrl = @Html.Raw(HttpUtility.JavaScriptStringEncode(
+                      new Uri(
+                               new Uri(this.Context.Request.Url.GetLeftPart(UriPartial.Authority)),
+                               Url.Content("~/")
+                              ).ToString(), true));
+                    }
+
+                    var baseUrl=window.applicationBaseUrl;
+
+                    $.map(lstPermisos.Data.Info, function (obj, index) {
+                        if (obj.IdFormaOrdenada >= idFormaOrdenada && obj.YaPintadoEnMenu == false && obj.EsDropdown == 0 && obj.IdFormaPadre == 0 &&
+                             ((esInterno && obj.IdFormaPadre == id) || (!esInterno))
+                             ) {
+                            li = $("<li></li>");
+
+                            a = $("<a class = 'linkMenu bookTipografia' href='"+baseUrl + obj.Controlador + "/" + obj.Accion + "' style = 'color: white !important;'></a>");
+                            a.attr("id", "lnk" + obj.Accion).text(obj.TextoLink);
+
+                            li.append(a);
+                            li.appendTo(navbar);
+                            obj.YaPintadoEnMenu = true;
+                        }
+                        else
+                            if (obj.IdFormaOrdenada >= idFormaOrdenada && obj.YaPintadoEnMenu == 0 && obj.EsDropdown == 1) {
+                                obj.YaPintadoEnMenu = true;
+                                if (!esInterno) {
+                                    liDropdown = $("<li class='presentation'></li>");
+                                }
+                                else {
+                                    liDropdown = $("<li class='dropdown-submenu'></li>");
+                                }
+
+                                if (!esInterno) {
+                                    aDropdown = $("<a  href='#' class='dropdown-toggle bookTipografia linkMenu sinAccion' data-toggle='dropdown' style = 'color: white !important;'></span></a>");
+                                }
+                                else {
+                                    aDropdown = $("<a  href='#' class='dropdown-toggle bookTipografia linkMenu sinAccion' data-toggle='dropdown'></span></a>");
+                                }
+                                aDropdown.attr("id", "lnk" + obj.Accion).text(obj.TextoLink);
+
+                                if (!esInterno) {
+                                    spanDropdown = $("<span class='caret'></span>");
+                                    aDropdown.append(spanDropdown);
+                                }
+
+                                if (!esInterno) {
+                                    uDropdown = $("<ul class='dropdown-menu dropup' role='menu' aria-labelledby='dLabel'></u>");
+                                }
+                                else {
+                                    uDropdown = $("<ul class='dropdown-menu scrollable-menu' style='right:auto; left: -160px;'></u>");
+                                }
+                                $.map(lstPermisos.Data.Info, function (objInterno, indexInterno) {
+                                    if (objInterno.IdFormaPadre == obj.IdForma) {
+                                        if (objInterno.YaPintadoEnMenu == false && objInterno.EsDropdown == 0) {
+                                            objInterno.YaPintadoEnMenu = true;
+                                            li = $("<li></li>");
+
+                                            a = $("<a class = 'linkMenu bookTipografia' href='" +baseUrl + objInterno.Controlador + "/" + objInterno.Accion + "'></a>");
+                                            a.attr("id", "lnk" + objInterno.Accion).text(objInterno.TextoLink);
+
+                                            li.append(a);
+                                            uDropdown.append(li);
+                                        }
+                                        else {
+                                            MostrarMenuRecursivo(lstPermisos, uDropdown, objInterno.IdForma, objInterno.IdFormaOrdenada, true);
+                                        }
+                                    }
+                                });
+
+                                liDropdown.append(aDropdown);
+                                liDropdown.append(uDropdown);
+                                liDropdown.appendTo(navbar);
+                            }
+                    });
+                }
+            }
+
+            function linkVerDetalleError_Click(link) {
+                if ($('#txtDescripcionDetalleError').is(':hidden') == true) {
+                    link.text = 'Ocultar detalle';
+                }
+                else {
+                    link.text = 'Ver detalle';
+                }
+                $('#txtDescripcionDetalleError').toggleClass('hidden');
+            }
+
+
+            /*****Timeout de sesion******/
+
+            function SetWinTimeout() {
+                wintimeout = window.setTimeout(VerificarTimeOut, timeInactive);
+            }
+
+
+            function Timer() {
+                window.clearTimeout(wintimeout);
+
+                delete wintimeout;
+                wintimeout = null;
+                SetWinTimeout();
+            }
+
+            function VerificarTimeOut() {
+                $.ajax({
+                    url: '@Url.Action("VerificarTimeOut", "TimeOut")',
+                    type: 'POST',
+                    cache: false,
+                    data:{ timeOut:timeout},
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+
+                            if(json.Respuesta.RespuestaInformacion.Data.Info==0){
+                                window.location = urlSesionFin;
+                            }
+                            else{
+                                timeInactive = json.Respuesta.RespuestaInformacion.Data.Info;
+                                Timer();
+                            }
+                        } else {
+                            window.location = urlSesionFin;
+                        }
+                    },
+                    error: function (error) {
+                        window.location = urlSesionFin;
+                    }
+                });
+            }
+
+            window.onblur = function() {
+                VerificarTimeOut();
+            };
+
+            $(document).click(function(event) {
+                if(event && event != null && event.target && event.target !=null && event.target.className && event.target.className !=null && (event.target.className.indexOf('linkMenu ')!== -1 || event.target.className.indexOf('linkOmitir ')!== -1)){
+                    return;
+                }
+                Body_Click();
+            });
+
+            function Body_Click(){
+                $.ajax({
+                    url: '@Url.Action("Body_Click", "Menu")',
+                    type: 'POST',
+                    cache: false,
+                    data:{ timeOut:timeout},
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+
+                            if(json.Respuesta.RespuestaInformacion.Data.Info==0){
+                                window.location = urlSesionFin;
+                            }
+                            else{
+                                timeInactive = json.Respuesta.RespuestaInformacion.Data.Info;
+                                Timer();
+                            }
+                        } else {
+                            window.location = urlSesionFin;
+                        }
+                    },
+                    error: function (error) {
+                        window.location = urlSesionFin;
+                    }
+                });
+            }
+
+        </script>
+    }
+    else
+    {
+        <script type="text/javascript">
+
+            function Body_Click() {
+            }
+
+
+            function linkVerDetalleError_Click(link) {
+                if ($('#txtDescripcionDetalleError').is(':hidden') == true) {
+                    link.text = 'Ocultar detalle';
+                }
+                else {
+                    link.text = 'Ver detalle';
+                }
+                $('#txtDescripcionDetalleError').toggleClass('hidden');
+            }
+
+        </script>
+    }
+    @if (TempData["SinAutorizacion"] != null)
+    {
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+                Utilidades.MostrarDialogoError("Error", '@TempData["SinAutorizacion"]');
+            });
+
+        </script>
+    }
+</body>
+
+</html>

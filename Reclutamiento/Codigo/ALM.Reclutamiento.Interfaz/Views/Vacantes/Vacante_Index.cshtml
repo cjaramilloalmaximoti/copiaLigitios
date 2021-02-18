@@ -1,0 +1,2242 @@
+﻿@{
+    ViewBag.Title = "Vacante";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<style>
+    .modalAlto {
+        height: 95%;
+    }
+
+    .modalbody {
+        height: calc(90% - 120px);
+        overflow-y: scroll;
+    }
+</style>
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-datetimepicker.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/CheckBox.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/font-awesome.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdVacante", "0")
+@Html.Hidden("hidIdCiudad", "0")
+
+@Html.Hidden("hidEstado", "0")
+@Html.Hidden("hidCiudad", "0")
+
+<div id="divListado">
+    @Html.Partial("Vacante_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Vacante_Detalle", new ALM.Reclutamiento.Entidades.EVacante())
+    </form>
+    <div id="divAcordeon">
+        @Html.Partial("~/Views/Shared/Acordeon_Listado.cshtml")
+    </div>
+</div>
+
+<div id="modalProspectoDetalle" class="modal fade modal-wide" role="dialog">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Detalle del prospecto</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divProspectoDetalle" style="width:100%">
+                        @Html.Partial("~/Views/Prospectos/Prospecto_Detalle.cshtml", new ALM.Reclutamiento.Entidades.EProspecto())
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="clear:both; text-align:right; width:98%">
+                        <button type="button" value="Cancelar" data-dismiss="modal" name="Cerrar" class="btnCancelar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!--Behavior-->
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+    <script src="@Url.Content("~/scripts/Acordeon_Caracteristicas.js?v=1.5")"></script>
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+        var rowR = null;
+        var objMod = null;
+        var tableR = null;
+        var strFuentes = "";
+        var strCategoriasFiltro = "";
+        var lstfuentes = null;
+        var lstCaracteristicas = null;
+
+
+        HabilitarInahilitar = "enabled";
+
+        $(document).ready(function () {
+            Utilidades.MostrarProgress();
+
+            InicializarControles_AcordCarac('@Url.Action("Reemplazar", "AcordeonCaracteristicas")'.replace('Reemplazar', ''));
+            Origen_AcordCarac = 'Vacante';
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+            $('#cmbPais').html(items);
+            $('#cmbEstado').html(items);
+            $('#cmbCiudadVacante').html(items);
+            $('#cmbTipoContrato').html(items);
+            $('#cmbCliente').html(items);
+            $('#cmbTipoJornada').html(items);
+            //$('#cmbTipoJornadaFiltro').html(items);
+            //$('#cmbTipoJornadaFiltro').html(items);
+
+            ObtenerCatalogosFiltro('TipoContrato');
+            ObtenerCatalogosFiltro('TipoJornada');
+
+            cargarPaises();
+
+            ObtenerCatalogos('TipoContrato');
+            ObtenerCatalogoClientes();
+            ObtenerCatalogos('TipoJornada');
+            ObtenerCatalogos('TipoFase');
+
+            //Catalogos para el modal de prospectos.
+            ObtenerCatalogos('Generos');
+            ObtenerCatalogos('EstadoCivil');
+            ObtenerCatalogos('Escolaridad');
+
+            $('#divDocumentos').hide();
+            $('#divDocumentos2').hide();
+            $('#divReferenciaLaboral').hide();
+            $('#divReferenciaLaboral2').hide();
+            $('#divBitacora').hide();
+            $('#divBitacora2').hide();
+            $('#divAccionesProspectoDetalle').hide();
+
+            $("#txtVacanteNombre").focus();
+
+            $.fn.datepicker.defaults.format = "dd/m/yyyy";
+
+            $('#txtFechaContratacion').datetimepicker({
+                locale: 'es',
+                date: new Date(),
+                format: 'dd/MM/yyyy'.toUpperCase()
+            });
+
+            $('#txtFechaEntrega').datetimepicker({
+                locale: 'es',
+                date: new Date(),
+                format: 'dd/MM/yyyy'.toUpperCase()
+            });
+
+            //FSALAZAR 03/04/2019 REQ03042019 INI: Corrección del formato de fecha en el datetimepicker
+            $(function () {
+                $.validator.methods.date = function (value, element) {
+                    return this.optional(element) || moment(value, "DD/MM/YYYY", true).isValid();
+                };
+            });
+            //FSALAZAR 03/04/2019 REQ03042019 FIN
+
+            Inicializar();
+            Utilidades.OcultarProgress();
+        });
+
+        function Inicializar() {
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarVacante();
+                    }
+                }
+                ],
+                "columns": [
+                    { "data": "Titulo", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "FechaContratacion", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "NumeroVacantes", "autoWidth": true, "sClass": "columnaIzquierda" },
+                    { "data": "Estatus", "autoWidth": true, "sClass": "columnaIzquierda" }
+                ]
+            });
+
+            obtenerFuentes();
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(objMod);
+            });
+
+
+            // CAT Caracteristicas
+            $('#myTableCaracteristicas').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarCaracteristicas();
+                    }
+                }
+            ],
+                "columns":
+                [
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" }
+                ]
+            });
+
+
+            $('#myTableCaracteristicas tbody').on('click', 'a.btnEditar', function () {
+                MostrarDetalleElementoSeleccionado_AcordCarac($('#myTableCaracteristicas').DataTable().row($(this).parents('tr')).data());
+            });
+
+            // CAT Prospectos
+            $('#myTableProspectos').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons:
+            [
+                {
+                    'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                    'className': 'btnAgregarGrid',
+                    'action': function (e, dt, node, config) {
+                        AgregarBitacora();
+                    }
+                }
+            ],
+                "columns":
+                [
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" },
+                    { "data": "", "sClass": "columnaIzquierda" }
+                ]
+            });
+
+            // CAT Prospectos
+            $('#myTableProspectosPorCaracteristicas').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons:
+            [
+
+            ],
+                "columns":
+            [
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" },
+                { "data": "", "sClass": "columnaIzquierda" }
+            ]
+            });
+
+
+        }
+
+        $("#btnCancelar").on('click', function () {
+            alert("281");
+            $('#hidIdVacante').val("0");
+            IdOrigen_AcordCarac = 0;
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            rowR = null;
+            objMod = null;
+            return false;
+        });
+
+        $("#Cancelar2").on('click', function () {
+            alert("292");
+            var table = $('#myTableProspectosPorCaracteristicas').DataTable();
+
+            table
+                .clear()
+                .draw();
+
+            // CAT Aqui se debe llenar el de las caracteristicas
+            obtenerCaracteristicas();
+            $('#modalSeleccionarProspecto').modal('show');
+            Utilidades.OcultarProgress();
+        });
+        $('#btnGuardarCaracteristicas').on('click', function () {
+            //alert("2920");
+            //DESDE AQUI
+            //var table = $('#myTableProspectosPorCaracteristicas').DataTable();
+
+            //table
+                //.clear()
+              //  .draw();
+
+            // CAT Aqui se debe llenar el de las caracteristicas
+            //obtenerCaracteristicas();
+            //$('#modalSeleccionarProspecto').modal('show');
+            //Utilidades.OcultarProgress();
+            //HASTA AQUI
+        });
+
+        $('#btnGuardar').on('click', function () {
+            Utilidades.MostrarProgress();
+            var detalles = generarDetallesFuentes();
+            GuardarInformacionVacante(detalles);
+            return false;
+
+        });
+
+        $("#btnBuscar").click(function () {
+            LlenarGrid();
+        });
+
+        $("#txtSalarioVacante").keypress(function () {
+            $('#txtSalarioVacante').validate();
+        });
+
+        $("#txtNumeroVacantes").keypress(function () {
+            $('#txtNumeroVacantes').validate();
+        });
+
+        $('#btnBuscar_AcordCaracPros').on('click', function () {
+            
+            var ParametrosXML = generarDetallesCaracPros();
+            var IdSexo = -1;
+            var IdEstadoCivil = -1;
+            var IdEscolaridad = -1;
+            var EdadMin = -1;
+            var EdadMax = -1;
+            //ObtenerGrid_AcordProspCaract();
+            ObtenerGrid_AcordProspCaract(ParametrosXML, IdSexo, IdEstadoCivil, IdEscolaridad, EdadMin, EdadMax);
+        });
+
+        /*
+        $('#btnAgregar_AcordCaracPros').on('click', function () {
+            AgregarCaracteristicas2();
+            
+            /*
+            var ParametrosXML = generarDetallesCaracPros();
+            var IdSexo = -1;
+            var IdEstadoCivil = -1;
+            var IdEscolaridad = -1;
+            var EdadMin = -1;
+            var EdadMax = -1;
+            //ObtenerGrid_AcordProspCaract();
+            ObtenerGrid_AcordProspCaract(ParametrosXML, IdSexo, IdEstadoCivil, IdEscolaridad, EdadMin, EdadMax);
+        });*/
+
+
+        $('#btnGuardarProspecto').on('click', function () {
+            var intx = "";
+            var detalles = "";
+            var filtro = "";
+
+            objMod = $('#myTableProspectosPorCaracteristicas').DataTable();
+
+            objMod.$('input[type="checkbox"]').each(function (i, item) {
+
+                if ($(this).prop("checked") && !$(this).prop("disabled")) {
+
+                    // var data = objMod.row(i).data();
+                    //var data = $('#myTableProspectosPorCaracteristicas').DataTable().row(i).data();
+
+                    var data = objMod.row($(this).parents('tr')).data();
+
+                    //if (intx == 0) {
+                        //filtro += "(" + $('#hidIdVacante').val() + "," + data.IdProspecto + ")";
+                    //} else {
+                        //filtro += ",(" + $('#hidIdVacante').val() + "," + data.IdProspecto + ")";
+                    //}
+                    intx++;
+                    detalles += "CALL InsVacante_ProspectoActivo(" + $('#hidIdVacante').val() + ", " + data.IdProspecto + "); ";
+                }
+            });
+            if (intx != 0) {
+
+                //detalles += "insert into vacante_prospecto (IdVacante, IdProspecto) values " + filtro + ";";
+                InsertarVacante_Prospecto(detalles);
+            }
+        });
+
+        $('#btnGuardarProspectoFinalista').on('click', function () {
+
+            var numRegistros = 0;
+            var detalles = "";
+            var finalista = 0;
+
+            objMod = $('#myTableProspectosSeleccionarFinalistas').DataTable();
+
+            objMod.$('input[type="checkbox"]').each(function (i, item) {
+
+                if ($(this).prop("checked")) {
+                    finalista = 1;
+                }
+                else {
+                    finalista = 0;
+                }
+
+                var data = objMod.row($(this).parents('tr')).data();
+                numRegistros++;
+                detalles += "CALL InsVacante_ProspectoFinalista(" + $('#hidIdVacante').val() + ", " + data.IdProspecto + ", " + finalista + "); ";
+            });
+            if (numRegistros != 0) {
+
+                InsertarVacante_Prospecto(detalles);
+            }
+        });
+
+        $('#btnGuardarProspectoInvitado').on('click', function () {
+
+            var numRegistros = 0;
+            var detalles = "";
+            var prospectos = [];
+            var prospecto = {};
+
+            objMod = $('#myTableProspectosSeleccionarInvitados').DataTable();
+
+            objMod.$('input[type="checkbox"]').each(function (i, item) {
+
+                if ($(this).prop("checked")) {
+
+                    var data = objMod.row($(this).parents('tr')).data();
+
+                    numRegistros++;
+                    detalles += "CALL InsVacante_ProspectoInvitado(" + $('#hidIdVacante').val() + ", " + data.IdProspecto + "); ";
+
+                    prospecto = {
+                        IdProspecto: data.IdProspecto,
+                        NombreCompleto: data.NombreCompleto,
+                        Email: data.Email
+                    };
+
+                    prospectos.push(prospecto);
+                }
+            });
+            if (numRegistros != 0) {
+
+                InsertarVacante_ProspectoInvitado(prospectos, detalles);
+            }
+        });
+
+
+        function PrepararComboTiposControl() {
+            $.ajax({
+                url: '@Url.Action("ObtenerTiposControl", "Caracteristicas")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                        $element = $('#cmbTipoCampo').select2({
+                            language: "es",
+                            placeholder: "Selecciona una opción",
+                            matcher: filterMatcher,
+                            allowClear: true,
+                            data: lstCatalogos
+                        });
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+
+        function GuardarInformacionVacante(detalles) {
+            if (validarfechas()) {
+                if ($("#userForm").data('unobtrusiveValidation').validate()) {
+                    //Utilidades.MostrarProgress();
+                    if ($('#hidIdVacante').val() != '0') {
+                        var id = $('#hidIdVacante').val();
+                        ActualizarVacante(detalles);
+                    }
+                    else {
+                        InsertarVacante(detalles);
+                    }
+                }
+            }
+            LlenarGrid();
+        };
+
+        function InsertarVacante_ProspectoInvitado(prospectos, detalles) {
+
+            var params = {
+                vacante: {
+                    Titulo: $('#txtTitulo').val(),
+                    //SubTitulo: $('#txtSubTitulo').val(),
+                    //Descripcion: $('#txtDescripcion').val(),
+                    //FechaContratacion: $('#txtFechaContratacion').val(),
+                    //NumeroVacantes: $('#txtNumeroVacantes').val(),
+                    //Salario: $('#txtSalarioVacante').val(),
+                    //IdTipoContrato: $('#cmbTipoContrato').val(),
+                    //idCliente: $('#cmbCliente').val(),
+                    //IdTipoJornada: $('#cmbTipoJornada').val(),
+                    //IdCiudad: $("#cmbPais").val() + "," + $("#cmbEstado").val() + "," + $("#cmbCiudadVacante").val(),
+                    //Comentarios: $("#txtComentarios").text(),
+                    //Estatus: $('#chkStatus').is(":checked"),
+                    //Fase: $('#cmbTipoFase').val(),
+                    //FechaEntrega: $('#txtFechaEntrega').val()
+                },
+                prospectos: prospectos,
+                detalles: detalles
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarVacante_ProspectoInvitado", "Vacantes")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        ObtenerGrid_AcordProsp();
+                        Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        };
+
+        function InsertarVacante_Prospecto(detalles) {
+            var params = {
+                IdVacante: $('#hidIdVacante').val(),
+                detalles: detalles
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarVacante_Prospecto", "Vacantes")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        ObtenerGrid_AcordProsp();
+                        Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        };
+
+        function InsertarVacante(detalles) {
+            var ValorEstatus = -1;
+
+            if ($('#chkStatus').prop("checked"))
+            {
+                ValorEstatus = 1;
+            }
+            else
+            {
+                ValorEstatus = 0;
+            }
+
+            if ($("#cmbTipoContrato").val() == "-1") {
+                Utilidades.MostrarDialogoError("Error", "Faltan capturar el tipo de contrato", false);
+                return false;
+            }
+            else if ($("#cmbCliente").val() == "-1") {
+                 Utilidades.MostrarDialogoError("Error", "Faltan capturar el cliente", false);
+                return false;
+            }
+              else if ($("#cmbTipoJornada").val() == "-1") {
+                 Utilidades.MostrarDialogoError("Error", "Faltan capturar el tipo de jornada", false);
+                return false;
+            }
+            else if (  $("#cmbPais").val() == "-1" || $("#cmbEstado").val() == "-1" || $("#cmbCiudadVacante").val() == "-1") {
+                Utilidades.MostrarDialogoError("Error", "Faltan capturar datos de dirección", false);
+                return false;
+            }
+            else if ( $("#cmbTipoFase").val() == "-1")
+            {
+                Utilidades.MostrarDialogoError("Error", "Faltan capturar la fase", false);
+                return false;
+            }
+            else
+            {
+                var params = {
+                    vacante: {
+                        Titulo: $('#txtTitulo').val(),
+                        SubTitulo: $('#txtSubTitulo').val(),
+                        Descripcion: $('#txtDescripcion').val(),
+                        FechaContratacion: $('#txtFechaContratacion').val(),
+                        NumeroVacantes: $('#txtNumeroVacantes').val(),
+                        Salario: $('#txtSalarioVacante').val(),
+                        IdTipoContrato: $('#cmbTipoContrato').val(),
+                        idCliente: $('#cmbCliente').val(),
+                        IdTipoJornada: $('#cmbTipoJornada').val(),
+                        IdCiudad: $("#cmbPais").val() + "," + $("#cmbEstado").val() + "," + $("#cmbCiudadVacante").val(),
+                        Comentarios: $("#txtComentarios").val(),
+                        Estatus: ValorEstatus,
+                        Fase: $('#cmbTipoFase').val(),
+                        FechaEntrega: $('#txtFechaEntrega').val()
+                    },
+                    detalles: detalles
+                };
+                $.ajax({
+                    url: '@Url.Action("InsertarVacante", "Vacantes")',
+                    type: 'POST',
+                    cache: false,
+                    data: params,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            $('#hidIdVacante').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                            IdOrigen_AcordCarac = json.Respuesta.RespuestaInformacion.Data.Info;
+                            Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de vacantes.");
+
+                            //Habitar la opcion de agregar caracteristicas y documentos
+                            if ($('#hidIdVacante').val() == "0") {
+                                $('#accordion').hide();
+                                $('#accordion2').show();
+                            } else {
+                                $('#accordion').show();
+                                $('#accordion2').hide();
+                                agregarListaDocumento();
+                                agregarListaProspecto();
+                            }
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+            }
+
+
+        };
+
+        function ActualizarVacante(detalles) {
+            if ($('#chkStatus').is(":checked") == true) { sts = 1; } else { sts = 0; };
+            var params = {
+                vacante: {
+                    IdVacante: $('#hidIdVacante').val(),
+                    Titulo: $('#txtTitulo').val(),
+                    SubTitulo: $('#txtSubTitulo').val(),
+                    Descripcion: $('#txtDescripcion').val(),
+                    FechaContratacion: $('#txtFechaContratacion').val(),
+                    NumeroVacantes: $('#txtNumeroVacantes').val(),
+                    Salario: $('#txtSalarioVacante').val(),
+                    IdTipoContrato: $('#cmbTipoContrato').val(),
+                    idCliente: $('#cmbCliente').val(),
+                    IdTipoJornada: $('#cmbTipoJornada').val(),
+                    IdCiudad: $("#cmbPais").val() + "," + $("#cmbEstado").val() + "," + $("#cmbCiudadVacante").val(),
+                    Estatus: $('#chkStatus').is(":checked")? 1 : 0,
+                    Comentarios: $("#txtComentarios").val(),
+                    Fase: $('#cmbTipoFase').val(),
+                    FechaEntrega: $('#txtFechaEntrega').val()
+                },
+                detalles: detalles
+            };
+            $.ajax(
+            {
+                url: '@Url.Action("ActualizarVacante", "Vacantes")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        };
+
+        function LlenarGrid() {
+            tableR = $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("obtenerVacantes", "Vacantes")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: {
+                        Titulo: $("#txtVacanteNombre").val(),
+                        Estatus: $("#cmbEstatus").val(),
+                        IdTipoContrato: $("#cmbTipoContratoFiltro").val(),
+                        Cliente: $("#txtCliente").val()
+                        //IdTipoJornada: $("#cmbTipoJornadaFiltro").val()
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return "";
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarVacante();
+                        }
+                    }
+                ],
+                "columns": [
+                   {
+                       "data": "Titulo", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Titulo">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                    {
+                        "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Descripcion">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaContratacion", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar FechaContratacion">')
+                                .wrap('<div></div>')
+                                .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NumeroVacantes", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NumeroVacantes">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Estatus", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                .wrap('<div></div>')
+                                .text((data == 0) ? "No" : "Si")
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                ]
+            });
+        }
+
+        function obtenerFuentes() {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+            var params = {
+                Nombre: '', Estatus: 1
+            };
+
+            $.ajax({
+                url: '@Url.Action("ObtenerCatalogos", "Prospectos")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        lstCaracteristicas = json.Respuesta.RespuestaInformacion;
+
+                        MostrarFuentes(json.Respuesta.RespuestaInformacion);
+                        ObtenerCatalogos
+                    }
+                },
+                data: {
+                    catalogo: 'FuentePublicacion'
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+
+        function MostrarFuentes(lstfuentes) {
+            if (lstfuentes.Data && lstfuentes.Data.Info && lstfuentes.Data.Info.length > 0) {
+                var divFuentes = $("#divFuentes");
+                var ulFuentes = $("#ulFuentes");
+                ulFuentes.remove();
+
+                var li = null;
+                if (ulFuentes) {
+                    ulFuentes.remove();
+                }
+                ulFuentes = $("<ul class='list-group checked-list-box' id='ulFuentes'></u>");
+
+                $.map(lstfuentes.Data.Info, function (objInterno, indexInterno) {
+                    li = $("<li class='list-group-item inputpe tamLetra bookTipografia' " + HabilitarInahilitar + "='true' idFuentePublicacion='" +
+                        objInterno.IdCatalogo + "' " +
+                        (strFuentes.search('-' + objInterno.IdCatalogo + '-') != -1 ? "data-checked='true'" : "") + "></li>");
+                    li.attr("id", "lnk" + objInterno.IdCatalogo).text(objInterno.Nombre);
+                    ulFuentes.append(li);
+                });
+                divFuentes.append(ulFuentes);
+            }
+            EstablecerFormatoCheckList();
+        }
+
+        function obtenerCaracteristicas() {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+            var params = {
+                Nombre: '', Estatus: 1
+            };
+
+            $.ajax({
+                url: '@Url.Action("ObtCaracteristicasPorProspecto", "AcordeonCaracteristicas")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+
+                        Utilidades.OcultarProgress();
+                        lstCaracteristicas = json.Respuesta.RespuestaInformacion;
+
+                        MostrarCaracteristicas(json.Respuesta.RespuestaInformacion);
+                        // ObtenerCatalogos
+                    }
+                },
+                data: { idOrigen: IdOrigen_AcordCarac, origen: Origen_AcordCarac },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function MostrarCaracteristicas(lstCaracteristicas) {
+
+            var divCaracteristicasProspecto = $("#divCaracteristicasProspecto");
+            var ulCaracteristicasProspecto = $("#ulCaracteristicasProspecto");
+            ulCaracteristicasProspecto.remove();
+
+            var li = null;
+            if (ulCaracteristicasProspecto) {
+                ulCaracteristicasProspecto.remove();
+            }
+            ulCaracteristicasProspecto = $("<ul class='list-group checked-list-box' id='ulCaracteristicasProspecto'></u>");
+            if (lstCaracteristicas.Data && lstCaracteristicas.Data.Info && lstCaracteristicas.Data.Info.length > 0) {
+
+                $.map(lstCaracteristicas.Data.Info, function (objInterno, indexInterno) {
+                    li = $("<li class='list-group-item inputpe tamLetra bookTipografia' " + HabilitarInahilitar + "='true' ValorColumna='" + objInterno.Valor + "' IdProspectoCaracteristica='" +
+                        objInterno.IdCaracteristicaParticular + "' " +
+                        (strFuentes.search('-' + objInterno.IdCaracteristicaParticular + '-') == -1 ? "data-checked='true'" : "") + "></li>");
+                    li.attr("id", "lnk" + objInterno.IdCatalogo).text(objInterno.Caracteristica + ": " + objInterno.ValorColumna);
+                    ulCaracteristicasProspecto.append(li);
+                });
+            }
+            divCaracteristicasProspecto.append(ulCaracteristicasProspecto);
+
+            EstablecerFormatoCheckList();
+        }
+
+        function EstablecerFormatoCheckList() {
+            $('.list-group.checked-list-box .list-group-item').each(function () {
+
+                // Settings
+                var $widget = $(this),
+                    $checkbox = $('<input type="checkbox" class="hidden" />'),
+                    color = ($widget.data('color') ? $widget.data('color') : "primary"),
+                    style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
+                    settings = {
+                        on: {
+                            icon: 'glyphicon glyphicon-check'
+                        },
+                        off: {
+                            icon: 'glyphicon glyphicon-unchecked'
+                        }
+                    };
+
+                $widget.css('cursor', 'pointer')
+                $widget.append($checkbox);
+
+                // Event Handlers
+                $widget.on('click', function () {
+                    $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    $checkbox.triggerHandler('change');
+                    updateDisplay();
+                });
+                $checkbox.on('change', function () {
+                    updateDisplay();
+                });
+
+
+                // Actions
+                function updateDisplay() {
+                    var isChecked = $checkbox.is(':checked');
+
+                    // Set the button's state
+                    $widget.data('state', (isChecked) ? "on" : "off");
+
+                    // Set the button's icon
+                    $widget.find('.state-icon')
+                        .removeClass()
+                        .addClass('state-icon ' + settings[$widget.data('state')].icon);
+
+                    // Update the button's color
+                    if (isChecked) {
+                        $widget.addClass(style + color + ' active');
+                    } else {
+                        $widget.removeClass(style + color + ' active');
+                    }
+                }
+
+                // Initialization
+                function init() {
+
+                    if ($widget.data('checked') == true) {
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+
+                    updateDisplay();
+
+                    // Inject the icon if applicable
+                    if ($widget.find('.state-icon').length == 0) {
+                        $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>');
+                    }
+                }
+                init();
+            });
+        }
+
+
+        function OcultarMostrarDiv(data) {
+            if (data != null) {
+                $('#hidIdVacante').val(data.IdVacante);
+                IdOrigen_AcordCarac = data.IdVacante;
+                $('#txtTitulo').val(data.Titulo);
+                $('#txtSubTitulo').val(data.SubTitulo);
+                $('#txtDescripcion').val(data.Descripcion);
+                $('#txtFechaContratacion').val(Utilidades.FormatearFechaMilisegundosString(data.FechaContratacion));
+                $('#txtNumeroVacantes').val(data.NumeroVacantes);
+                $('#txtSalarioVacante').val(data.Salario);
+                $('#cmbTipoContrato').val(data.IdTipoContrato);
+                $('#cmbCliente').val(data.idCliente);
+                var ciudad = data.IdCiudad.split(',');
+                $('#hidEstado').val(ciudad[1]);
+                $('#hidCiudad').val(ciudad[2]);
+
+                $("#cmbPais").val(ciudad[0]);
+                cargarEstados($("#cmbPais").val());
+                $("#cmbEstado").val(ciudad[1]);
+                cargarCiudades($("#cmbEstado").val(), null);
+                $("#cmbCiudadVacante").val(ciudad[2]);
+
+                if (data.Estatus > 0) {
+                    $('#chkStatus').prop('checked', true);
+                }
+                else {
+                    $('#chkStatus').prop('checked', false)
+                }
+                $("#txtComentarios").val(data.Comentarios)
+                $('#cmbTipoJornada').val(data.IdTipoJornada);
+                $('#cmbTipoFase').val(data.Fase);
+                $('#txtFechaEntrega').val(Utilidades.FormatearFechaMilisegundosString(data.FechaEntrega));
+                strFuentes = data.Fuentes;
+
+                obtenerFuentes();
+            }
+
+            else {
+                objMod = null;
+                $('#hidIdVacante').val('0');
+                IdOrigen_AcordCarac = 0;
+                $('#txtTitulo').val('');
+                $('#txtSubTitulo').val('');
+                $('#txtDescripcion').val('');
+                $('#txtFechaContratacion').data("DateTimePicker").date(new Date());
+                $('#txtFechaContratacion').val("");
+                $('#txtNumeroVacantes').val('');
+                $('#txtSalarioVacante').val('');
+                $('#txtIdCiudad').val('');
+                $('#chkStatus').val('');
+                $("#txtComentarios").val('');
+                $('#txtFechaEntrega').data("DateTimePicker").date(new Date());
+                $('#txtFechaEntrega').val("");
+                $('#cmbTipoContrato').val('-1');
+                $('#cmbCliente').val('-1');
+                $('#cmbTipoJornada').val('-1');
+                $('#cmbEstado').val('-1');
+                $('#cmbCiudadVacante').val('-1');
+
+                strFuentes = "";
+
+                obtenerFuentes();
+            }
+
+            if ($('#hidIdVacante').val() == "0") {
+                $('#accordion').hide();
+                $('#accordion2').show();
+            } else {
+                $('#accordion').show();
+                $('#accordion2').hide();
+                ObtenerGrid_AcordCarac();
+
+
+                //agregarListaCaracteristicas();
+            }
+
+            ObtenerGrid_AcordProsp();
+
+            $('#divDetalle').show();
+            $('#divListado').hide();
+
+            return false;
+        }
+
+        function AgregarVacante() {
+            objMod = null;
+            rowR = null;
+            OcultarMostrarDiv(null);
+        }
+
+        function validarfechas() {
+
+            if ($("#txtFechaContratacion").val() == "" || $("#txtFechaEntrega").val() == "") {
+                Utilidades.MostrarDialogoError("Error", "La Fecha de Contratación o la Fecha de Entrega no debe estar vacías", false);
+                return false;
+            }
+            else
+            {
+                if (Utilidades.StringFechaToDate($("#txtFechaContratacion").val()) <= Utilidades.StringFechaToDate($("#txtFechaEntrega").val())) {
+                    Utilidades.MostrarDialogoError("Error", "La Fecha de Contratación debe ser mayor a la Fecha de Entrega de la Vacante", false);
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+
+        }
+
+        function ObtenerCatalogos(catalogo) {
+
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerCatalogos", "Prospectos")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmb' + catalogo).html(items);
+                    }
+                },
+                data: {
+                    catalogo: catalogo
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ObtenerCatalogoClientes() {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerClientes", "Clientes")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.IdCliente + "'";
+
+                                items += " class='tamLetra bookTipografia'>" + catalogo.RazonSocial + "</option>";
+                            });
+                        }
+                        $('#cmbCliente').html(items);
+                        Utilidades.OcultarProgress();
+                    }
+                },
+                data: {
+                    nombreCompleto: '',
+                    //FSALAZAR 15/07/2019 REQ03042019 INI: Se obtienen todos los clientes activos por empresa
+                    //activo: 0
+                    activo: 1
+                    //FSALAZAR 15/07/2019 REQ03042019 FIN
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+
+        function ObtenerCatalogosFiltro(catalogo) {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerCatalogos", "Prospectos")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmb' + catalogo + 'Filtro').html(items);
+                    }
+                },
+                data: {
+                    catalogo: catalogo
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+        //Direccion
+        $('#cmbPais').change(function () {
+            if ($('#cmbPais').val() != -1) {
+                Utilidades.MostrarProgress();
+                cargarEstados($('#cmbPais').val());
+            } else {
+                items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+
+                $('#cmbEstado').html(items);
+                $('#cmbCiudadVacante').html(items);
+                $('#cmbColonia').html(items);
+            }
+        });
+
+        $('#cmbEstado').change(function () {
+            if ($('#cmbEstado').val() != -1) {
+                Utilidades.MostrarProgress();
+                cargarCiudades($('#cmbEstado').val(), null);
+            } else {
+                items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+                $('#cmbCiudadVacante').html(items);
+                $('#cmbColonia').html(items);
+            }
+
+            if ($('#cmbEstado').val() == -2) {
+                cargarEstados($('#cmbPais').val());
+
+                items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+                $('#cmbCiudadVacante').html(items);
+                $('#cmbColonia').html(items);
+            }
+        });
+
+        function cargarPaises() {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerPaises", "CodigoPostal")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.Clave_Pais + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmbPais').html(items);
+                        Utilidades.OcultarProgress();
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function cargarEstados(clavePais) {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerEstados", "CodigoPostal")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.Clave_Estado + "'";
+                                if ($('#hidEstado').val() == catalogo.Clave_Estado) {
+                                    items += " selected='selected' ";
+                                }
+                                items += " class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmbEstado').html(items);
+                        Utilidades.OcultarProgress();
+                    }
+                },
+                data: {
+                    clavePais: clavePais
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function cargarCiudades(claveEstado, nombre) {
+            var items = null;
+            items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+            $.ajax({
+                url: '@Url.Action("ObtenerCiudades", "CodigoPostal")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.Clave_Ciudad + "'";
+                                if ($('#hidCiudad').val() == catalogo.Clave_Ciudad) {
+                                    items += " selected='selected' ";
+                                }
+                                items += " class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmbCiudadVacante').html(items);
+                        Utilidades.OcultarProgress();
+                    }
+                },
+                data: {
+                    claveEstado: claveEstado, nombre: nombre
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        //PopUp Prospectos
+        function AgregarProspectos() {
+            Utilidades.MostrarProgress();
+            // CAT Prospectos
+
+            var table = $('#myTableProspectosPorCaracteristicas').DataTable();
+
+            table
+                .clear()
+                .draw();
+
+            // CAT Aqui se debe llenar el de las caracteristicas
+            obtenerCaracteristicas();
+            $('#modalSeleccionarProspecto').modal('show');
+            Utilidades.OcultarProgress();
+
+        }
+
+        // Popup Prospectos Finalistas
+        function AgregarProspectosFinalistas() {
+            Utilidades.MostrarProgress();
+            // CAT Prospectos
+
+            var table = $('#myTableProspectosSeleccionarFinalistas').DataTable();
+
+            table.clear().draw();
+
+            ObtenerGrid_ProspectosSeleccionar("Finalistas");
+
+            $('#modalSeleccionarProspectoFinalista').modal('show');
+            Utilidades.OcultarProgress();
+        }
+
+        // Popup Prospectos Invitados
+        function AgregarProspectosInvitados() {
+
+            Utilidades.MostrarProgress();
+            // CAT Prospectos
+
+            var table = $('#myTableProspectosSeleccionarInvitados').DataTable();
+
+            table.clear().draw();
+
+            ObtenerGrid_ProspectosSeleccionar("Invitados");
+
+            $('#modalSeleccionarProspectoInvitado').modal('show');
+            Utilidades.OcultarProgress();
+
+
+        }
+
+        //PopUp Caracteristicas
+        function AgregarCaracteristicas() {
+            //alert("a");
+            Utilidades.MostrarProgress();
+            LimpiarControles_AcordCarac();
+            $('#modalSeleccionarCaracteristica').modal('show');
+            Utilidades.OcultarProgress();
+
+        }
+
+        //PopUp Caracteristicas
+        /*function AgregarCaracteristicas2() {
+            alert("b");
+            Utilidades.MostrarProgress();
+            LimpiarControles_AcordCarac();
+            $('#modalSeleccionarCaracteristica2').modal('show');
+            Utilidades.OcultarProgress();
+
+        }*/
+
+        function ObtenerGrid_AcordProsp() {
+            $('#myTableProspectos').dataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "aaSorting": [[0, "desc"]],
+                "ajax": {
+                    "url": "@Url.Action("obtenerProsVacante", "Prospectos")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: { IdVacante: $('#hidIdVacante').val() },
+                    error: function (json) {
+
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons:
+                [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarProspectos();
+                        }
+                    },
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/FinalistGreen.png")" class="imagBotones" style="max-width: 18px;max-height: 18px;" /> Finalista',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarProspectosFinalistas();
+                        }
+                    },
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Invitation64.png")" class="imagBotones" style="max-width: 20px;max-height: 20px;" /> Invitar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarProspectosInvitados();
+                        }
+                    }
+                ],
+                "columns":
+                [
+                    {
+                        "data": "NombreCompleto", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreCompleto">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Direccion", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar Direccion">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaNacimiento", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar FechaNacimiento">')
+                                    .wrap('<div></div>')
+                                    .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TelefonoMovil", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar TelefonoMovil">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TelefonoOtro", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar TelefonoOtro">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreSexo", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreSexo">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreEscolaridad", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreEscolaridad">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Finalista", "autoWidth": false, "sClass": "columnaCentro",
+                        "render": function (data, type, row, meta) {
+                            var checked = '';
+                            if (row.Finalista == 1) checked = 'checked';
+                            if (type === 'display') {
+                                return '<input type="checkbox" class="editor-active" ' + checked + ' disabled>';
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Invitaciones", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar Invitaciones">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "IdProspecto", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $("<a  onmouseover=\"\" style=\"cursor: pointer;\" class=\"IdProspecto\" onClick=\"EliminarVacanteProspecto('" + String(data) + "');\"><img src=\"@Url.Content("~/Imagenes/UnlinkOff.png")\" onmouseover=\"this.src='@Url.Content("~/Imagenes/UnlinkOn.png")'\" onmouseout=\"this.src='@Url.Content("~/Imagenes/UnlinkOff.png")'\" style=\"width:22px; height:25px\"></a>")
+                                    .wrap('<div></div>')
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+                ]
+            });
+
+            $('#myTableProspectos tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                data = $('#myTableProspectos').DataTable().row($(this).parents('tr')).data();
+
+                MostrarModalProspectoDetalle(data);
+            });
+        }
+
+        function EliminarVacanteProspecto(IdProspecto) {
+            IdVacanteProspectoTemp = IdProspecto;
+            Utilidades.MostrarConfirmacion('Aviso', 'Se eliminara el registro seleccionado, ¿Desea continuar?', EliminarVacanteProspectoConfirm, EliminarVacanteProspectoCancel);
+        }
+
+        function EliminarVacanteProspectoConfirm() {
+
+            Utilidades.MostrarProgress();
+            var params = {
+                IdVacante: $('#hidIdVacante').val(),
+                IdProspecto: IdVacanteProspectoTemp
+            };
+
+            $.ajax({
+                url: '@Url.Action("DesvincularVacanteProspecto", "Vacantes")',
+                type: 'POST',
+                data: params,
+                cache: false,
+                success: function (json) {
+                    Utilidades.OcultarProgress();
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        ObtenerGrid_AcordProsp();
+                        Utilidades.MostrarDialogo("Aviso", "Registro desvinculado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.OcultarProgress();
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+
+        function EliminarVacanteProspectoCancel() {
+            IdVacanteProspectoTemp = 0;
+        }
+
+        function MostrarModalProspectoDetalle(data) {
+            //$('#hidIdProspecto').val(data.IdProspecto);
+            //IdOrigen_AcordCarac = data.IdProspecto;
+            $('#txtNombre').val(data.Nombre);
+            $('#txtNombre').prop('disabled', true);
+            $('#txtApellidos').val(data.Apellidos);
+            $('#txtApellidos').prop('disabled', true);
+            $('#txtFechaNacimiento').val(Utilidades.FormatearFechaMilisegundosString(data.FechaNacimiento));
+            $('#txtFechaNacimiento').prop('disabled', true);
+            $('#txtRFC').val(data.RFC);
+            $('#txtRFC').prop('disabled', true);
+            $('#txtEmail').val(data.Email);
+            $('#txtEmail').prop('disabled', true);
+            $('#txtTelefonoMovil').val(data.TelefonoMovil);
+            $('#txtTelefonoMovil').prop('disabled', true);
+            $('#txtTelefonoOtro').val(data.TelefonoOtro);
+            $('#txtTelefonoOtro').prop('disabled', true);
+            $('#cmbGeneros').val(data.IdSexo);
+            //$('#hidClave').val(data.IdSexo);
+            $('#cmbGeneros').val(data.IdSexo);
+            $('#cmbGeneros').prop('disabled', true);
+            $('#txtDireccion').val(data.Direccion);
+            $('#txtSalario').val(data.Salario);
+            $('#txtSalario').prop('disabled', true);
+            //$('#cmbCiudad').val(data.IdCiudad);
+            //$('#cmbCiudad').prop('disabled', true);
+            $('#cmbEstadoCivil').val(data.IdEstadoCivil);
+            $('#cmbEstadoCivil').prop('disabled', true);
+            $('#cmbEscolaridad').val(data.IdEscolaridad);
+            $('#cmbEscolaridad').prop('disabled', true);
+            $('#txtComentario').val(data.Comentario);
+            $('#txtComentario').prop('disabled', true);
+            $('#chkActivo').prop('disabled', true);
+            $('#chkActivo').prop('checked', data.Estatus);
+            //$('#hidCp').val(data.CP);
+            //$('#hidClaveColonia').val(data.Clave_Colonia);
+            //$('#txtCP').val(data.CP); 
+            //$('#txtDireccionSeleccionada').val(data.Direccion);
+            $('#txtFechaContacto').val(Utilidades.FormatearFechaMilisegundosString(data.FechaContacto));
+            $('#cmbNivelIngles').val(data.NivelIngles);
+            $('#cmbNivelIngles').prop('disabled', true);
+
+            $('#imgFoto').attr('src', "../Documentos/Empresa" + @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.IdEmpresa + "/Prospecto/Foto/" + data.Foto);
+            $('#fileFoto').hide();
+            $('#modalProspectoDetalle').modal('show');
+        }
+
+        function ObtenerGrid_AcordProspCaract(pParametrosXML, pIdSexo, pIdEstadoCivil, pIdEscolaridad, pEdadMin, pEdadMax) {
+            //data: { ParametrosXML: pParametrosXML, IdSexo: pIdSexo, IdEstadoCivil: pIdEstadoCivil, IdEscolaridad: pIdEscolaridad, EdadMin: pEdadMin, EdadMax: pEdadMax },
+            $('#myTableProspectosPorCaracteristicas').dataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "aaSorting": [[0, "desc"]],
+                "ajax": {
+                    "url": "@Url.Action("obtenerProspectosPorCaracteristicas", "Prospectos")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: { ParametrosXML: pParametrosXML, IdSexo: pIdSexo, IdEstadoCivil: pIdEstadoCivil, IdEscolaridad: pIdEscolaridad, EdadMin: pEdadMin, EdadMax: pEdadMax, IdVacante: $('#hidIdVacante').val() },
+                    error: function (json) {
+
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons:
+                [
+                    @*{
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarProspectos();
+                        }
+                    }*@
+                ],
+                "columns":
+                [
+                    {
+                        "data": "NombreCompleto", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreCompleto">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Direccion", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar Direccion">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaNacimiento", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar FechaNacimiento">')
+                                    .wrap('<div></div>')
+                                    .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TelefonoMovil", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar TelefonoMovil">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreSexo", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreSexo">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                {
+                    "data": "IdProspecto", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                    "render": function (data, type, row, meta) {
+                        var checked = '';
+                        if (row.Seleccionado == 1) checked = 'checked disabled';
+                        if (type === 'display') {
+                            return '<input type="checkbox" class="editor-active" ' + checked + '>';
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                }
+
+                ]
+            });
+
+            $('#myTableProspectosPorCaracteristicas tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                data = $('#myTableProspectosPorCaracteristicas').DataTable().row($(this).parents('tr')).data();
+
+                MostrarModalProspectoDetalle(data);
+            });
+        }
+
+        function ObtenerGrid_ProspectosSeleccionar(nombreTabla) {
+
+            var tabla = '#myTableProspectosSeleccionar' + nombreTabla;
+            $(tabla).dataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "aaSorting": [[0, "desc"]],
+                "ajax": {
+                    "url": "@Url.Action("obtenerProsVacante", "Prospectos")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                data: { IdVacante: $('#hidIdVacante').val() },
+                error: function (json) {
+
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                    },
+                dom: 'lBfrtip',
+                buttons:
+                [
+                ],
+                "columns":
+                [
+                    {
+                        "data": "NombreCompleto", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreCompleto">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Direccion", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar Direccion">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "FechaNacimiento", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar FechaNacimiento">')
+                                    .wrap('<div></div>')
+                                    .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TelefonoMovil", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar TelefonoMovil">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreSexo", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar NombreSexo">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "IdProspecto", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                        "render": function (data, type, row, meta) {
+                            var checked = '';
+
+                            if (nombreTabla == 'Finalistas' && row.Finalista == 1) checked = 'checked';
+                            if (type === 'display') {
+                                return '<input type="checkbox" class="editor-active" ' + checked + '>';
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+                ]
+            });
+
+            var filas = tabla + ' tbody';
+            $(filas).on('click', 'a.btnEditar', function () {
+
+                rowR = tableR.row($(this).parents('tr'));
+                data = $(tabla).DataTable().row($(this).parents('tr')).data();
+
+                MostrarModalProspectoDetalle(data);
+             });
+        }
+
+        function ObtenerGrid_AcordCarac() {
+            $('#myTableCaracteristicas').dataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtCaracteristicasPorProspecto", "AcordeonCaracteristicas")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: { idOrigen: IdOrigen_AcordCarac, origen: Origen_AcordCarac },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons:
+                [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCaracteristicas();
+                        }
+                    }
+                ],
+                "columns":
+                [
+                    {
+                        "data": "Caracteristica", "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Caracteristica">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                        {
+                            "data": "ValorColumna", "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar ValorColumna">')
+                                        .wrap('<div></div>')
+                                        .text(data)
+                                        .parent()
+                                        .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                            {
+                                "data": "IdProspectoCaracteristica", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $("<a  onmouseover=\"\" style=\"cursor: pointer;\" class=\"Contacto_Nombre\" onClick=\"EliminarValorCaracteristica('" + String(data) + "');\"><img src=\"@Url.Content("~/Imagenes/DeleteON.png")\" onmouseover=\"this.src='@Url.Content("~/Imagenes/Delete.png")'\" onmouseout=\"this.src='@Url.Content("~/Imagenes/DeleteON.png")'\" style=\"width:22px; height:25px\"></a>")
+                                                .wrap('<div></div>')
+                                                .parent()
+                                                .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            }
+                ]
+            });
+        }
+
+        function generarDetallesFuentes() {
+            var intCategorias = 0;
+            var intx = "";
+            var a = "";
+            var filtro = "";
+            var s = "DELETE FROM vacante_fuente where (IdVacante = " + $('#hidIdVacante').val() + "); /";
+
+            $("#ulFuentes li.active").each(function (idx, li) {
+                intCategorias = intCategorias + 1;
+
+                if ($('#hidIdVacante').val() != 0) {
+                    //Actualizar
+                    if (intx == 0) {
+                        filtro += "(" + $('#hidIdVacante').val() + "," + parseInt($(li).attr("IdFuentePublicacion")) + ")";
+                    } else {
+                        filtro += ",(" + $('#hidIdVacante').val() + "," + parseInt($(li).attr("IdFuentePublicacion")) + ")";
+                    }
+                } else {
+                    //Agregar
+                    if (intx == 0) {
+                        filtro += "(?," + parseInt($(li).attr("IdFuentePublicacion")) + ")";
+                    } else {
+                        filtro += ",(?," + parseInt($(li).attr("IdFuentePublicacion")) + ")";
+                    }
+                }
+
+                intx++;
+            });
+
+            if ($('#hidIdVacante').val() != 0) {
+                a += s;
+            }
+
+            if (intx != 0) {
+                a += "insert into vacante_fuente (IdVacante, IdFuente) values " + filtro;//+ ";";
+            }
+
+            return a;
+        }
+
+        function generarDetallesCaracPros() {
+            var intCategorias = 0;
+            var intx = "";
+            var a = "";
+            var filtro = "";
+
+            $("#ulCaracteristicasProspecto li.active").each(function (idx, li) {
+                intCategorias = intCategorias + 1;
+                filtro += "[Parametro][IdCaracteristicaParticular]" + parseInt($(li).attr("IdProspectoCaracteristica")) + "[/IdCaracteristicaParticular][Valor]" + $(li).attr("ValorColumna") + "[/Valor][/Parametro]";
+                intx++;
+            });
+
+            if (intx != 0) {
+
+                a += "[Parametros]" + filtro + "[/Parametros]";
+            }
+
+            return a;
+        }
+
+
+    </script>
+}

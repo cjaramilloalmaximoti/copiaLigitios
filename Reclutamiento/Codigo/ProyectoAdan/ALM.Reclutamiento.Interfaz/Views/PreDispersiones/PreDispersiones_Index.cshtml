@@ -1,0 +1,1529 @@
+﻿@{
+    ViewBag.Title = "Carga de Pre-Dispersiones";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="~/Estilo/bootstrap-select.min.css" rel="stylesheet" />
+
+<h2>Carga de Pre-Dispersiones</h2>
+
+@Html.Hidden("hIdPreDispersionMaestro", "0")
+
+<div id="divListado">
+    @Html.Partial("PreDispersiones_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="preDispersionesForm" id="preDispersionesForm" method="post" novalidate="">
+        @Html.Partial("PreDispersiones_Detalle", new ALM.Empresa.Entidades.EPreDispersionMaestro())
+    </form>
+</div>
+<div id="modalVerBeneficiarios" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Beneficiarios</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divBeneficiarios" style="width:100%">
+                    @Html.Partial("PreDispersiones_Beneficiarios")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+
+        var objMod = null;
+        var indexRowObjMod = null;
+        var tbObjModEstatus = null;
+        var lstEstatus = null;
+        var lstOficios = null;
+        var idRevertido = null;
+        var idAceptado = null;
+        var tableR = null;
+        var rowR = null;
+        var datas = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+
+            if (!String.format) {
+                String.format = function (format) {
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    return format.replace(/{(\d+)}/g, function (match, number) {
+                        return typeof args[number] != 'undefined'
+                          ? args[number]
+                          : match
+                        ;
+                    });
+                };
+            }
+
+            $("#txtPredispersionOficio").focus();
+            $('#cmbEstatus').hide();
+            Utilidades.MostrarProgress();
+
+            InicializarBeneficiarios();
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarDispersion();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "Editable", "autoWidth": true, "visible": false
+                    },
+                   {
+                       "data": "OficioAnexo", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                           {
+                               "data": "FechaCreacion", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                       {
+                           "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "NombreArchivo", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "TotalInversionMostrar", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "BeneficiariosReconocidos", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       //{
+                       //    "data": "EstatusCarga", "autoWidth": true, "sClass": "columnaIzquierda",
+                       //    "render": function (data, type, row, meta) {
+                       //        if (type === 'display') {
+                       //            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                       //            .wrap('<div></div>')
+                       //            .text(data)
+                       //            .parent()
+                       //            .html();
+                       //        }
+                       //        else {
+                       //            return data;
+                       //        }
+                       //    }
+                       //},
+                         {
+                             "autoWidth": true,
+                             "render": function (data, type, row, meta) {
+                                 if (type === 'display') {
+                                     return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                     .wrap('<div></div>')
+                                     .parent()
+                                     .html();
+                                 }
+                                 else {
+                                     return data;
+                                 }
+                             }
+                         }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+
+
+
+
+                if (this.name != "lnkVerBeneficiarios" && this.name != "lnkRecargar" && this.name != "lnkAprobarMaestro" && this.name != "lnkRevertir") {
+                    indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                    //tbObjModEstatus = $(this).parents('tr').find('.EstatusCarga')[0];
+
+                    var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                    OcultarMostrarDiv(data);
+                }
+                else
+                    if (this.name == "lnkVerBeneficiarios") {
+                        Utilidades.MostrarProgressPopUp();
+                        //tbObjModEstatus = $(this).parents('tr').find('.EstatusCarga')[0];
+                        var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                        objMod = data;
+
+                        if (objMod.IdEstatusCarga == idAceptado ) {
+
+                            $(".lnkRevertir").hide();
+                            $(".lnkAprobar").hide();
+                        }
+                        else {
+                            $(".lnkRevertir").show();
+                            $(".lnkAprobar").show();
+
+                            if(!data.Editable)
+                                $(".lnkAprobar").hide();
+
+                        }
+                        $('#hIdPreDispersionMaestro').val(data.IdPreDispersionMaestro);
+                        $('#myTableBeneficiario').dataTable().fnClearTable();
+                        $('#modalVerBeneficiarios').modal('show');
+                    }
+                    else
+                        if (this.name == "lnkRecargar") {
+                            rowR = tableR.row($(this).parents('tr'));
+                            var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                            objMod = data;
+                            ActualizarRecargarPredispersionDetalle();
+                        }
+                        else
+                            if (this.name == "lnkAprobarMaestro") {
+                                rowR = tableR.row($(this).parents('tr'));
+                                tbObjModEstatus = $(this).parents('tr').find('.EstatusCarga')[0];
+                                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                                objMod = data;
+                                Utilidades.MostrarConfirmacion('Aviso', 'Se aceptará la información de la Pre-Dispersión, ¿desea continuar?', AceptarDesdeMaster, null);
+                            }
+                            else
+
+                                if (this.name == "lnkRevertir")
+                                {
+                                    var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                                    objMod = data;
+                                    Utilidades.MostrarConfirmacion('Aviso', 'Se revertirá la información de la Pre-Dispersión, ¿desea continuar?', Revertir, null);
+                            }
+            });
+            $('#myTable tbody').on('click', 'a.btnEditarDispersionInvalida', function () {
+                if (this.name != "lnkVerBeneficiarios" && this.name != "lnkRecargar" && this.name != "lnkAprobarMaestro" && this.name!= "lnkRevertir") {
+                    indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                    tbObjModEstatus = $(this).parents('tr').find('.EstatusCarga')[0];
+
+                    var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                    OcultarMostrarDiv(data);
+                }
+                else
+                    if (this.name == "lnkVerBeneficiarios") {
+                        Utilidades.MostrarProgressPopUp();
+                        tbObjModEstatus = $(this).parents('tr').find('.EstatusCarga')[0];
+                        var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                        objMod = data;
+                        if (objMod.IdEstatusCarga == idAceptado || !data.Editable) {
+                            $(".lnkRevertir").hide();
+                            $(".lnkAprobar").hide();
+                        }
+                        else {
+                            $(".lnkRevertir").show();
+                            $(".lnkAprobar").show();
+                        }
+                        $('#hIdPreDispersionMaestro').val(data.IdPreDispersionMaestro);
+                        $('#myTableBeneficiario').dataTable().fnClearTable();
+                        $('#modalVerBeneficiarios').modal('show');
+                    }
+                    else
+                        if (this.name == "lnkRecargar") {
+                            rowR = tableR.row($(this).parents('tr'));
+                            var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                            objMod = data;
+                            ActualizarRecargarPredispersionDetalle();
+                        }
+                        else
+                            if (this.name == "lnkAprobarMaestro") {
+                                rowR = tableR.row($(this).parents('tr'));
+                                tbObjModEstatus = $(this).parents('tr').find('.EstatusCarga')[0];
+                                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                                objMod = data;
+                                Utilidades.MostrarConfirmacion('Aviso', 'Se aceptará la información de la Pre-Dispersión, ¿desea continuar?', AceptarDesdeMaster, null);
+                            }
+                    else if (this.name == "lnkRevertir")
+                {
+
+                        if (this.name == "lnkRevertir") {
+                            var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                            objMod = data;
+                            Utilidades.MostrarConfirmacion('Aviso', 'Se revertirá la información de la Pre-Dispersión, ¿desea continuar?', Revertir, null);
+                        }
+                }
+            });
+            ObtenerListadoEstatus();
+            ObtenerListadoOficios();
+        }
+
+        $("#btnBuscar").click(function () {
+            $('#hIdPreDispersionMaestro').val("0");
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        function OcultarMostrarDiv(data) {
+            var items = '';
+            $(".input-file").val('');
+            if (data != null) {
+                objMod = data;
+                $('#hIdPreDispersionMaestro').val(data.IdPreDispersionMaestro);
+            }
+            LlenarComboListadoOficios();
+
+            $('#btnGuardar').prop("disabled", false);
+            $('#txtComentarios').prop("disabled", false);
+
+            if (data != null) {
+                $('#txtComentarios').val(data.Comentarios);
+                $("#preDispersionesForm" + ' input[type="file"]').hide();
+                $("#lblNombreArchivo").hide();
+                $('#cmbOficinaAnexo').prop("disabled", true);
+                $('#txtComentarios').prop("disabled", true);
+                $.each(lstEstatus, function (i, asignacion) {
+                    if (data.EstatusCarga == "Propuesto") {
+                        if (asignacion.Nombre == "Propuesto") {
+                            items += "<option value='" + asignacion.IdCatalogo + "'  class='tamLetra bookTipografia'>" + asignacion.Nombre + "</option>";
+                        }
+                        $('#btnGuardar').prop("disabled", true);
+                    }
+                    else
+                        if (data.EstatusCarga == "Aceptado") {
+                            if (asignacion.Nombre == "Aceptado") {
+                                items = "<option value='" + asignacion.IdCatalogo + "'  class='tamLetra bookTipografia'>" + asignacion.Nombre + "</option>";
+                            }
+                            $('#btnGuardar').prop("disabled", true);
+                        }
+                        else
+                            if (data.EstatusCarga == "Revertido") {
+                                if (asignacion.Nombre == "Revertido" || asignacion.Nombre == "Propuesto") {
+                                    items = "<option value='" + asignacion.IdCatalogo + "'  class='tamLetra bookTipografia'>" + asignacion.Nombre + "</option>";
+                                }
+                                $('#cmbOficinaAnexo').prop("disabled", false);
+                                $("#preDispersionesForm" + ' input[type="file"]').show();
+                                $("#lblNombreArchivo").show();
+                            }
+                });
+                //$("#cmbEstatusCarga").html(items);
+                $('#cmbEstatusCarga').val(data.IdEstatusCarga);
+            }
+            else {
+                objMod = null;
+
+                $('#cmbOficinaAnexo').prop("disabled", false);
+                $('#cmbEstatusCarga').val(1);
+                $('#txtComentarios').val('');
+                $("#preDispersionesForm" + ' input[type="file"]').show();
+
+                $("#lblNombreArchivo").show();
+                $.each(lstEstatus, function (i, asignacion) {
+                    if (asignacion.Nombre == "Propuesto") {
+                        items = "<option value='" + asignacion.IdCatalogo + "'  class='tamLetra bookTipografia'>" + asignacion.Nombre + "</option>";
+                    }
+                });
+                $("#cmbEstatusCarga").html(items);
+            }
+
+            $('#divDetalle').show();
+            $('#divListado').hide();
+
+            $('#cmbOficinaAnexo').focus();
+
+            return false;
+        }
+
+        function LlenarGrid() {
+
+            tableR = $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerPreDispersiones", "PreDispersiones")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: { oficio: $('#txtPredispersionOficio').val()},
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarDispersion();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "Editable", "autoWidth": true, "visible": false
+                    },
+                   {
+                       "data": "OficioAnexo", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                           {
+                               "data": "FechaCreacion", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                       .wrap('<div></div>')
+                                       .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                       {
+                           "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "NombreArchivo", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "TotalInversionMostrar", "autoWidth": true, "sClass": "columnaDerecha",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "BeneficiariosReconocidos", "autoWidth": true, "sClass": "columnaCentro",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       //{
+                       //    "data": "EstatusCarga", "autoWidth": true, "sClass": "columnaIzquierda",
+                       //    "render": function (data, type, row, meta) {
+                       //        if (type === 'display') {
+                       //            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar EstatusCarga">')
+                       //            .wrap('<div></div>')
+                       //            .text(data)
+                       //            .parent()
+                       //            .html();
+                       //        }
+                       //        else {
+                       //            return data;
+                       //        }
+                       //    }
+                       //},
+                         {
+                             "data": "EstatusCarga", "autoWidth": true,
+                             "targets": 'no-sort',
+                             "bSortable": false,
+                             "render": function (data, type, row, meta) {
+                                 return construirBotones(row,data);
+                             }
+                         }
+                ]
+            });
+        }
+
+
+
+        function construirBotones(row,data) {
+            //style="font-size: 12px; margin-right: 30px;"
+            //1 boton detalles usuario
+            var detallesUsuario = String.format(
+                ' <a href="#" class="ControlEditar pull-left  {0}" style="margin-right:35px;" name="lnkVerBeneficiarios" {1}>' +
+                ' <span class="glyphicon glyphicon-user"></span>' +
+                '</a>',
+                (row.EstatusDetalle ? 'btnEditar' : 'btnEditarDispersionInvalida'), (data != 'Revertido' ? '' : ' hidden'));
+
+            var recargar = String.format(
+                ' <a href="#" class="ControlEditar btnEditar pull-left {0}" style="margin-right:33px;" name="lnkRecargar" {1}>' +
+                ' <span class="glyphicon glyphicon-refresh"></span>' +
+                '</a>',
+                (row.EstatusDetalle || !row.Editable ? 'linkDisabled' : ''), (row.Editable ? '' : ' hidden'));
+
+            var aprobar = String.format(
+               ' <a href="#" class="ControlEditar btnEditar pull-left btnAprobar {0}" style="margin-right:30px;" {1} name="lnkAprobarMaestro" {2} >' +
+               ' <span class="glyphicon glyphicon-ok"></span>' +
+               '</a>',
+               (data == 'Aceptado' || !row.Editable ? 'linkDisabled' : "@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantallaLink("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Aprobar)"),
+               "@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantalla("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Aprobar)",
+               (row.Editable ? '' : ' hidden'));
+
+            var revertir = String.format(
+              ' <a href="#" class="ControlEditar btnEditarDispersionInvalida btnEditar pull-right btnRevertir {0}" style="" {1} name="lnkRevertir" {2} >' +
+              ' <span class="glyphicon glyphicon-remove"></span>' +
+              '</a>',
+              (data == 'Revertido' ? 'linkDisabled' : "@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantallaLink("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Revertir)"),
+            "@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantalla("PreDispersiones", "PreDispersiones_Index", InformacionUsuarioLogueado.Privilegio.Revertir)",
+            '');
+
+
+
+            return detallesUsuario+''+recargar+''+aprobar+''+revertir;
+        }
+
+
+        function AgregarDispersion() {
+            $('#hIdPreDispersionMaestro').val("0");
+            OcultarMostrarDiv(null);
+        }
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hIdPreDispersionMaestro').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            indexRowObjMod = null;
+            tbObjModEstatus = null;
+
+            return false;
+        });
+
+
+        $('#btnGuardar').on('click', function () {
+            var idDispersion = $('#hIdPreDispersionMaestro').val();
+            if ($('#cmbOficinaAnexo').val() == "-1") {
+                Utilidades.MostrarDialogoError("Aviso", "Debe seleccionar un 'Oficio - Anexo'.");
+                return false;
+            }
+            if (idDispersion == "0") {
+                if ($("#preDispersionesForm").data('unobtrusiveValidation').validate()) {
+                    GuardarInformacion();
+                }
+            }
+            else {
+                GuardarInformacion();
+            }
+            return false;
+        });
+
+        function GuardarInformacion() {
+            var idDispersion = $('#hIdPreDispersionMaestro').val();
+            Utilidades.MostrarProgress();
+            if (idDispersion == "0") {
+                Guardar();
+            }
+        }
+
+        function Guardar() {
+            var formData = new FormData();
+            Utilidades.MostrarProgress();
+            formData.append('idOficioAnexo', $('#cmbOficinaAnexo').val());
+            formData.append('comentarios', $('#txtComentarios').val());
+            formData.append('file', $("#preDispersionesForm" + ' input[type="file"]')[0].files['0']);
+            $.ajax({
+                url: '@Url.Action("Insertar", "PreDispersiones")',
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#cmbOficinaAnexo').prop("disabled", true);
+                        $("#preDispersionesForm" + ' input[type="file"]').hide();
+                        $("#lblNombreArchivo").hide();
+                        $('#btnGuardar').prop("disabled", true);
+
+                        ObtenerListadoOficios();
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de Pre-dispersiones.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarObjetoEnTabla() {
+            tbObjModEstatus.text = objMod.EstatusCarga;
+        }
+
+        function ObtenerListadoEstatus() {
+            var items = null;
+            $.ajax({
+                url: '@Url.Action("ObtCatalogoPreDispersiones", "PreDispersiones")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstEstatus = json.Respuesta.RespuestaInformacion.Data.Info;
+                        items = "<option value='-1'  class='tamLetra bookTipografia'>TODOS</option>";
+                        $.each(json.Respuesta.RespuestaInformacion.Data.Info, function (i, asignacion) {
+                            if (asignacion.Nombre == 'Revertido') {
+                                idRevertido = asignacion.IdCatalogo;
+                            } else
+                                if (asignacion.Nombre == 'Aceptado') {
+                                    idAceptado = asignacion.IdCatalogo;
+                                }
+                            items += "<option value='" + asignacion.IdCatalogo + "'  class='tamLetra bookTipografia'>" + asignacion.Nombre + "</option>";
+                        });
+                        $("#cmbEstatus").html(items);
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ObtenerListadoOficios() {
+            var items = null;
+            $.ajax({
+                url: '@Url.Action("ObtenerOficios", "PreDispersiones")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstOficios = json.Respuesta.RespuestaInformacion.Data.Info;
+                        items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+                        $("#cmbOficinaAnexo").html(items);
+
+                        Utilidades.OcultarProgress();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function LlenarComboListadoOficios() {
+            var items = null;
+            var idDispersion = $('#hIdPreDispersionMaestro').val();
+            var idOficioTemp = 0;
+
+            if (idDispersion != "0") {
+                idOficioTemp = objMod.IdOficio;
+            }
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+
+            if (idOficioTemp != 0) {
+                items += "<option value='" + idOficioTemp + "'  class='tamLetra bookTipografia'>" + objMod.OficioAnexo + "</option>";
+            }
+            else
+            if (lstOficios != null) {
+
+                $.each(lstOficios, function (i, oficio) {
+
+                      if (oficio.Activo && oficio.Estatus == 'Disp') {
+                            items += "<option value='" + oficio.IdOficio + "'  class='tamLetra bookTipografia'>" + oficio.Oficio + (oficio.Anexo == '' ? '' : " - " + oficio.Anexo) + "</option>";
+                        }
+                });
+
+            }
+            $("#cmbOficinaAnexo").html(items);
+
+            if (idDispersion != "0") {
+                $('#cmbOficinaAnexo').val(objMod.IdOficio);
+            }
+            else {
+                $('#cmbOficinaAnexo').val(-1);
+            }
+        }
+
+        function ActualizarItemLstOficios() {
+            $.each(lstOficios, function (i, oficio) {
+                if (oficio.IdOficio == $('#cmbOficinaAnexo').val()) {
+                    oficio.IdPreDispersionMaestro = $('#hIdPreDispersionMaestro').val();
+                }
+            });
+        }
+
+
+        //************ POPUP Ver Beneficiarios
+
+        $('#modalVerBeneficiarios').on('shown.bs.modal', function () {
+            CargarDatos();
+        });
+
+        function InicializarBeneficiarios() {
+            $('#myTableBeneficiario').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                ],
+                "columns": [
+                    {
+                        "data": "Indice", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<label  onmouseover="" style="" class="btnEditar Indice">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                               {
+                                   "data": "Beneficiario", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Beneficiario">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "CURP", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar CURP">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Ciclo", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Ciclo">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "AnioFiscal", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar AnioFiscal">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "FechaPago", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar FechaPago">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Unidad", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Unidad">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Inversion", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Inversion">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Promedio", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Promedio">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Modalidad", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Modalidad">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Convenio", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar Convenio">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "SubConvenio", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar SubConvenio">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "CentroReceptor", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<label  onmouseover="" style="" class="btnEditar CentroReceptor">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "ValoresNoIdentificados",
+                                   "visible": false
+                               }
+                ]
+            });
+        }
+
+        function CargarDatos(){
+
+            Utilidades.MostrarProgressPopUp();
+
+            var tempData = [];
+
+
+            Utilidades.CargarDatos("@Url.Action("ListarPreDispersionDetalle", "PreDispersiones")", {
+                idPreDispersionMaestro: $('#hIdPreDispersionMaestro').val()
+        }, 0, function (data, esFinal) {
+
+            tempData = tempData.concat(data);
+
+            if (esFinal) {
+
+                LlenarGridBeneficiarios(tempData);
+                Utilidades.OcultarProgressPopUp();
+            }
+        }, function (json) { Utilidades.ErrorAjaxControladoPopUp(json); }, function () { Utilidades.ErrorAjaxPopUp(error); });
+
+
+        }
+
+        function LlenarGridBeneficiarios(data) {
+
+            $('#myTableBeneficiario').DataTable({
+                "sScrollX": "100%",
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "bAutoWidth": false,
+                "data":data,
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src=' + "@Url.Content("~/Imagenes/excel.png")" + ' class="imagBotones" style="max-width: 15px;max-height: 30px;margin-bottom:5px;" /> Exportar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                ExportarExcel(function () { Utilidades.MostrarProgressPopUp(); }, function () { Utilidades.OcultarProgressPopUp(); });
+                            }
+                         }
+                ],
+                "rowCallback": function (row, data, index) {
+                    var cellValue = data["Beneficiario"];
+                    if (cellValue == null || cellValue == '') {
+                        $("td:eq(1)", row).addClass("NoIdentificado");
+                    }
+                    if (cellValue == 'No Identificado') {
+                        $("td:eq(1)", row).addClass("NoIdentificadoAdvertencia");
+                    }
+
+                cellValue = data["CURP"];
+                if (cellValue == null || cellValue == '') {
+
+                    $("td:eq(2)", row).addClass("NoIdentificado");
+                    this.fnUpdate('*No Identificado', row, 2);
+                }
+                if (cellValue == 'No Identificado') {
+                    $("td:eq(2)", row).addClass("NoIdentificadoAdvertencia");
+                }
+
+                cellValue = data["Unidad"];
+                if (cellValue == null || cellValue == '') {
+
+                    $("td:eq(6)", row).addClass("NoIdentificado");
+                    this.fnUpdate('*No Identificado', row, 6);
+                }
+                if (cellValue == 'No Identificado') {
+                    $("td:eq(6)", row).addClass("NoIdentificadoAdvertencia");
+                }
+
+                cellValue = data["Modalidad"];
+                if (cellValue == null || cellValue == '') {
+
+                    $("td:eq(9)", row).addClass("NoIdentificado");
+                    this.fnUpdate('*No Identificado', row, 9);
+                }
+                if (cellValue == 'No Identificado') {
+                    $("td:eq(9)", row).addClass("NoIdentificadoAdvertencia");
+                }
+
+                cellValue = data["Convenio"];
+                if (cellValue == null || cellValue == '') {
+
+                    $("td:eq(10)", row).addClass("NoIdentificado");
+                    this.fnUpdate('*No Identificado', row, 10);
+                }
+                if (cellValue == 'No Identificado') {
+                    $("td:eq(10)", row).addClass("NoIdentificadoAdvertencia");
+                }
+
+                cellValue = data["SubConvenio"];
+                if (cellValue == null || cellValue == '') {
+
+                    $("td:eq(11)", row).addClass("NoIdentificado");
+                    this.fnUpdate('*No Identificado', row, 11);
+                }
+                if (cellValue == 'No Identificado') {
+                    $("td:eq(11)", row).addClass("NoIdentificadoAdvertencia");
+                }
+
+                cellValue = data["CentroReceptor"];
+                if (cellValue == null || cellValue == '') {
+
+                    $("td:eq(12)", row).addClass("NoIdentificado");
+                    this.fnUpdate('*No Identificado', row, 12);
+                }
+                if (cellValue == 'No Identificado') {
+                    $("td:eq(12)", row).addClass("NoIdentificadoAdvertencia");
+                }
+            },
+            "columnDefs": [
+                 { "width": "500px", "targets": [0] },
+                 { "width": "500px", "targets": [1] },
+                 { "width": "500px", "targets": [2] },
+                 { "width": "500px", "targets": [3] },
+                 { "width": "500px", "targets": [4] },
+                 { "width": "500px", "targets": [5] },
+                 { "width": "500px", "targets": [6] },
+                 { "width": "500px", "targets": [7] },
+                 { "width": "500px", "targets": [8] },
+                 { "width": "500px", "targets": [9] },
+                 { "width": "500px", "targets": [10] },
+                 { "width": "500px", "targets": [11] },
+                 { "width": "500px", "targets": [12] }
+            ],
+            "columns": [
+                {
+                    "data": "Indice", "autoWidth": true, "sClass": "columnaIzquierda",
+                    "render": function (data, type, row, meta) {
+                        if (type === 'display') {
+                            return $('<label  onmouseover="" style="" class="btnEditar Beneficiario">')
+                            .wrap('<div></div>')
+                            .text(data)
+                            .parent()
+                            .html();
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                },
+                           {
+                               "data": "Beneficiario", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Beneficiario">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "CURP", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar CURP">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Ciclo", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Ciclo">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "AnioFiscal", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar AnioFiscal">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "FechaPago", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar FechaPago">')
+                                       .wrap('<div></div>')
+                                       .text(Utilidades.FormatearFechaMilisegundosString(data))
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Unidad", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Unidad">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Inversion", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Inversion">')
+                                       .wrap('<div></div>')
+                                       .text('$' + Utilidades.NumeroToString(data))
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Promedio", "autoWidth": true, "sClass": "columnaDerecha",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Promedio">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Modalidad", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Modalidad">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Convenio", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar Convenio">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "SubConvenio", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar SubConvenio">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "CentroReceptor", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar CentroReceptor">')
+                                       .wrap('<div></div>')
+                                       .text(data == null || data == '' ? 'No Identificado' : data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "ValoresNoIdentificados",
+                               "visible":false
+                           }
+            ]
+        });
+    }
+
+        $(".lnkRevertir").click(function () {
+            if ($(this).prop("disabled")) {
+                event.preventDefault();
+                return;
+            }
+            Utilidades.MostrarConfirmacion('Aviso', 'Se revertirá la información de la Pre-Dispersión, ¿desea continuar?', Revertir, null);
+        });
+
+        $(".lnkAprobar").click(function () {
+            if ($(this).prop("disabled")) {
+                event.preventDefault();
+                return;
+            }
+            Utilidades.MostrarConfirmacion('Aviso', 'Se aceptará la información de la Pre-Dispersión, ¿desea continuar?', Aceptar, null);
+        });
+
+        function Revertir() {
+            Utilidades.MostrarProgressPopUp();
+
+            $.ajax({
+                url: '@Url.Action("ActualizarRevertir", "PreDispersiones")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    idPreDispersionMaestro: objMod.IdPreDispersionMaestro
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgressPopUp();
+                        LlenarGrid();
+                        ObtenerListadoOficios();
+                        $('#modalVerBeneficiarios').modal('hide');
+                        Utilidades.MostrarDialogo("Aviso", "Registro revertido exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+
+        function Aceptar() {
+            Utilidades.MostrarProgressPopUp();
+            var preDispersionMaestroTemp = JSON.parse(JSON.stringify(objMod));
+            preDispersionMaestroTemp.IdEstatusCarga = idAceptado;
+            preDispersionMaestroTemp.EstatusCarga = 'Aceptado';
+            preDispersionMaestroTemp.Detalle = null;
+            $.ajax({
+                url: '@Url.Action("ActualizarAprobar", "PreDispersiones")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    preDispersionMaestro: preDispersionMaestroTemp
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgressPopUp();
+                        objMod.IdEstatusCarga = preDispersionMaestroTemp.IdEstatusCarga;
+                        objMod.EstatusCarga = preDispersionMaestroTemp.EstatusCarga;
+                        LlenarGrid();
+                        ObtenerListadoOficios();
+                        $('#modalVerBeneficiarios').modal('hide');
+                        Utilidades.MostrarDialogo("Aviso", "Registro aceptado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+
+        function AceptarDesdeMaster() {
+            Utilidades.MostrarProgress();
+            var preDispersionMaestroTemp = JSON.parse(JSON.stringify(objMod));
+            preDispersionMaestroTemp.IdEstatusCarga = idAceptado;
+            preDispersionMaestroTemp.EstatusCarga = 'Aceptado';
+            preDispersionMaestroTemp.Detalle = null;
+            $.ajax({
+                url: '@Url.Action("ActualizarAprobar", "PreDispersiones")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    preDispersionMaestro: preDispersionMaestroTemp
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        objMod.IdEstatusCarga = preDispersionMaestroTemp.IdEstatusCarga;
+                        objMod.EstatusCarga = preDispersionMaestroTemp.EstatusCarga;
+                        LlenarGrid();
+                        ObtenerListadoOficios();
+                        Utilidades.MostrarDialogo("Aviso", "Registro aceptado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarRecargarPredispersionDetalle() {
+            Utilidades.MostrarProgress();
+            $.ajax({
+                url: '@Url.Action("ActualizarRecargarPredispersionDetalle", "PreDispersiones")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    idPreDispersionMaestro: objMod.IdPreDispersionMaestro
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        objMod.EstatusDetalle = json.Respuesta.RespuestaInformacion.Data.Info;
+                        tableR.row(rowR).data(objMod).draw(false);
+                        Utilidades.MostrarDialogo("Aviso", json.Respuesta.MensajeUsuario);
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+    </script>
+}

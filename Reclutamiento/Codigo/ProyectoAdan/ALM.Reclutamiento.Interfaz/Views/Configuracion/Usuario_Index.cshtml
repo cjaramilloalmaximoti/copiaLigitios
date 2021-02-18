@@ -1,0 +1,642 @@
+﻿@{
+    ViewBag.Title = "Usuarios con acceso al Sistema";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-datetimepicker.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/CheckBox.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdUsuario", "0")
+
+<div id="divListado">
+    @Html.Partial("Usuario_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Usuario_Detalle", new ALM.Empresa.Entidades.EUsuario())
+    </form>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+
+        var objMod = null;
+        var indexRowObjMod = null;
+        var tbObjModNombreCompleto = null;
+        var tbObjModCorreoElectronico = null;
+        var tbObjModLogin = null;
+        var tbObjModActivo = null;
+        var primerId = null;
+        var listaRoles = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+
+
+        $(".sauron").mousedown(function (event) {
+            $("#txtContrasenia").attr("type", "text");
+        });
+
+        $(".sauron").mouseup(function (event) {
+            $("#txtContrasenia").attr("type", "password");
+        });
+
+        function Inicializar() {
+            $("#txtUsuario_B").focus();
+
+            $('#txtFechaNacimiento').datetimepicker({
+                locale: 'es',
+                date: Utilidades.FormatoFecha(new Date()),
+                format: "dd/MM/yyyy".toUpperCase()
+            });
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarUsuario();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "IdUsuario", "autoWidth": true, "visible": false
+                    },
+                        {
+                            "data": "Login", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Login">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreCompleto">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "CorreoElectronico", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar CorreoElectronico">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Activo", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+        }
+
+        $('#txtLogin').blur(function () {
+            if ($('#txtCorreoElectronico').val() == '' && $('#txtLogin').val() != '') {
+                $('#txtCorreoElectronico').val($('#txtLogin').val() + $('#lblLogin').text());
+            }
+        });
+
+        $("#btnBuscar").click(function () {
+            $('#hidIdUsuario').val("0");
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hidIdUsuario').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            indexRowObjMod = null;
+            tbObjModNombreCompleto = null;
+            tbObjModCorreoElectronico = null;
+            tbObjModActivo = null;
+            tbObjModLogin = null;
+
+            return false;
+        });
+
+
+        $('#btnGuardar').on('click', function () {
+            GuardarInformacionUsuario();
+            return false;
+        });
+
+        //$('#txtLogin').blur(function () {
+        //    if (ValidarFormatoCorreo($('#txtLogin').val()) && $('#txtCorreoElectronico').val() == '') {
+        //        $('#txtCorreoElectronico').val($('#txtLogin').val());
+        //    }
+        //});
+
+        function ValidarFormatoCorreo(correo) {
+            var re = /^(([^<>()[\]\\.,;:\s@@\"]+(\.[^<>()[\]\\.,;:\s@@\"]+)*)|(\".+\"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(correo);
+        }
+
+        function GuardarInformacionUsuario() {
+            if ($("#userForm").data('unobtrusiveValidation').validate()) {
+                if (ValidarAlMenosUnRol()) {
+                    var idParametro = $('#hidIdUsuario').val();
+                    Utilidades.MostrarProgress();
+                    if (idParametro != "0") {
+                        ActualizarUsuario();
+                    }
+                    else {
+                        InsertarUsuario();
+                    }
+                }
+                else {
+                    Utilidades.MostrarDialogoError("Aviso", "Debe seleccionar al menos un rol.");
+                    return;
+                }
+            }
+        }
+
+        function AgregarUsuario() {
+            $('#hidIdUsuario').val("0");
+            OcultarMostrarDiv(null);
+        }
+
+        function OcultarMostrarDiv(data) {
+            if (data != null) {
+                objMod = data;
+                $('#hidIdUsuario').val(data.IdUsuario);
+                $('#txtLogin').val(data.Login);
+                $('#txtNombreCompleto').val(data.NombreCompleto);
+                $('#txtCorreoElectronico').val(data.CorreoElectronico);
+                $('#txtContrasenia').val(data.Contrasenia);
+                $('#txtComentarios').val(data.Comentarios);
+                $('#chkActivo').prop('disabled', false);
+                $('#chkActivo').prop('checked', data.Activo);
+                $('#txtDomicilio').val(data.Domicilio);
+                $('#txtTelefono').val(data.Telefono);
+                $('#txtReferencia').val(data.Referencia);
+                $('#txtReferenciaTelefono').val(data.ReferenciaTelefono);
+                $('#txtFechaNacimiento').val(data.FechaNacimientoString);
+                $("#userForm").data('unobtrusiveValidation').validate();
+            }
+            else {
+                objMod = null;
+                $('#txtLogin').val('');
+                $('#txtNombreCompleto').val('');
+                $('#txtCorreoElectronico').val('');
+                $('#txtContrasenia').val('');
+                $('#txtComentarios').val('');
+                $('#chkActivo').prop('disabled', true);
+                $('#chkActivo').prop('checked', true);
+                $('#txtDomicilio').val('');
+                $('#txtTelefono').val('');
+                $('#txtReferencia').val('');
+                $('#txtReferenciaTelefono').val('');
+                $('#txtFechaNacimiento').val(Utilidades.FormatoFecha(new Date()));
+            }
+            $('#divDetalle').show();
+            $('#divListado').hide();
+            
+            listaRoles = null;
+            ObtenerInformacionRoles();
+
+            return false;
+        }
+
+        function LlenarGrid() {
+            $('#myTable').DataTable({
+                //destroy: true,
+                //"bFilter": true,
+                //"paging": true,
+                //"pageLength": 10,
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerUsuarios", "Configuracion")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: { nombreCompleto: $('#txtUsuario_B').val(), activo: $("#cmbEstatus").val() },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarUsuario();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "IdUsuario", "autoWidth": true, "visible": false
+                    },
+                        {
+                            "data": "Login", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Login">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "NombreCompleto", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreCompleto">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "CorreoElectronico", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar CorreoElectronico">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Activo", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                tbObjModLogin = $(this).parents('tr').find('.Login')[0];
+                tbObjModNombreCompleto = $(this).parents('tr').find('.NombreCompleto')[0];
+                tbObjModCorreoElectronico = $(this).parents('tr').find('.CorreoElectronico')[0];
+                tbObjModActivo = $(this).parents('tr').find('.Activo')[0];
+                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(data);
+            });
+        }
+
+        function ActualizarUsuario() {
+            var params = {
+                usuario: {
+                    IdUsuario: $('#hidIdUsuario').val(),
+                    Login: $('#txtLogin').val(),
+                    NombreCompleto: $('#txtNombreCompleto').val(),
+                    CorreoElectronico: $('#txtCorreoElectronico').val(),
+                    Contrasenia: $('#txtContrasenia').val(),
+                    Activo: $('#chkActivo').is(":checked"),
+                    Comentarios: $('#txtComentarios').val(),
+                    Domicilio : $('#txtDomicilio').val(),
+                    Telefono: $('#txtTelefono').val(),
+                    Referencia: $('#txtReferencia').val(),
+                    ReferenciaTelefono: $('#txtReferenciaTelefono').val(),
+                    FechaNacimiento: $('#txtFechaNacimiento').val()
+                },
+                lstRoles: ObtenerListaRoles()
+            };
+            $.ajax({
+                url: '@Url.Action("ActualizarUsuario", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+                            objMod.Login = $('#txtLogin').val();
+                            objMod.NombreCompleto = $('#txtNombreCompleto').val();
+                            objMod.CorreoElectronico = $('#txtCorreoElectronico').val();
+                            objMod.Contrasenia = $('#txtContrasenia').val();
+                            objMod.Activo = $('#chkActivo').is(":checked");
+                            objMod.Comentarios = $('#txtComentarios').val();
+                            objMod.Domicilio = $('#txtDomicilio').val();
+                            objMod.Telefono = $('#txtTelefono').val();
+                            objMod.Referencia = $('#txtReferencia').val();
+                            objMod.ReferenciaTelefono = $('#txtReferenciaTelefono').val();
+                            objMod.FechaNacimientoString = $('#txtFechaNacimiento').val();
+                            ActualizarObjetoEnTabla();
+                        }
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ValidarAlMenosUnRol() {
+            var valido = false;
+            $("#ulPermisos li").each(function (idx, li) {
+                idRol = parseInt($(li).attr("IdRol"));
+                if ($(li).hasClass("active")) {
+                    valido = true;
+                }
+            });
+            return valido;
+        }
+
+        function ObtenerListaRoles() {
+            var lista = [];
+            $("#ulPermisos li").each(function (idx, li) {
+                idRol = parseInt($(li).attr("IdRol"));
+                if ($(li).hasClass("active")) {
+                    lista.push({ IdRol: idRol, Estatus: true });
+                }
+                else {
+                    lista.push({ IdRol: idRol, Estatus: false });
+                }
+            });
+            return lista;
+        }
+
+        function InsertarUsuario() {
+            var params = {
+                usuario: {
+                    Login: $('#txtLogin').val(),
+                    NombreCompleto: $('#txtNombreCompleto').val(),
+                    CorreoElectronico: $('#txtCorreoElectronico').val(),
+                    Contrasenia: $('#txtContrasenia').val(),
+                    Comentarios: $('#txtComentarios').val(),
+                    Activo: $('#chkActivo').is(":checked"),
+                    Domicilio: $('#txtDomicilio').val(),
+                    Telefono: $('#txtTelefono').val(),
+                    Referencia: $('#txtReferencia').val(),
+                    ReferenciaTelefono: $('#txtReferenciaTelefono').val(),
+                    FechaNacimiento: $('#txtFechaNacimiento').val()
+                },
+                lstRoles: ObtenerListaRoles()
+            };
+
+            $.ajax({
+                url: '@Url.Action("InsertarUsuario", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#hidIdUsuario').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de usuarios.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarObjetoEnTabla() {
+            tbObjModNombreCompleto.text = objMod.NombreCompleto;
+            tbObjModActivo.text = objMod.Activo == true ? 'Si' : 'No';
+            tbObjModCorreoElectronico.text = objMod.CorreoElectronico;
+            tbObjModLogin.text = objMod.Login;
+        }
+
+        function ObtenerInformacionRoles() {
+            Utilidades.MostrarProgress();
+            $.ajax({
+                url: '@Url.Action("ObtenerRolUsuario", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        listaRoles = json.Respuesta.RespuestaInformacion.Data.Info;
+                        MostrarRoles();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    idUsuario: $('#hidIdUsuario').val()
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function MostrarRoles() {
+            if (listaRoles && listaRoles.length > 0) {
+                var divPermisos = $("#divPermisos");
+                var ulPermisos = $("#ulPermisos");
+                var li = null;
+                if (ulPermisos) {
+                    ulPermisos.remove();
+                }
+                ulPermisos = $("<ul class='list-group checked-list-box' id='ulPermisos'></u>");
+                $.map(listaRoles, function (objInterno, indexInterno) {
+                    li = $("<li class='list-group-item inputpe tamLetra bookTipografia' IdRol='" + objInterno.IdRol + "' " + ((objInterno.Seleccionado == true) > 0 ? "data-checked='true'" : "") + "></li>");
+                    li.attr("id", "lnk" + objInterno.IdRol).text(objInterno.NombreRol);
+                    ulPermisos.append(li);
+                });
+                divPermisos.append(ulPermisos);
+            }
+            EstablecerFormatoCheckList();
+            Utilidades.OcultarProgress();
+            $("#txtLogin").focus();
+        }
+
+        function EstablecerFormatoCheckList() {
+            $('.list-group.checked-list-box .list-group-item').each(function () {
+
+                // Settings
+                var $widget = $(this),
+                    $checkbox = $('<input type="checkbox" class="hidden" />'),
+                    color = ($widget.data('color') ? $widget.data('color') : "primary"),
+                    style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
+                    settings = {
+                        on: {
+                            icon: 'glyphicon glyphicon-check'
+                        },
+                        off: {
+                            icon: 'glyphicon glyphicon-unchecked'
+                        }
+                    };
+
+                $widget.css('cursor', 'pointer')
+                $widget.append($checkbox);
+
+                // Event Handlers
+                $widget.on('click', function () {
+                    $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    $checkbox.triggerHandler('change');
+                    updateDisplay();
+                });
+                $checkbox.on('change', function () {
+                    updateDisplay();
+                });
+
+
+                // Actions
+                function updateDisplay() {
+                    var isChecked = $checkbox.is(':checked');
+
+                    // Set the button's state
+                    $widget.data('state', (isChecked) ? "on" : "off");
+
+                    // Set the button's icon
+                    $widget.find('.state-icon')
+                        .removeClass()
+                        .addClass('state-icon ' + settings[$widget.data('state')].icon);
+
+                    // Update the button's color
+                    if (isChecked) {
+                        $widget.addClass(style + color + ' active');
+                    } else {
+                        $widget.removeClass(style + color + ' active');
+                    }
+                }
+
+                // Initialization
+                function init() {
+
+                    if ($widget.data('checked') == true) {
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+
+                    updateDisplay();
+
+                    // Inject the icon if applicable
+                    if ($widget.find('.state-icon').length == 0) {
+                        $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>');
+                    }
+                }
+                init();
+            });
+        }
+    </script>
+}

@@ -1,0 +1,722 @@
+﻿@{
+    ViewBag.Title = "Catálogo de Cartera";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<style>
+    .modalAliasEstatus.modal-wide .modal-dialog {
+        width: 95% !important;
+    }
+</style>
+
+@Html.Hidden("hidIdCartera", "0")
+
+<div id="divListado">
+    @Html.Partial("Cartera_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Cartera_Detalle", new ALM.Empresa.Entidades.ECartera())
+    </form>
+</div>
+
+
+<div id="modalAliasEstatus" class="modal fade modal-wide modalAliasEstatus" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Configuración de Alias de Estatus</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divAcuerdo" style="width:100%">
+                    <form name="acuerdoPagoForm" id="acuerdoPagoForm" method="post" novalidate="">
+                        @Html.Partial("Cartera_AliasEstatus", new @ALM.Empresa.Entidades.EAcuerdoPago())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarAliasEstatus" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+    var rowR = null;
+    var objMod = null;
+    var tableR = null;
+    var lstAlias = null;
+
+    $(document).ready(function () {
+        Inicializar();
+    });
+
+    function Inicializar() {
+        $("#txtCartera_B").focus();
+        PrepararComboTipoGestion();
+
+        $('#myTable').dataTable({
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                "sZeroRecords": " "
+            },
+            dom: 'lBfr',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCartera();
+                        }
+                    }
+            ],
+            "columns": [
+                    {
+                        "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreComercial", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Activo", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Activo", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    }
+            ]
+        });
+
+
+        $('#myTable tbody').on('click', 'a.btnEditar', function () {
+            rowR = tableR.row($(this).parents('tr'));
+            objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+            if (this.name == "lnkAlias") {
+                $('#hidIdCartera').val(objMod.IdCartera);
+                $('#divEstatus').empty();
+                $('#modalAliasEstatus').modal('show');
+            }
+            else {
+                OcultarMostrarDiv(objMod);
+            }
+        });
+    }
+
+    $("#btnBuscar").click(function () {
+        Utilidades.MostrarProgress();
+        LlenarGrid();
+    });
+
+    $('#btnCancelar').on('click', function () {
+        //Limpiar controles
+        $('#hidIdCartera').val("0");
+
+        $('#divDetalle').hide();
+        $('#divListado').show();
+
+        rowR = null;
+        objMod = null;
+
+        return false;
+    });
+
+
+    $('#btnGuardar').on('click', function () {
+        GuardarInformacionCartera();
+        return false;
+    });
+
+
+    function GuardarInformacionCartera() {
+        if ($("#userForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgress();
+            if ($('#hidIdCartera').val() != '0') {
+                ActualizarCartera();
+            }
+            else {
+                InsertarCartera();
+            }
+        }
+    }
+
+    function AgregarCartera() {
+        objMod = null;
+        rowR = null;
+        OcultarMostrarDiv(null);
+    }
+
+    function OcultarMostrarDiv(data) {
+        if (data != null) {
+            $('#hidIdCartera').val(data.IdCartera);
+            $('#txtClave').val(data.Clave);
+            $('#txtNombre').val(data.Nombre);
+            $('#cmbIdCliente').val(data.IdCliente);
+            $('#txtComentarios').val(data.Comentarios);
+            $('#chkActivo').prop('disabled', false);
+            $('#chkActivo').prop('checked', data.Activo);
+        }
+        else {
+            objMod = null;
+            $('#txtClave').val('');
+            $('#txtNombre').val('');
+            $('#cmbIdCliente').val('');
+            $('#txtComentarios').val('');
+            $('#chkActivo').prop('disabled', true);
+            $('#chkActivo').prop('checked', true);
+        }
+        $('#divDetalle').show();
+        $('#divListado').hide();
+
+        $('#txtClave').focus();
+
+        ConfiguracionCombo(data)
+
+        return false;
+    }
+
+    function LlenarGrid() {
+        tableR = $('#myTable').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("ObtenerCarteras", "Cartera")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                data: { nombreCompleto: $('#txtCartera_B').val(), activo: $("#cmbEstatus").val() },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+                    {
+                        'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                        'className': 'btnAgregarGrid',
+                        'action': function (e, dt, node, config) {
+                            AgregarCartera();
+                        }
+                    }
+            ],
+            "columns": [
+                    {
+                        "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "NombreComercial", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreComercial">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Activo", "autoWidth": true,
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                .wrap('<div></div>')
+                                .text(data == true ? 'Si' : 'No')
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                {
+                    "data": "Activo", "autoWidth": true,
+                    "targets": 'no-sort',
+                    "bSortable": false,
+                    "render": function (data, type, row, meta) {
+                        return (' <a href="#" class="ControlEditar btnEditar" name="lnkAlias"> <image src="@Url.Content("~/Imagenes/Semaforo.png")" id="imgDeudor" onmouseover="this.src=\'@Url.Content("~/Imagenes/SemaforoON.png")\'" onmouseout="this.src=\'@Url.Content("~/Imagenes/Semaforo.png")\'"></image></a>')
+                    }
+                }
+            ]
+        });
+    }
+
+    function ActualizarCartera() {
+        var params = {
+            Cartera: {
+                IdCartera: $('#hidIdCartera').val(),
+                Clave: $('#txtClave').val(),
+                Nombre: $('#txtNombre').val(),
+                IdCliente: $('#cmbIdCliente').val(),
+                Comentarios: $('#txtComentarios').val(),
+                Activo: $('#chkActivo').is(":checked"),
+                NombreComercial: $('#cmbIdCliente').select2('data')[0].text
+            }
+        };
+        $.ajax({
+            url: '@Url.Action("ActualizarCartera", "Cartera")',
+            type: 'POST',
+            cache: false,
+            data: params,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    if (objMod != null) {
+                        objMod.Clave = $('#txtClave').val();
+                        objMod.Nombre = $('#txtNombre').val();
+                        objMod.IdCliente = $('#cmbIdCliente').val();
+                        objMod.NombreComercial = $('#cmbIdCliente').select2('data')[0].text;
+                        objMod.Json = json.Respuesta.RespuestaInformacion.Data.Info;
+                        objMod.Comentarios = $('#txtComentarios').val();
+                        objMod.Activo = $('#chkActivo').is(":checked");
+                        tableR.row(rowR).data(objMod).draw(false);
+                    }
+                    Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function InsertarCartera() {
+        var params = {
+            Cartera: {
+                Clave: $('#txtClave').val(),
+                Nombre: $('#txtNombre').val(),
+                IdCliente: $('#cmbIdCliente').val(),
+                Comentarios: $('#txtComentarios').val(),
+                Activo: $('#chkActivo').is(":checked")
+            }
+        };
+        $.ajax({
+            url: '@Url.Action("InsertarCartera", "Cartera")',
+            type: 'POST',
+            cache: false,
+            data: params,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    $('#hidIdCartera').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                    Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de usuarios.");
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function ConfiguracionCombo(datos) {
+        try {
+            $('#cmbIdCliente').html('').select2({ data: { id: null, text: null } });
+        }
+        catch (e) { }
+        if (datos != null) {
+            $('#cmbIdCliente').append("<option value='" + datos.IdCliente + "'>" + datos.NombreComercial + "</option>");
+        }
+
+        $element = $('#cmbIdCliente').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            allowClear: true,
+            ajax: {
+                type: 'POST',
+                url: '@Url.Action("ObtenerClientes", "Cartera")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        cadenaBuscar: params.term
+                    };
+                },
+                processResults: function (json, page) {
+                    if (json.Respuesta) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        if (codigoRegreso == codigoCorrecto) {
+                            return {
+                                results: json.Respuesta.RespuestaInformacion.Data.Info
+                            };
+
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            if (errorAjax != null) {
+                                errorAjax(json);
+                            }
+                        }
+                    }
+                    else {
+                        window.location.href = urlAccesoDenegado;
+                    }
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+        });
+    }
+
+    $('#modalAliasEstatus').on('shown.bs.modal', function () {
+        $('#cmbIdTipoGestion').val("0");
+        $('#cmbIdTipoGestion').trigger('change');
+        MostrarAliasEstatus(0);
+
+    });
+
+    function PrepararComboTipoGestion() {
+        $.ajax({
+            url: '@Url.Action("ObtCatalogoTipoGestion", "Cartera")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                        $element = $('#cmbIdTipoGestion').select2({
+                            language: "es",
+                            placeholder: "Selecciona una opción",
+                            matcher: filterMatcher,
+                            allowClear: true,
+                            data: lstCatalogos
+                        });
+
+                        $element.on("select2:select", function (e) {
+                            MostrarAliasEstatus(e.params.data.id);
+                        });
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+
+
+        function filterMatcher(params, data) {
+            data.parentText = data.parentText || "";
+
+            // Always return the object if there is nothing to compare
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+
+            // Do a recursive check for options with children
+            if (data.children && data.children.length > 0) {
+                // Clone the data object if there are children
+                // This is required as we modify the object to remove any non-matches
+                var match = $.extend(true, {}, data);
+
+                // Check each child of the option
+                for (var c = data.children.length - 1; c >= 0; c--) {
+                    var child = data.children[c];
+                    child.parentText += data.parentText + " " + data.text;
+
+                    var matches = filterMatcher(params, child);
+
+                    // If there wasn't a match, remove the object in the array
+                    if (matches == null) {
+                        match.children.splice(c, 1);
+                    }
+                }
+
+                // If any children matched, return the new object
+                if (match.children.length > 0) {
+                    return match;
+                }
+
+                // If there were no matching children, check just the plain object
+                return filterMatcher(params, match);
+            }
+
+            // If the typed-in term matches the text of this term, or the text from any
+            // parent term, then it's a match.
+            var original = (data.parentText + ' ' + data.text).toUpperCase();
+            var term = params.term.toUpperCase();
+
+
+            // Check if the text contains the term
+            if (original.indexOf(term) > -1) {
+                return data;
+            }
+
+            return null;
+        }
+
+        function MostrarAliasEstatus(idTipoGestion)
+        {
+            if (idTipoGestion != 0) {
+                Utilidades.MostrarProgressPopUp();
+                ObtenerAliasEstatusPorTipoGestion(idTipoGestion);
+            }
+        }
+
+        function ObtenerAliasEstatusPorTipoGestion(idTipoGestion) {
+            $('#divEstatus').empty();
+            var params = {
+                pIdCartera: $('#hidIdCartera').val(),
+                pIdTipoGestion: idTipoGestion
+            };
+            $.ajax({         
+                url: '@Url.Action("ObtenerAlias", "Cartera")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstAlias = json.Respuesta.RespuestaInformacion.Data.Info;
+                        var div = $("#divEstatus");
+                        var divColumna = null;
+                        var divlabel = null;
+                        var divControl = null;
+                        var label = null;
+                        var control = null;
+                        $.map(lstAlias, function (alias, index) {
+                            divColumna = $('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4" style="margin-top:5px">');
+
+                            divlabel = $(' <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">');
+                            label = $('<label for="txt" id="lblNombre" class="labelColumn tamLetra regularTipografia">' + alias.Nombre + '</label>');
+                            label.attr("id", "lbl" + alias.IdEstatus);
+                            divlabel.append(label);
+                            divColumna.append(divlabel);
+
+                            divControl = $('<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">');
+                            control = $('<input type="text" id="txt' + alias.IdEstatus + '" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txt' + alias.IdEstatus + '" />');
+                            divControl.append(control);
+                            divColumna.append(divControl);
+
+                            divColumna.appendTo(div);
+
+                            $('#txt' + alias.IdEstatus).val(alias.Alias);
+                        });
+                        Utilidades.OcultarProgressPopUp();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+                
+        $('#btnGuardarAliasEstatus').on('click', function () {
+            if (lstAlias && lstAlias != null && lstAlias.length > 0) {
+                Utilidades.MostrarProgressPopUp();
+                InsertarAlias();
+            }
+            else {
+                Utilidades.MostrarDialogoError("Aviso", "No hay información a guardar.");
+            }
+            return false;
+        });
+
+        function InsertarAlias() {
+            ObtenerListaAlias();
+            var params = {
+                pLstAlias: lstAlias
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarAlias", "Cartera")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgressPopUp();
+                        Utilidades.MostrarDialogo("Aviso", "Registros guardados exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+
+        function ObtenerListaAlias() {
+            if (lstAlias && lstAlias != null && lstAlias.length > 0) {
+                $.each(lstAlias, function (i, alias) {
+                    alias.Alias = $('#txt' + alias.IdEstatus).val();
+                    alias.IdTipoGestion = $('#cmbIdTipoGestion').val();
+                    alias.IdCartera = $('#hidIdCartera').val();
+                });
+            }
+        }
+
+        $('#modalAliasEstatus').on('hidden.bs.modal', function () {
+            $('#hidIdCartera').val("0");
+            lstAlias = null;
+            $('#divEstatus').empty();
+        });
+
+    </script>
+}

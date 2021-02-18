@@ -1,0 +1,45 @@
+﻿<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <input type="text" id="txtNombreDet" class="form-control inputColumn inputpe tamLetra bookTipografia" name="txtNombreDet" disabled="disabled" title="Nombre del Parámetro" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="lblDescripcion" class="labelColumn tamLetra regularTipografia">Descripción</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <textarea rows="3" class="form-control inputColumn inputpe tamLetra bookTipografia textArea" id="txtDescripcionDet" disabled="disabled" title="Descripción del Parámetro"></textarea>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="lblValor" class="labelColumn tamLetra regularTipografia">Valor</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <textarea rows="5" class="form-control inputColumn tamLetra bookTipografia textArea" style="width:80%" id="txtValor"></textarea>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <label for="lblEsActivo" class="labelColumn tamLetra bookTipografia">Es Activo &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="chkEsActivo" title="Parámetro Activo" /></label>
+                <br />
+                <label for="lblEsSensible" class="labelColumn tamLetra bookTipografia">Es Sensible &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="chkEsSensible" title="Si se puede mostrar" /></label>
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <hr />
+        <button type="button" value="Guardar" id="btnGuardar" name="Guardar" class="btnGuardar pull-right"
+                @ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ValidarPermisoPantalla("Configuracion", "Parametro_Index", InformacionUsuarioLogueado.Privilegio.Privilegio4)>
+            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+        </button>
+        <button type="button" value="Cancelar" id="btnCancelar" name="Cancelar" class="btnCancelar pull-right">
+            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+        </button>
+    </div>
+</div>

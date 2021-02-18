@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.RestService", "ALM.MultiEmpresa.RestService\ALM.ServicioAdminEmpresas.RestService.csproj", "{2C08A8C5-6D67-4E57-AD38-15996D8478DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.AccesoDatos", "ALM.MultiEmpresa.AccesoDatos\ALM.ServicioAdminEmpresas.AccesoDatos.csproj", "{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.Datos", "ALM.MultiEmpresa.Datos\ALM.ServicioAdminEmpresas.Datos.csproj", "{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.Utilerias", "ALM.MultiEmpresa.Utilerias\ALM.ServicioAdminEmpresas.Utilerias.csproj", "{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.Entidades", "ALM.MultiEmpresa.Entidades\ALM.ServicioAdminEmpresas.Entidades.csproj", "{23DC1139-135F-4C9B-8285-278492665F24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.Negocio", "ALM.MultiEmpresa.Negocio\ALM.ServicioAdminEmpresas.Negocio.csproj", "{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.ServicioAdminEmpresas.Encriptador", "ALM.MultiEmpresa.Encriptador\ALM.ServicioAdminEmpresas.Encriptador.csproj", "{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 8
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://almaximoti-proyectos.visualstudio.com/
+		SccProjectUniqueName0 = ALM.MultiEmpresa.AccesoDatos\\ALM.ServicioAdminEmpresas.AccesoDatos.csproj
+		SccProjectName0 = ALM.MultiEmpresa.AccesoDatos
+		SccLocalPath0 = ALM.MultiEmpresa.AccesoDatos
+		SccProjectUniqueName1 = ALM.MultiEmpresa.Datos\\ALM.ServicioAdminEmpresas.Datos.csproj
+		SccProjectName1 = ALM.MultiEmpresa.Datos
+		SccLocalPath1 = ALM.MultiEmpresa.Datos
+		SccLocalPath2 = .
+		SccProjectUniqueName3 = ALM.MultiEmpresa.Encriptador\\ALM.ServicioAdminEmpresas.Encriptador.csproj
+		SccProjectName3 = ALM.MultiEmpresa.Encriptador
+		SccLocalPath3 = ALM.MultiEmpresa.Encriptador
+		SccProjectUniqueName4 = ALM.MultiEmpresa.Entidades\\ALM.ServicioAdminEmpresas.Entidades.csproj
+		SccProjectName4 = ALM.MultiEmpresa.Entidades
+		SccLocalPath4 = ALM.MultiEmpresa.Entidades
+		SccProjectUniqueName5 = ALM.MultiEmpresa.Negocio\\ALM.ServicioAdminEmpresas.Negocio.csproj
+		SccProjectName5 = ALM.MultiEmpresa.Negocio
+		SccLocalPath5 = ALM.MultiEmpresa.Negocio
+		SccProjectUniqueName6 = ALM.MultiEmpresa.RestService\\ALM.ServicioAdminEmpresas.RestService.csproj
+		SccProjectName6 = ALM.MultiEmpresa.RestService
+		SccLocalPath6 = ALM.MultiEmpresa.RestService
+		SccProjectUniqueName7 = ALM.MultiEmpresa.Utilerias\\ALM.ServicioAdminEmpresas.Utilerias.csproj
+		SccProjectName7 = ALM.MultiEmpresa.Utilerias
+		SccLocalPath7 = ALM.MultiEmpresa.Utilerias
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C08A8C5-6D67-4E57-AD38-15996D8478DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C08A8C5-6D67-4E57-AD38-15996D8478DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C08A8C5-6D67-4E57-AD38-15996D8478DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C08A8C5-6D67-4E57-AD38-15996D8478DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3F1ED4E-CE3F-47FE-8854-CBEA304684EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ACE40A0-22A1-45F6-AB79-E2964D690C1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5AB23B7-124F-4F39-AFE0-73D9130FFBEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23DC1139-135F-4C9B-8285-278492665F24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6862CB4A-4D0B-48BD-AD1F-D2ADFC4994DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

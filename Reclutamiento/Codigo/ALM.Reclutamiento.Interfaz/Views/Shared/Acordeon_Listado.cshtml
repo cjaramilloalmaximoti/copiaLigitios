@@ -1,0 +1,665 @@
+﻿<script>
+    var banDoc = 0;
+    var banCar = 0;
+    var banRef = 0;
+    var banBit = 0;
+    // CAT
+    var banPro = 0;
+
+    function cambiarIcono() {
+        if (banDoc == 0) {
+            $('#imgMasDocs').attr('src', "../images/details_open.png");
+        } else {
+            $('#imgMasDocs').attr('src', "../images/details_close.png");
+        }
+
+        if (banCar == 0) {
+            $('#imgMasCarac').attr('src', "../images/details_open.png");
+        } else {
+            $('#imgMasCarac').attr('src', "../images/details_close.png");
+        }
+
+        if (banRef == 0) {
+            $('#imgMasReferencia').attr('src', "../images/details_open.png");
+        } else {
+            $('#imgMasReferencia').attr('src', "../images/details_close.png");
+        }
+
+        if (banBit == 0) {
+            $('#imgMasBitacora').attr('src', "../images/details_open.png");
+        } else {
+            $('#imgMasBitacora').attr('src', "../images/details_close.png");
+        }
+
+        if (banPro == 0) {
+            $('#imgMasPros').attr('src', "../images/details_open.png");
+        } else {
+            $('#imgMasPros').attr('src', "../images/details_close.png");
+        }
+    }
+
+    // CAT
+    function cambiarIconoDoc() {
+        if (banDoc == 0) {
+            banDoc = 1; banCar = 0; banRef = 0; banBit = 0; banPro = 0;
+        } else {
+            banDoc = 0;
+        }
+
+        cambiarIcono();
+    }
+
+    function cambiarIconoCar() {
+        if (banCar == 0) {
+            banDoc = 0; banCar = 1; banRef = 0; banBit = 0; banPro = 0;
+        } else {
+            banCar = 0;
+        }
+
+        cambiarIcono();
+    }
+
+    function cambiarIconoRef() {
+        if (banRef == 0) {
+            banDoc = 0; banCar = 0; banRef = 1; banBit = 0; banPro = 0;
+        } else {
+            banRef = 0;
+        }
+
+        cambiarIcono();
+    }
+
+    function cambiarIconoBit() {
+        if (banBit == 0) {
+            banDoc = 0; banCar = 0; banRef = 0; banBit = 1; banPro = 0;
+        } else {
+            banBit = 0;
+        }
+
+        cambiarIcono();
+    }
+
+    function cambiarIconoPro() {
+        if (banPro == 0) {
+            banDoc = 0; banCar = 0; banRef = 0; banBit = 0; banPro = 1;
+        } else {
+            banPro = 0;
+        }
+
+        cambiarIcono();
+    }
+
+    //Llenar el Combo de Documetnos del PopUp
+    function PrepararSeleccionDocumentos() {
+        var items = null;
+        items = "<option value='-1'  class='tamLetra bookTipografia'>Seleccione...</option>";
+        $.ajax({
+            url: '@Url.Action("ObtenerDocumentos", "Documentos")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogosTemp = json.Respuesta.RespuestaInformacion.Data.Info;
+                        if (lstCatalogosTemp != null) {
+
+                            $.each(lstCatalogosTemp, function (i, catalogo) {
+                                items += "<option value='" + catalogo.IdCatalogo + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $('#cmbDocumentos').html(items);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+    function EliminarDocumento(id) {
+            $.ajax({
+                url: '@Url.Action("EliminarDocsCliente", "Documentos")',
+                type: 'POST',
+                cache: false,
+                data: { Id: id },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        Utilidades.MostrarDialogo("Aviso", "Documento eliminado exitosamente..");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+
+            agregarListaDocumento();
+        }
+
+    function agregarListaProspecto() {
+        $('#myTableProspectos').dataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "ajax": {
+                "url": "@Url.Action("obtenerDocsCliente", "Documentos")",
+            "type": "POST",
+            "datatype": "json",
+            "dataSrc": function (json) {
+
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    Utilidades.OcultarProgress();
+                    return json.Respuesta.RespuestaInformacion.Data.Info;
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                }
+            },
+            data: { IdCliente: $('#hidIdCliente').val() },
+            error: function (json) {
+                Utilidades.ErrorAjax(json);
+                return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+            },
+        },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+                },
+        dom: 'lBfrtip',
+        buttons:
+        [
+            {
+                'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                'className': 'btnAgregarGrid',
+                'action': function (e, dt, node, config) {
+                    AgregarDocumento();
+                }
+            }
+        ],
+        "columns":
+        [
+            {
+                "data": "IdDocumento", "sClass": "columnaIzquierda",
+                "render": function (data, type, row, meta) {
+                    if (type === 'display') {
+                        return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                            .wrap('<div></div>')
+                            .text(data)
+                            .parent()
+                            .html();
+                    }
+                    else {
+                        return data;
+                    }
+                }
+            },
+            {
+                "data": "descDocumento", "sClass": "columnaIzquierda",
+                "render": function (data, type, row, meta) {
+                    if (type === 'display') {
+                        return $('<a  onmouseover="" style="" class="btnEditar RazonSocial">')
+                            .wrap('<div></div>')
+                            .text(data)
+                            .parent()
+                            .html();
+                    }
+                    else {
+                        return data;
+                    }
+                }
+            },
+            {
+                "data": "Nombre", "autoWidth": false, "sClass": "columnaIzquierda",
+                "render": function (data, type, row, meta) {
+                    if (type === 'display') {
+                        return $('<a  onmouseover="" style="" class="btnEditar NombreComercial">')
+                            .wrap('<div></div>')
+                            .text(data)
+                            .parent()
+                            .html();
+                    }
+                    else {
+                        return data;
+                    }
+                }
+            },
+            {
+                "data": "Url", "autoWidth": false, "sClass": "columnaCentro", "bSortable": false,
+                "render": function (data, type, row, meta) {
+                    if (type === 'display') {
+                        return $("<a  onmouseover=\"\" style=\"cursor: pointer;\" class=\"btnEditar Contacto_Nombre\" onClick=\"downloadFile('" + String(data) + "', 'Cliente','" + String(row.NombreOriginal) + "');\"><img src=\"@Url.Content("~/Imagenes/DownloadON.png")\" onmouseover=\"this.src='@Url.Content("~/Imagenes/Download.png")'\" onmouseout=\"this.src='@Url.Content("~/Imagenes/DownloadON.png")'\" style=\"width:22px; height:25px\"></a>")
+                                .wrap('<div></div>')
+                                .parent()
+                                .html();
+                    }
+                    else {
+                        return data;
+                    }
+                }
+            }
+        ]
+    });
+    }
+
+
+    function ConfirmarEliminarDocumento(id) {
+            var funcionCancelar = null;
+            swal({
+                title: 'Aviso',
+                text: 'Se eliminara el Documento, ¿Desea continuar?',
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Si",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        EliminarDocumento(id);
+                    } else {
+                        if (!isConfirm && funcionCancelar) {
+                            funcionCancelar();
+                        }
+                    }
+                });
+        }
+</script>
+
+<div id="modalSeleccionarDocumento" class="modal fade modal-wide" role="dialog">
+    <form name="userFormDocs" id="userFormDocs" method="post" novalidate="">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Seleccionar Documento</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divSeleccionarDocumentos" style="width:100%">
+                        @Html.Partial("Acordeon_Documentos_Detalle")
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="clear:both; text-align:right; width:98%">
+                        <button type="button" value="Guardar" id="btnGuardarDocumento" name="Guardar" class="btnGuardar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                        </button>
+                        <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="modalSeleccionarProspecto" class="modal fade modal-wide" role="dialog">
+
+    <div class="modal-dialog modalAlto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Seleccionar Prospectos</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeleccionarProspectos" style="width:100%">
+                    
+                    @Html.Partial("Acordeon_Prospectos")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="clear:both; text-align:right; width:98%">
+                    <button type="button" value="Guardar" id="btnGuardarProspecto" name="Guardar" class="btnGuardar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                    </button>
+                    <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="modalSeleccionarCaracteristica" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog modalAlto">
+        <!-- Modal content-->
+        <div class="modal-content modalAlto">
+            <div class="modal-header">
+                <h4 class="modal-title">Agregar Caracteristicas Particulares</h4>
+            </div>
+            <div class="modal-body modalbody">
+                <div id="divSeleccionarCaracteristica" style="width:100%">
+                    @Html.Partial("Acordeon_Caracteristicas")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="clear:both; text-align:right; width:98%">
+                    <button type="button" value="Guardar" id="btnGuardarCaracteristicas" name="Guardar" class="btnGuardar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                    </button>
+                    <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="modalSeleccionarReferencia" class="modal fade modal-wide" role="dialog">
+    <form name="userFormReferencia" id="userFormReferencia" method="post" novalidate="">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Agregar Referencia Laboral</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divSeleccionarReferencia" style="width:100%">
+                        @Html.Partial("Acordeon_ReferenciaLaboral_Detalle", new ALM.Reclutamiento.Entidades.EReferenciaLaboral())
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="clear:both; text-align:right; width:98%">
+                        <button type="button" value="Guardar" id="btnGuardarReferenciaLaboral" name="Guardar" class="btnGuardar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                        </button>
+                        <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="modalSeleccionarBitacora" class="modal fade modal-wide" role="dialog">
+    <form name="userFormBitacora" id="userFormBitacora" method="post" novalidate="">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Agregar Registro A Bitacora</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="divSeleccionarBitacora" style="width:100%">
+                        @Html.Partial("Acordeon_Bitacora")
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="clear:both; text-align:right; width:98%">
+                        <button type="button" value="Guardar" id="btnGuardarBitacora" name="Guardar" class="btnGuardar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                        </button>
+                        <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="modalSeleccionarProspectoFinalista" class="modal fade modal-wide" role="dialog">
+
+    <div class="modal-dialog modalAlto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Seleccionar Prospectos Finalistas</h4>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("Acordeon_TablaProspecto", "Finalistas")
+            </div>
+            <div class="modal-footer">
+                <div style="clear:both; text-align:right; width:98%">
+                    <button type="button" value="Guardar" id="btnGuardarProspectoFinalista" name="Guardar" class="btnGuardar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                    </button>
+                    <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="modalSeleccionarProspectoInvitado" class="modal fade modal-wide" role="dialog">
+
+    <div class="modal-dialog modalAlto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Seleccionar Prospectos a Invitar</h4>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("Acordeon_TablaProspecto", "Invitados")
+            </div>
+            <div class="modal-footer">
+                <div style="clear:both; text-align:right; width:98%">
+                    <button type="button" value="Guardar" id="btnGuardarProspectoInvitado" name="Guardar" class="btnGuardar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                    </button>
+                    <button type="button" value="Cancelar" data-dismiss="modal" name="Cancelar" class="btnCancelar pull-right">
+                        <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row"><br /></div>
+
+<div class="panel-group" id="accordion">
+    <div class="panel panel-primary" id="divDocumentos">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a id="lnkDocumentos" onclick="cambiarIconoDoc();" data-toggle="collapse" data-parent="#accordion" href="#collapse1"><img id="imgMasDocs" src="~/images/details_open.png" /> Documentos</a>
+            </h4>
+        </div>
+        <div id="collapse1" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="divMarcoGrid">
+                    <div class="divSubMarcoGrid">
+                        <table class="myTable" id="myTableDocumentos">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">Id Documento</th>
+                                    <th style="width: 40%;">Desc. Documento</th>
+                                    <th style="width: 30%;">Nombre</th>
+                                    <th style="width: 10%;">Descargar</th>
+                                    <!-- <th style="width: 5%;">Quitar</th> -->
+                                </tr>
+                            </thead>
+                        </table>
+                        <table class="myTable" id="myTableDocumentos1">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">Id Documento</th>
+                                    <th style="width: 40%;">Desc. Documento</th>
+                                    <th style="width: 30%;">Tipo documento(Clave)</th>
+                                    <th style="width: 30%;">Nombre</th>
+                                    <th style="width: 10%;">Descargar</th>
+                                    <!-- <th style="width: 5%;">Quitar</th> -->
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <div class="panel panel-primary" id="divProspectos">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a id="lnkProspectos" onclick="cambiarIconoPro();" data-toggle="collapse" data-parent="#accordion" href="#collapse5"><img id="imgMasPros" src="~/images/details_open.png" /> Prospectos</a>
+            </h4>
+        </div>
+        <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="divMarcoGrid">
+                    <div class="divSubMarcoGrid">
+                        <table class="myTable" id="myTableProspectos">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%;">Nombre</th>
+                                    <th style="width: 25%;">Dirección</th>
+                                    <th style="width: 10%;">Fecha Nac.</th>
+                                    <th style="width: 10%;">Tel. Movil</th>
+                                    <th style="width: 10%;">Tel. Otro</th>
+                                    <th style="width: 10%;">Sexo</th>
+                                    <th style="width: 10%;">Profesión</th>
+                                    <th style="width: 10%;">Finalista</th>
+                                    <th style="width: 10%;">Invitaciones</th>
+                                    <th style="width: 5%;">Desvincular</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" id="divCaracteristicas">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a id="lnkCaracteristicas" onclick="cambiarIconoCar();" data-toggle="collapse" data-parent="#accordion" href="#collapse2" aria-expanded="false"><img id="imgMasCarac" src="~/images/details_open.png" /> Características Particulares</a>
+            </h4>
+        </div>
+        <div id="collapse2" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="divSubMarcoGrid">
+                    <table class="myTable" id="myTableCaracteristicas">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Característica</th>
+                                <th style="width: 30%;">Valor Asignado</th>
+                                <th style="width: 10%;">Eliminar</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" id="divReferenciaLaboral">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a id="Referencia" onclick="cambiarIconoRef();" data-toggle="collapse" data-parent="#accordion" href="#collapse3" aria-expanded="false"><img id="imgMasReferencia" src="~/images/details_open.png" /> Referencia Laboral</a>
+            </h4>
+        </div>
+        <div id="collapse3" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="divSubMarcoGrid">
+                    <table class="myTable" id="myTableReferenciaLaboral">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Empresa</th>
+                                <th style="width: 20%;">Dirección</th>
+                                <th style="width: 20%;">Contacto</th>
+                                <th style="width: 10%;">E-Mail</th>
+                                <th style="width: 5%;">Teléfono</th>
+                                <th style="width: 10%;">Mootivo Separación</th>
+                                <th style="width: 10%;">Puesto</th>
+                                <th style="width: 5%;">Tiempo Laborado</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" id="divBitacora">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a id="lnkBitacora" onclick="cambiarIconoBit();" data-toggle="collapse" data-parent="#accordion" href="#collapse4" aria-expanded="false"><img id="imgMasBitacora" src="~/images/details_open.png" /> Bitacora</a>
+            </h4>
+        </div>
+        <div id="collapse4" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="divSubMarcoGrid">
+                    <table class="myTable" id="myTableBitacora">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">Fecha</th>
+                                <th style="width: 80%;">Comentario</th>
+                                <th style="width: 10%;">Quien Agrego</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="panel-group" id="accordion2">
+    <div class="panel panel-primary" id="divDocumentos2">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <img src="~/images/details_close.png" /> Documentos
+            </h4>
+        </div>
+    </div>
+    <div class="panel panel-primary" id="divCaracteristicas2">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <img src="~/images/details_close.png" /> Características Particulares
+            </h4>
+        </div>
+    </div>
+    <div class="panel panel-primary" id="divReferenciaLaboral2">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <img src="~/images/details_close.png" /> Referenci Laboral
+            </h4>
+        </div>
+    </div>
+    <div class="panel panel-primary" id="divBitacora2">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <img src="~/images/details_close.png" /> Bitacora
+            </h4>
+        </div>
+    </div>
+    <div class="panel panel-primary" id="divProspectos2">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <img src="~/images/details_close.png" /> Prospectos
+            </h4>
+        </div>
+    </div>
+</div>

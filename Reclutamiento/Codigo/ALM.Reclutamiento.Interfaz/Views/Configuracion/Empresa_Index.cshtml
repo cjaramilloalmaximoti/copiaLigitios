@@ -1,0 +1,938 @@
+﻿
+@{
+    ViewBag.Title = "Información de la Empresa";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-datetimepicker.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/CheckBox.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/font-awesome.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+    <script src="@Url.Content("~/scripts/Acordeon_Caracteristicas.js?v=1.5")"></script>
+
+
+
+    <div id="divListado">
+        @Html.Partial("Empresa_Listado")
+    </div>
+    <div id="divDetalle" width:100%" style="display:none;">
+        <form name="empresaForm" id="empresaForm" method="post" novalidate="">
+            @Html.Partial("Empresa_Detalle", new ALM.Reclutamiento.Entidades.EEmpresa())
+        </form>
+        <div id="divAcordeon">
+
+        </div>
+    </div>
+
+
+
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+
+            var empresa = null;
+            var AccionEmpresaValor = "";
+            var estatusEmpresa = -1;
+            var NombreAnteriorEmpresa = "";
+
+            $(document).ready(function () {
+                AccionEmpresaValor = "";
+                Utilidades.MostrarProgress();
+                $('#txtDominio').val('');
+                $('#txtRFC').val('');
+                $('#txtEmail').val('');
+                $('#txtAdministrador').val('');
+                $('#txtContrasenia').val('');
+                $('#txtNombreComercial').val('');
+                $('#txtRutaLogo').val('');
+
+                $('#txtNombreRepresentante').val('');
+                $('#txtEmailRepresentante').val('');
+                $('#txtTelefonoRepresentante').val('');
+                $('#txtObservaciones').val('');
+                $('#txtNombreOtroContacto').val('');
+                $('#txtEmailOtroContacto').val('');
+                $('#txtTelefonoOtroContacto').val('');
+                $("#chkEsActivo").prop("checked", true);
+                $("#chkEsVigente").prop("checked", true);
+
+                $('#txtNumeroUsuarios').val('');
+                $('#txtNumeroClientes').val('');
+                $('#txtNumeroRegistros').val('');
+
+                //Validar introducir solo numeros
+                $('#txtTelefonoRepresentante').keydown(function (event) {
+                    if (event.keyCode == 46 || event.keyCode == 8) {
+                    }
+                    else {
+                        if (event.keyCode < 95) {
+                            if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                                event.preventDefault();
+                            }
+                        }
+                        else {
+                            if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                                event.preventDefault();
+                            }
+                        }
+                    }
+                });
+
+                 //Validar introducir solo numeros
+                $('#txtTelefonoOtroContacto').keydown(function (event) {
+                    if (event.keyCode == 46 || event.keyCode == 8) {
+                    }
+                    else {
+                        if (event.keyCode < 95) {
+                            if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode != 9)) {
+                                event.preventDefault();
+                            }
+                        }
+                        else {
+                            if ((event.keyCode < 96 || event.keyCode > 105) && (event.keyCode != 9)) {
+                                event.preventDefault();
+                            }
+                        }
+                    }
+                });
+
+                $('#myTable').dataTable({
+
+                    "language": {
+                        "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                        "sZeroRecords": " "
+                    },
+                    dom: 'lBfr',
+                    buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                VisualizarEmpresa("si");
+                                AccionEmpresaValor = "registrar";
+                                $("#divListado").hide();
+                            }
+                        }
+                    ],
+                    "columns": [
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" },
+                        { "data": "", "sClass": "columnaIzquierda" }
+                    ]
+                });
+
+                $("body").on('click', '.btnEditar.RazonSocial', function () {
+                    AccionEmpresaValor = "editar";
+                    estatusEmpresa = -1;
+                    $("#divListado").hide();
+                    var itemsRow = $(this).closest("tr").find(".btnEditar.RazonSocial");
+                    var resultado = "";
+                    var contadorResultados = 0;
+                    var jsonEmpresa = [];
+
+                    $('#txtDominio').val('');
+                    $('#txtRFC').val('');
+                    $('#txtEmail').val('');
+                    $('#txtAdministrador').val('');
+                    $('#txtContrasenia').val('');
+                    $('#txtNombreComercial').val('');
+                    $('#txtRutaLogo').val('');
+
+                    $('#txtNombreRepresentante').val('');
+                    $('#txtEmailRepresentante').val('');
+                    $('#txtTelefonoRepresentante').val('');
+                    $('#txtObservaciones').val('');
+                    $('#txtNombreOtroContacto').val('');
+                    $('#txtEmailOtroContacto').val('');
+                    $('#txtTelefonoOtroContacto').val('');
+                    $("#chkEsActivo").prop("checked", true);
+                    $("#chkEsVigente").prop("checked", true);
+                    $('#txtNumeroUsuarios').val('');
+                    $('#txtNumeroClientes').val('');
+                    $('#txtNumeroRegistros').val('');
+
+                    $.each(itemsRow, function (item) {
+
+                        if (contadorResultados > 0) {
+                            resultado += ",";
+                        }
+
+                        if ($(this).text() == "Si") {
+                            resultado += "1";
+                        }
+                        else if ($(this).text() == "No") {
+                            resultado += "0";
+                        }
+                        else {
+                            resultado += $(this).text();
+                        }
+
+                        contadorResultados++;
+                    });
+
+                    VisualizarEmpresa("si");
+
+                    var DatosEmpresa = resultado.split(',');
+
+                    jsonEmpresa.push({
+                        NombreComercial: DatosEmpresa[0], Dominio: DatosEmpresa[1], Administrador: DatosEmpresa[2], RFC: DatosEmpresa[3], Email: DatosEmpresa[4], EsActivo: DatosEmpresa[5], RutaLogo: DatosEmpresa[6],
+                        NombreRepresentante: DatosEmpresa[7],
+                        EmailRepresentante: DatosEmpresa[8],
+                        TelefonoRepresentante: DatosEmpresa[9],
+                        Observaciones: DatosEmpresa[10],
+                        NombreOtroContacto: DatosEmpresa[11],
+                        EmailOtroContacto: DatosEmpresa[12],
+                        TelefonoOtroContacto: DatosEmpresa[13],
+                        EsVigente: DatosEmpresa[14],
+                        NumeroUsuarios: DatosEmpresa[15],
+                        NumeroClientes: DatosEmpresa[16],
+                        NumeroRegistros: DatosEmpresa[17]
+                    });
+                    $('#txtDominio').val(jsonEmpresa[0].Dominio);
+                    $('#txtRFC').val(jsonEmpresa[0].RFC);
+                    $('#txtEmail').val(jsonEmpresa[0].Email);
+                    $('#txtAdministrador').val(jsonEmpresa[0].Administrador);
+                    $('#txtNombreComercial').val(jsonEmpresa[0].NombreComercial);
+                    $('#txtRutaLogo').val(jsonEmpresa[0].RutaLogo);
+                    $('#txtNombreRepresentante').val(jsonEmpresa[0].NombreRepresentante);
+                    $('#txtEmailRepresentante').val(jsonEmpresa[0].EmailRepresentante);
+                    $('#txtTelefonoRepresentante').val(jsonEmpresa[0].TelefonoRepresentante);
+                    $('#txtObservaciones').val(jsonEmpresa[0].Observaciones);
+                    $('#txtNombreOtroContacto').val(jsonEmpresa[0].NombreOtroContacto);
+                    $('#txtEmailOtroContacto').val(jsonEmpresa[0].EmailOtroContacto);
+                    $('#txtTelefonoOtroContacto').val(jsonEmpresa[0].TelefonoOtroContacto);
+                    if (jsonEmpresa[0].EsActivo == 1)
+                        $("#chkEsActivo").prop("checked", true);
+                    else
+                        $("#chkEsActivo").prop("checked", false);
+
+                    if (jsonEmpresa[0].EsVigente == 1)
+                        $("#chkEsVigente").prop("checked", true);
+                    else
+                        $("#chkEsVigente").prop("checked", false);
+
+                    $('#txtNumeroUsuarios').val(jsonEmpresa[0].NumeroUsuarios);
+                    $('#txtNumeroClientes').val(jsonEmpresa[0].NumeroClientes);
+                    $('#txtNumeroRegistros').val(jsonEmpresa[0].NumeroRegistros);
+
+                    estatusEmpresa = jsonEmpresa[0].EsActivo;
+                    NombreAnteriorEmpresa = jsonEmpresa[0].NombreComercial;
+                });
+
+                $('#btnGuardarEmpresa').on('click', function () {
+                    AccionEmpresa(AccionEmpresaValor);
+                });
+
+                $("#btnCancelarEmpresa").click(function () {
+                    $("#divListado").show();
+                    VisualizarEmpresa("no");
+                    $('#txtDominio').val('');
+                    $('#txtRFC').val('');
+                    $('#txtEmail').val('');
+                    $('#txtAdministrador').val('');
+                    $('#txtContrasenia').val('');
+                    $('#txtNombreComercial').val('');
+                    $('#txtRutaLogo').val('');
+
+                    $('#txtNombreRepresentante').val('');
+                    $('#txtEmailRepresentante').val('');
+                    $('#txtTelefonoRepresentante').val('');
+                    $('#txtObservaciones').val('');
+                    $('#txtNombreOtroContacto').val('');
+                    $('#txtEmailOtroContacto').val('');
+                    $('#txtTelefonoOtroContacto').val('');
+                    $("#chkEsActivo").prop("checked", true);
+                    $("#chkEsVigente").prop("checked", true);
+                    $('#txtNumeroUsuarios').val('');
+                    $('#txtNumeroClientes').val('');
+                    $('#txtNumeroRegistros').val('');
+                });
+
+                $("#btnBuscarEmpresa").click(function () {
+                    AccionEmpresa("consultar");
+                    $("#divListado").show();
+                });
+
+            });
+
+             function LlenarGrid(result) {
+                    $('#myTable').dataTable({
+                        "destroy": true,
+                        "render": true,
+                        "deferRender": true,
+                        "JQueryUI": true,
+                        "Sort": false,
+                        "Paginate": true,
+                        "PaginationType": "first_last_numbers",
+                        "iDisplayLength": 10,
+                        "data": result,
+                        "language": {
+                            "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                            "sZeroRecords": " "
+                        },
+                        dom: 'lBfr',
+                        buttons: [
+                            {
+                                'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" /> Agregar',
+                                'className': 'btnAgregarGrid',
+                                'action': function (e, dt, node, config) {
+                                    VisualizarEmpresa("si");
+                                    AccionEmpresaValor = "registrar";
+                                    $("#divListado").hide();
+                                }
+                            }
+                        ],
+                        "columns": [
+                            {
+                                "data": "NombreComercial", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "Dominio", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "Administrador", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+
+                            },
+                            {
+                                "data": "RFC", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "Email", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+
+                            },
+                            {
+                                "data": "EsActivo", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "Logo", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "NombreRepresentante", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "EmailRepresentante", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "TelefonoRepresentante", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "Observaciones", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "NombreOtroContacto", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "EmailOtroContacto", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "TelefonoOtroContacto", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "EsVigente", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "NumeroUsuarios", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "NumeroClientes", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                "data": "NumeroRegistros", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                            .wrap('<div></div>')
+                                            .text(data)
+                                            .parent()
+                                            .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            }
+                        ]
+                    });
+
+                }
+
+            function VisualizarEmpresa(valor)
+            {
+                if (valor == "si") {
+                    if ($("#divDetalle").is(":hidden"))
+                    {
+                        $("#divDetalle").show();
+                    }
+                }
+                else
+                {
+                    if ($("#divDetalle").is(":visible"))
+                    {
+                        $("#divDetalle").hide();
+                    }
+                }
+
+            }
+
+            function ValidaRfc(rfcStr) {
+                var valid;
+                var strCorrecta = rfcStr;
+                if (rfcStr.length == 12) {
+                    //strCorrecta = ' ' + rfcStr;
+                    valid = '^(([A-Z]|[a-z]){3})([0-9]{6})((([A-Z]|[a-z]|[0-9]){3}))';
+                }
+                else {
+                    //strCorrecta = rfcStr;
+                    valid = '^(([A-Z]|[a-z]|\s){1})(([A-Z]|[a-z]){3})([0-9]{6})((([A-Z]|[a-z]|[0-9]){3}))';
+                }
+                var validRfc = new RegExp(valid);
+                var matchArray = strCorrecta.match(validRfc);
+                if (matchArray == null) {
+                    //alert('Cadena:' + strCorrecta);
+                    Utilidades.MostrarDialogoError("Aviso", "RFC incorrecto.");
+                    return false;
+                }
+                else {
+                    //alert('Cadena:' + strCorrecta);
+                    return true;
+                }
+            }
+
+            function ValidarTelefono(telefono) {
+                var tel = telefono;
+
+                if (tel.length == 10) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+
+            function AccionEmpresa(accion)
+            {
+                if (accion == "registrar")
+                {
+                    if ($("#empresaForm").data('unobtrusiveValidation').validate())
+                    {
+                                    if (ValidaRfc($('#txtRFC').val())) {
+                if (ValidarTelefono($('#txtTelefonoRepresentante').val())) {
+                    if (ValidarTelefono($('#txtTelefonoOtroContacto').val())) {
+						                        Utilidades.MostrarProgress();
+
+                        var formData = new FormData();
+                        formData.append('pDominio', $('#txtDominio').val());
+                        formData.append('pRFC', $('#txtRFC').val());
+                        formData.append('pAdministrador', $('#txtAdministrador').val());
+                        formData.append('pContrasenia', $('#txtContrasenia').val());
+                        formData.append('pNombreComercial', $('#txtNombreComercial').val());
+                        formData.append('pEmail', $('#txtEmail').val());
+                        formData.append('file', $("#empresaForm" + ' input[type="file"]')[0].files['0']);
+                        formData.append('pNombreRepresentante', $('#txtNombreRepresentante').val());
+                        formData.append('pEmailRepresentante', $('#txtEmailRepresentante').val());
+                        formData.append('pTelefonoRepresentante', $('#txtTelefonoRepresentante').val());
+                        formData.append('pObservaciones', $('#txtObservaciones').val());
+                        formData.append('pNombreOtroContacto', $('#txtNombreOtroContacto').val());
+                        formData.append('pEmailOtroContacto', $('#txtEmailOtroContacto').val());
+                        formData.append('pTelefonoOtroContacto', $('#txtTelefonoOtroContacto').val());
+
+                        if ($('#chkEsActivo').is(":checked")==true)
+                            formData.append('pEsActivo', 1);
+                        else
+                            formData.append('pEsActivo', 0);
+
+                        if ($('#chkEsVigente').is(":checked")==true)
+                            formData.append('pEsVigente', 1);
+                        else
+                            formData.append('pEsVigente', 0);
+
+                        formData.append('pNumeroUsuarios', $('#txtNumeroUsuarios').val());
+                        formData.append('pNumeroClientes', $('#txtNumeroClientes').val());
+                        formData.append('pNumeroRegistros', $('#txtNumeroRegistros').val());
+
+                        $.ajax({
+                            url: '@Url.Action("RegistrarEmpresa", "Configuracion")',
+                            type: 'POST',
+                            contentType: false,
+                            processData: false,
+                            data: formData,
+                            success: function (json) {
+
+                                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                                var codigoCorrecto = '"OK"';
+
+                                if (codigoRegreso == codigoCorrecto) {
+                                    Utilidades.OcultarProgress();
+                                    $('#txtRutaLogo').val(json.Respuesta.MensajeUsuario);
+                                    $(".input-file").val('');
+                                    Utilidades.MostrarDialogo("Aviso", json.Respuesta.MensajeUsuario);
+                                    $('#txtDominio').val('');
+                                    $('#txtRFC').val('');
+                                    $('#txtEmail').val('');
+                                    $('#txtAdministrador').val('');
+                                    $('#txtContrasenia').val('');
+                                    $('#txtNombreComercial').val('');
+                                    $('#txtRutaLogo').val('');
+                                    $('#txtNombreRepresentante').val('');
+                                    $('#txtEmailRepresentante').val('');
+                                    $('#txtTelefonoRepresentante').val('');
+                                    $('#txtObservaciones').val('');
+                                    $('#txtNombreOtroContacto').val('');
+                                    $('#txtEmailOtroContacto').val('');
+                                    $('#txtTelefonoOtroContacto').val('');
+                                    $("#chkEsActivo").prop("checked", true);
+                                    $("#chkEsVigente").prop("checked", true);
+                                    $('#txtNumeroUsuarios').val('');
+                                    $('#txtNumeroClientes').val('');
+                                    $('#txtNumeroRegistros').val('');
+
+
+                                    AccionEmpresaValor = "";
+                                    VisualizarEmpresa("no");
+                                    $("#divListado").show();
+                                    Utilidades.MostrarProgress();
+                                    var formData = new FormData();
+                                    formData.append('pNombreEmpresa', $("#txtNombreEmpresa").val());
+                                    formData.append('pEstatus', $('#cmbEstatus').val());
+
+                                    $.ajax({
+                                            url: '@Url.Action("ConsultarEmpresas", "Configuracion")',
+                                            type: 'POST',
+                                            contentType: false,
+                                            processData: false,
+                                            data: formData,
+                                            success: function (json) {
+                                                 console.log(json);
+                                                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                                                var codigoCorrecto = '"OK"';
+
+                                                if (codigoRegreso == codigoCorrecto) {
+                                                    Utilidades.OcultarProgress();
+
+                                                    LlenarGrid(json.Respuesta.RespuestaInformacion.Data.Info);
+
+                                                }
+                                                else {
+                                                    Utilidades.ErrorAjaxControlado(json);
+                                                }
+                                            },
+                                            error: function (xhr) {
+                                                Utilidades.ErrorAjax(xhr);
+                                            }
+                                    });
+                                }
+                                else
+                                {
+                                    Utilidades.ErrorAjaxControlado(json);
+                                }
+                            },
+                            error: function (xhr) {
+                                Utilidades.ErrorAjax(xhr);
+                            }
+                        });
+					}
+                    else {
+                        Utilidades.MostrarDialogoError("Aviso", "El otro telefono debe tener 10 digitos.");
+                    }
+                } else {
+                    Utilidades.MostrarDialogoError("Aviso", "El telefono movil debe tener 10 digitos.");
+                }
+            } else {
+                Utilidades.MostrarDialogoError("Aviso", "Formato de RFC incorrecto.");
+            }
+                    }
+                    return false;
+                }
+                else if (accion == "editar")
+                {
+                    if ($("#empresaForm").data('unobtrusiveValidation').validate())
+                    {
+            if (ValidaRfc($('#txtRFC').val())) {
+                if (ValidarTelefono($('#txtTelefonoRepresentante').val())) {
+                    if (ValidarTelefono($('#txtTelefonoOtroContacto').val())) {
+						                        Utilidades.MostrarProgress();
+                        var formData = new FormData();
+                        formData.append('pDominio', $('#txtDominio').val());
+                        formData.append('pRFC', $('#txtRFC').val());
+                        formData.append('pAdministrador', $('#txtAdministrador').val());
+                        formData.append('pContrasenia', $('#txtContrasenia').val());
+                        formData.append('pNombreComercial', $('#txtNombreComercial').val());
+                        formData.append('pEmail', $('#txtEmail').val());
+                        formData.append('pEstatus', 1); // estatusEmpresa);
+                        formData.append('pNombreAnteriorEmpresa', NombreAnteriorEmpresa);
+                        formData.append('file', $("#empresaForm" + ' input[type="file"]')[0].files['0']);
+
+                        formData.append('pNombreRepresentante', $('#txtNombreRepresentante').val());
+                        formData.append('pEmailRepresentante', $('#txtEmailRepresentante').val());
+                        formData.append('pTelefonoRepresentante', $('#txtTelefonoRepresentante').val());
+                        formData.append('pObservaciones', $('#txtObservaciones').val());
+                        formData.append('pNombreOtroContacto', $('#txtNombreOtroContacto').val());
+                        formData.append('pEmailOtroContacto', $('#txtEmailOtroContacto').val());
+                        formData.append('pTelefonoOtroContacto', $('#txtTelefonoOtroContacto').val());
+
+                        if ($('#chkEsActivo').is(":checked")==true)
+                            formData.append('pEsActivo', 1);
+                        else
+                            formData.append('pEsActivo', 0);
+
+                        if ($('#chkEsVigente').is(":checked")==true)
+                            formData.append('pEsVigente', 1);
+                        else
+                            formData.append('pEsVigente', 0);
+
+                        formData.append('pNumeroUsuarios', $('#txtNumeroUsuarios').val());
+                        formData.append('pNumeroClientes', $('#txtNumeroClientes').val());
+                        formData.append('pNumeroRegistros', $('#txtNumeroRegistros').val());
+
+                        $.ajax({
+                            url: '@Url.Action("ActualizarEmpresa", "Configuracion")',
+                            type: 'POST',
+                            contentType: false,
+                            processData: false,
+                            data: formData,
+                            success: function (json) {
+
+                                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                                var codigoCorrecto = '"OK"';
+
+                                if (codigoRegreso == codigoCorrecto)
+                                {
+                                    Utilidades.OcultarProgress();
+                                    Utilidades.MostrarDialogo("Aviso", json.Respuesta.MensajeUsuario);
+                                    AccionEmpresaValor = "";
+                                    VisualizarEmpresa("no");
+                                    $("#divListado").show();
+                                    Utilidades.MostrarProgress();
+                                    var formData = new FormData();
+                                    formData.append('pNombreEmpresa', $("#txtNombreEmpresa").val());
+                                    formData.append('pEstatus', $('#cmbEstatus').val());
+
+                                    $.ajax({
+                                            url: '@Url.Action("ConsultarEmpresas", "Configuracion")',
+                                            type: 'POST',
+                                            contentType: false,
+                                            processData: false,
+                                            data: formData,
+                                            success: function (json) {
+                                                 console.log(json);
+                                                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                                                var codigoCorrecto = '"OK"';
+
+                                                if (codigoRegreso == codigoCorrecto) {
+                                                    Utilidades.OcultarProgress();
+
+                                                    LlenarGrid(json.Respuesta.RespuestaInformacion.Data.Info);
+
+                                                }
+                                                else {
+                                                    Utilidades.ErrorAjaxControlado(json);
+                                                }
+                                            },
+                                            error: function (xhr) {
+                                                Utilidades.ErrorAjax(xhr);
+                                            }
+                                    });
+                                }
+                                else
+                                {
+                                    Utilidades.ErrorAjaxControlado(json);
+                                }
+                            },
+                            error: function (xhr) {
+                                Utilidades.ErrorAjax(xhr);
+                            }
+                        });
+					}
+                    else {
+                        Utilidades.MostrarDialogoError("Aviso", "El otro telefono debe tener 10 digitos.");
+                    }
+                } else {
+                    Utilidades.MostrarDialogoError("Aviso", "El telefono movil debe tener 10 digitos.");
+                }
+            } else {
+                Utilidades.MostrarDialogoError("Aviso", "Formato de RFC incorrecto.");
+            }
+
+                    }
+                    return false;
+
+
+                }
+                else if (accion == "consultar")
+                {
+                    AccionEmpresaValor = "";
+                    VisualizarEmpresa("no");
+                    Utilidades.MostrarProgress();
+                    var formData = new FormData();
+                    formData.append('pNombreEmpresa', $("#txtNombreEmpresa").val());
+                    formData.append('pEstatus', $('#cmbEstatus').val());
+
+                    $.ajax({
+                            url: '@Url.Action("ConsultarEmpresas", "Configuracion")',
+                            type: 'POST',
+                            contentType: false,
+                            processData: false,
+                            data: formData,
+                            success: function (json) {
+                                 console.log(json);
+                                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                                var codigoCorrecto = '"OK"';
+
+                                if (codigoRegreso == codigoCorrecto) {
+                                    Utilidades.OcultarProgress();
+
+                                    LlenarGrid(json.Respuesta.RespuestaInformacion.Data.Info);
+
+                                }
+                                else {
+                                    Utilidades.ErrorAjaxControlado(json);
+                                }
+                            },
+                            error: function (xhr) {
+                                Utilidades.ErrorAjax(xhr);
+                            }
+                    });
+
+                }
+
+            }
+
+
+
+    </script>
+}

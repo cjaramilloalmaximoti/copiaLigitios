@@ -1,0 +1,51 @@
+﻿@model ALM.Empresa.Entidades.EAgendarLlamadaDeudor
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.FechaAgendaString, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            <div id="divFechaNacimientoString">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    @Html.TextBoxFor(m => m.FechaAgendaString, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "dtpFechaAgendaString", type = "text" })
+                </div>
+                @Html.ValidationMessageFor(model => model.FechaAgendaString, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Telefono, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.Telefono, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtTelefonoAgendar" })
+            @Html.ValidationMessageFor(model => model.Telefono, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Comentarios, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+            @Html.TextAreaFor(m => m.Comentarios, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia textArea", id = "txtComentariosAgendar", rows = "4" })
+            @Html.ValidationMessageFor(model => model.Comentarios, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+</div>
+<br /><br /><br /><br /><br /><br />
+<div style="clear:both; text-align:right; width:100%">
+    <br />
+    <br />
+    <br />
+    <br />
+</div>
+<div id="containerProgressPopUp" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>
+
+

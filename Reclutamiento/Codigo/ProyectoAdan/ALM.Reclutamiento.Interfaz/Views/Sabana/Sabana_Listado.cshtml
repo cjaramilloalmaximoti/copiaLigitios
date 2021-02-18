@@ -1,0 +1,303 @@
+﻿@*<button class="btn btn-success" id="btnOcultarDiv">Ocultar Div</button>*@
+@*<button class="btn btn-warning" id="btnMostrarDiv">Mostrar Div </button>*@
+<div class="row">
+
+    <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divTabla">
+        <div class="divMarcoGrid" id="idMarcoGrid">
+            <div class="divSubMarcoGrid">
+                <table class="myTable myTableBeneficiario" id="myTableBeneficiario1">
+                    <thead>
+                        <tr>
+                            <th style="width:10%;">Identificador</th>
+                            <th style="width:15%;">Nombre</th>
+                            <th style="width:15%;">CURP</th>
+                            <th style="width:10%;">Género</th>
+                            <th style="width:10%;">Inversión</th>
+                            <th style="width:20%;">Modalidad</th>
+                            <th style="width:10%;">Municipio</th>
+                            <th style="width:10%;">Nivel</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="divDetalleBeneficiario" class="divDetalleOculto">
+        <button id="btnCerrarDetalle" class="btn-danger">X</button>
+        <div class="divMarcoGrid" style="overflow-y:auto; background: white;" id="divForm2">
+            <div class="divSubMarcoGrid" style="width: 90%;">
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <label for="txtNombreCompleto" class="labelColumn tamLetra regularTipografia">Nombre del Beneficiario</label>
+                        <input id="txtNombreCompleto" name="txtNombreCompleto" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtCURP" class="labelColumn tamLetra regularTipografia">CURP</label>
+                        <input id="txtCURP" name="txtCURP" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtGenero" class="labelColumn tamLetra regularTipografia">Género</label>
+                        <input id="txtGenero" name="txtGenero" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtModalidad" class="labelColumn tamLetra regularTipografia">Modalidad</label>
+                        <input id="txtModalidad" name="txtModalidad" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6 ">
+                        <label for="txtFechaPago" class="labelColumn tamLetra regularTipografia">Fecha de Pago</label>
+                        <input id="txtFechaPago" name="txtFechaPago" class="form-control inputColumn bookTipografia" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtCiclo" class="labelColumn tamLetra regularTipografia">Ciclo</label>
+                        <input id="txtCiclo" name="txtCiclo" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtAnioFiscal" class="labelColumn tamLetra regularTipografia">Año Fiscal</label>
+                        <input id="txtAnioFiscal" name="txtanioFiscal" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtCantidad" class="labelColumn tamLetra regularTipografia">Cantidad</label>
+                        <input id="txtCantidad" name="txtCantidad" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtPromedio" class="labelColumn tamLetra regularTipografia">Promedio</label>
+                        <input id="txtPromedio" name="txtPromedipo" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtMunicipio" class="labelColumn tamLetra regularTipografia">Municipio</label>
+                        <input id="txtMunicipio" name="txtMunicipio" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtLocalidad" class="labelColumn tamLetra regularTipografia">Localidad</label>
+                        <input id="txtLocalidad" name="txtLocalidad" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtColonia" class="labelColumn tamLetra regularTipografia">Colonia</label>
+                        <input id="txtColonia" name="txtColonia" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtManzana" class="labelColumn tamLetra regularTipografia">Manzana</label>
+                        <input id="txtManzana" name="txtManzana" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+                        <label for="txtCalle" class="labelColumn tamLetra regularTipografia">Calle</label>
+                        <input id="txtCalle" name="txtCalle" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                        <label for="txtNumeroInterior" class="labelColumn tamLetra regularTipografia">Numero Interior</label>
+                        <input id="txtNumeroInterior" name="txtNumeroInterior" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                        <label for="txtNumeroExterior" class="labelColumn tamLetra regularTipografia">Numero Exterior</label>
+                        <input id="txtNumeroExterior" name="txtNumeroExterior" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                        <label for="txtCodigoPostal" class="labelColumn tamLetra regularTipografia">C.P.</label>
+                        <input id="txtCodigoPostal" name="txtCodigoPostal" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtLatitud" class="labelColumn tamLetra regularTipografia">Latitud</label>
+                        <input id="txtLatitud" name="txtLatitud" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtLongitud" class="labelColumn tamLetra regularTipografia">Longitud</label>
+                        <input id="txtLongitud" name="txtLongitud" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtGrado" class="labelColumn tamLetra regularTipografia">Grado</label>
+                        <input id="txtGrado" name="txtGrado" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtAreaEstudio" class="labelColumn tamLetra regularTipografia">Area de Estudio</label>
+                        <input id="txtAreaEstudio" name="txtAreaEstudio" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtTutor" class="labelColumn tamLetra regularTipografia">Tutor</label>
+                        <input id="txtTutor" name="txtTutor" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtNivel" class="labelColumn tamLetra regularTipografia">Nivel</label>
+                        <input id="txtNivel" name="txtNivel" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <label for="txtEscuela" class="labelColumn tamLetra regularTipografia">Escuela</label>
+                        <input id="txtEscuela" name="txtEscuela" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtConvenio" class="labelColumn tamLetra regularTipografia">Convenio</label>
+                        <input id="txtConvenio" name="txtConvenio" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtSubConvenio" class="labelColumn tamLetra regularTipografia">SubConvenio</label>
+                        <input id="txtSubConvenio" name="txtSubConvenio" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtUnidad" class="labelColumn tamLetra regularTipografia">Unidad</label>
+                        <input id="txtUnidad" name="txtUnidad" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" />
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtCentroReceptor" class="labelColumn tamLetra regularTipografia">Centro Receptor</label>
+                        <input id="txtCentroReceptor" name="txtCentroReceptor" class="form-control inputColumn bookTipografia" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtInversionFederal" class="labelColumn tamLetra regularTipografia">Inversion Federal</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">$</div>
+                            <input id="txtInversionFederal" name="txtInversionFederal" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" style="z-index:0"/>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtInversionEstatal" class="labelColumn tamLetra regularTipografia">Inversion Estatal</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">$</div>
+                            <input id="txtInversionEstatal" name="txtInversionEstatal" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" style="z-index:0"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtInversionLocal" class="labelColumn tamLetra regularTipografia">Inversion Local</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">$</div>
+                            <input id="txtInversionLocal" name="txtInversionLocal" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" style="z-index:0"/>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtInversionPropio" class="labelColumn tamLetra regularTipografia">Inversion Propia</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">$</div>
+                            <input id="txtInversionPropio" name="txtInversionPropio" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" style="z-index:0"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-left: 4%;">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtInversionOtro" class="labelColumn tamLetra regularTipografia">Inversion Otro</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">$</div>
+                            <input id="txtInversionOtro" name="txtInversionOtro" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" style="z-index:0"/>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                        <label for="txtInversion" class="labelColumn tamLetra regularTipografia">Inversion</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">$</div>
+                            <input id="txtInversion" name="txtInversion" class="form-control inputColumn bookTipografia" type="text" readonly="readonly" style="z-index:0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<link href="@Url.Content("~/Estilo/sabana/sabana.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/scripts/sabana/listado.js")"></script>
+
+<script type="text/javascript">
+
+    function InicializarListado() {
+
+        var urlDatatableInit = "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")";
+        var urlDispersionDetalle = "@Url.Action("ObtenerSabana", "Sabana")";
+        var urlDatatableButton = "@Url.Content("~/Imagenes/excel.png")"; 
+    
+        var ele = $('#divForm');
+        var table = $("#divTabla");
+        ele.hide();
+        table.animate({
+            opacity: 1,
+            width: '100%'
+        }, 1000, function () {
+        });
+
+       
+        propiedadesBeneficiarios.InicializarBeneficiarios(urlDatatableInit);
+        $("div").find('#divDetalleBeneficiario').hide();
+
+
+
+        $('#divFiltros').on('seach_request', function(event,data){
+            
+            var fechaIni = data.FechaInicio==null?"":data.FechaInicio;
+            var fechaFin = data.FechaFin==null?"":data.FechaFin;
+            var modalidades = data.Modalidades;
+            var municipios = data.Municipios;
+            var niveles = data.Niveles;
+            var escuelas = data.Escuelas;
+            var generos = data.Generos;
+            var tiposEscuela = data.TiposEscuela;
+            var grupoInstituciones = data.GrupoInstituciones;
+            var tiposApoyos = data.TiposApoyos;
+
+            Utilidades.MostrarProgressContainer();
+
+            var tempData = [];
+
+      
+            propiedadesBeneficiarios.CargarDatosSabana(urlDispersionDetalle, fechaIni, fechaFin, modalidades, municipios, escuelas, niveles, generos, tiposEscuela, grupoInstituciones,tiposApoyos, 0, function (data, esFinal) {
+
+                tempData= tempData.concat(data);
+
+                if (esFinal) {
+                    
+                    propiedadesBeneficiarios.LlenarGridBeneficiarios(tempData, urlDatatableInit, urlDatatableButton);
+                    Utilidades.OcultarProgressContainer();
+
+                    $('#myTableBeneficiario1').trigger('data_received', {
+                        "Data": tempData
+                    });
+                }
+            });
+          
+
+        });
+
+        $("#btnCerrarDetalle").on('click', function () {
+            Utilidades.MostrarProgressContainer();
+            setTimeout(function () {
+                propiedadesBeneficiarios.CerrarDivDetalleBeneficiario();
+                Utilidades.OcultarProgressContainer();
+            }, 10);
+
+        });
+
+
+
+
+    }
+
+</script>

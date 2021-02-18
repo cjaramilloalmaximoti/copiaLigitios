@@ -1,0 +1,275 @@
+﻿
+<div class="divMarcoGraficas">
+    <div class="row">
+        <div id="divGraficas">
+            <div class="row" >
+                <div id="grafica1" class="grafico col-xs-12 col-sm-12 col-md-12 col-lg-6"></div>
+                <div id="grafica2" class="grafico col-xs-12 col-sm-12 col-md-12 col-lg-6"></div>
+            </div>
+            <div class="row">
+                <div id="grafica3" class="grafico col-xs-12 col-sm-12 col-md-12 col-lg-6"></div>
+                <div id="grafica4" class="grafico col-xs-12 col-sm-12 col-md-12 col-lg-6"></div>
+            </div>
+            <div class="row">
+                <div id="grafica5" class="grafico col-xs-12 col-sm-12 col-md-12 col-lg-6"></div>
+                <div id="grafica6" class="grafico col-xs-12 col-sm-12 col-md-12 col-lg-6"></div>
+            </div>
+        </div>
+   </div>
+</div>
+                
+
+<script src="~/scripts/Highstock/highstock.js"></script>
+<script src="~/scripts/Highcharts/highcharts-3d.js"></script>
+<script src="~/scripts/Highcharts/modules/data.js"></script>
+<script src="~/scripts/Highcharts/modules/exporting.js"></script>
+<script src="~/scripts/Highcharts/modules/offline-exporting.js"></script>
+<script src="~/scripts/Highcharts/modules/jspdf.js"></script>
+<script src="~/scripts/sabana/graficas.js"></script>
+<link href="@Url.Content("~/Estilo/sabana/sabana.css")" rel="stylesheet" type="text/css" />
+
+ <script type="text/javascript">
+   
+    
+
+     function procesarDatos(datos) {
+
+         var inversionFederalModalidades = [];
+         var inversionEstatalModalidades = [];
+         var inversionLocalModalidades = [];
+         var inversionPropioModalidades = [];
+         var inversionOtroModalidades = [];
+         var inversionTotalModalidades = [];
+         var nombreModalidades=[]
+       
+         var inversionFederalGeneros = [];
+         var inversionEstatalGeneros = [];
+         var inversionLocalGeneros = [];
+         var inversionPropioGeneros = [];
+         var inversionOtroGeneros = [];
+         var inversionTotalGeneros = [];
+         var nombreGeneros=[];
+
+         var inversionFederalNiveles = [];
+         var inversionEstatalNiveles = [];
+         var inversionLocalNiveles = [];
+         var inversionPropioNiveles = [];
+         var inversionOtroNiveles = [];
+         var inversionTotalNiveles = [];
+         var nombreNiveles = [];
+
+         var inversionFederalMunicipios = [];
+         var inversionEstatalMunicipios = [];
+         var inversionLocalMunicipios = [];
+         var inversionPropioMunicipios = [];
+         var inversionOtroMunicipios = [];
+         var inversionTotalMunicipios = [];
+         var nombreMunicipios = [];
+
+         var inversionFederalTiposEscuelas = [];
+         var inversionEstatalTiposEscuelas = [];
+         var inversionLocalTiposEscuelas = [];
+         var inversionPropioTiposEscuelas = [];
+         var inversionOtroTiposEscuelas = [];
+         var inversionTotalTiposEscuelas = [];
+         var nombreTiposEscuelas = [];
+
+         var inversionFederalGruposInstituciones = [];
+         var inversionEstatalGruposInstituciones = [];
+         var inversionLocalGruposInstituciones = [];
+         var inversionPropioGruposInstituciones = [];
+         var inversionOtroGruposInstituciones = [];
+         var inversionTotalGruposInstituciones = [];
+         var nombreGruposInstituciones = [];
+
+         var modalidades = [];
+         var generos = [];
+         var niveles = [];
+         var municipios = [];
+         var tiposEscuelas = [];
+         var gruposInstituciones = [];
+
+         $.each(datos,function (i,item) {
+
+             //x modalidades
+             if (inversionTotalModalidades[item.IdModalidad] == null) {
+                 
+                 inversionTotalModalidades[item.IdModalidad] = 0;
+                 inversionFederalModalidades[item.IdModalidad] = 0;
+                 inversionEstatalModalidades[item.IdModalidad] = 0;
+                 inversionLocalModalidades[item.IdModalidad] = 0;
+                 inversionPropioModalidades[item.IdModalidad] = 0;
+                 inversionOtroModalidades[item.IdModalidad] = 0;
+
+                 nombreModalidades.push(item.Modalidad);
+                 modalidades.push(item.IdModalidad);
+             }
+
+             //x generos
+             if (inversionTotalGeneros[item.IdGenero] == null) {
+
+                 inversionTotalGeneros[item.IdGenero] = 0;
+                 inversionFederalGeneros[item.IdGenero] = 0;
+                 inversionEstatalGeneros[item.IdGenero] = 0;
+                 inversionLocalGeneros[item.IdGenero] = 0;
+                 inversionPropioGeneros[item.IdGenero] = 0;
+                 inversionOtroGeneros[item.IdGenero] = 0;
+              
+                 nombreGeneros.push(item.Genero);
+                 generos.push(item.IdGenero);
+             }
+
+             //x tiposEscuela
+             if (inversionTotalTiposEscuelas[item.IdTipoEscuela] == null) {
+
+                 inversionTotalTiposEscuelas[item.IdTipoEscuela] = 0;
+                 inversionFederalTiposEscuelas[item.IdTipoEscuela] = 0;
+                 inversionEstatalTiposEscuelas[item.IdTipoEscuela] = 0;
+                 inversionLocalTiposEscuelas[item.IdTipoEscuela] = 0;
+                 inversionPropioTiposEscuelas[item.IdTipoEscuela] = 0;
+                 inversionOtroTiposEscuelas[item.IdTipoEscuela] = 0;
+
+                 nombreTiposEscuelas.push(item.TipoEscuela);
+                 tiposEscuelas.push(item.IdTipoEscuela);
+             }
+
+             //x grupo instituciones
+             if (inversionTotalGruposInstituciones[item.IdGrupoInstitucion] == null) {
+
+                 inversionTotalGruposInstituciones[item.IdGrupoInstitucion] = 0;
+                 inversionFederalGruposInstituciones[item.IdGrupoInstitucion] = 0;
+                 inversionEstatalGruposInstituciones[item.IdGrupoInstitucion] = 0;
+                 inversionLocalGruposInstituciones[item.IdGrupoInstitucion] = 0;
+                 inversionPropioGruposInstituciones[item.IdGrupoInstitucion] = 0;
+                 inversionOtroGruposInstituciones[item.IdGrupoInstitucion] = 0;
+
+                 nombreGruposInstituciones.push(item.GrupoInstitucion);
+                 gruposInstituciones.push(item.IdGrupoInstitucion);
+             }
+
+             //x niveles
+             if (inversionTotalNiveles[item.IdNivel] == null) {
+
+
+                 inversionTotalNiveles[item.IdNivel] = 0;
+                 inversionFederalNiveles[item.IdNivel] = 0;
+                 inversionEstatalNiveles[item.IdNivel] = 0;
+                 inversionLocalNiveles[item.IdNivel] = 0;
+                 inversionPropioNiveles[item.IdNivel] = 0;
+                 inversionOtroNiveles[item.IdNivel] = 0;
+
+                 
+                 nombreNiveles.push(item.Nivel);
+                 niveles.push(item.IdNivel);
+             }
+
+             //x municipios
+             if (inversionTotalMunicipios[item.IdMunicipio] == null) {
+
+
+                 inversionTotalMunicipios[item.IdMunicipio] = 0;
+                 inversionFederalMunicipios[item.IdMunicipio] = 0;
+                 inversionEstatalMunicipios[item.IdMunicipio] = 0;
+                 inversionLocalMunicipios[item.IdMunicipio] = 0;
+                 inversionPropioMunicipios[item.IdMunicipio] = 0;
+                 inversionOtroMunicipios[item.IdMunicipio] = 0;
+
+
+                 nombreMunicipios.push(item.Municipio);
+                 municipios.push(item.IdMunicipio);
+             }
+
+            
+             //$ por moadalidad
+             inversionTotalModalidades[item.IdModalidad] += parseFloat(item.Inversion);
+             inversionFederalModalidades[item.IdModalidad] += parseFloat(item.InversionFederal);
+             inversionEstatalModalidades[item.IdModalidad] += parseFloat(item.InversionEstatal);
+             inversionLocalModalidades[item.IdModalidad] += parseFloat(item.InversionLocal);
+             inversionPropioModalidades[item.IdModalidad] += parseFloat(item.InversionPropio);
+             inversionOtroModalidades[item.IdModalidad] += parseFloat(item.InversionOtro);
+
+             //$ por genero
+             inversionTotalGeneros[item.IdGenero] += parseFloat(item.Inversion);
+             inversionFederalGeneros[item.IdGenero] += parseFloat(item.InversionFederal);
+             inversionEstatalGeneros[item.IdGenero] += parseFloat(item.InversionEstatal);
+             inversionLocalGeneros[item.IdGenero] += parseFloat(item.InversionLocal);
+             inversionPropioGeneros[item.IdGenero] += parseFloat(item.InversionPropio);
+             inversionOtroGeneros[item.IdGenero] += parseFloat(item.InversionOtro);
+
+             //$ por tipo escuela
+             inversionTotalTiposEscuelas[item.IdTipoEscuela] += parseFloat(item.Inversion);
+             inversionFederalTiposEscuelas[item.IdTipoEscuela] += parseFloat(item.InversionFederal);
+             inversionEstatalTiposEscuelas[item.IdTipoEscuela] += parseFloat(item.InversionEstatal);
+             inversionLocalTiposEscuelas[item.IdTipoEscuela] += parseFloat(item.InversionLocal);
+             inversionPropioTiposEscuelas[item.IdTipoEscuela] += parseFloat(item.InversionPropio);
+             inversionOtroTiposEscuelas[item.IdTipoEscuela] += parseFloat(item.InversionOtro);
+
+             //$ por grupo institucion
+             inversionTotalGruposInstituciones[item.IdGrupoInstitucion] += parseFloat(item.Inversion);
+             inversionFederalGruposInstituciones[item.IdGrupoInstitucion] += parseFloat(item.InversionFederal);
+             inversionEstatalGruposInstituciones[item.IdGrupoInstitucion] += parseFloat(item.InversionEstatal);
+             inversionLocalGruposInstituciones[item.IdGrupoInstitucion] += parseFloat(item.InversionLocal);
+             inversionPropioGruposInstituciones[item.IdGrupoInstitucion] += parseFloat(item.InversionPropio);
+             inversionOtroGruposInstituciones[item.IdGrupoInstitucion] += parseFloat(item.InversionOtro);
+
+
+             //$ por nivel
+             inversionTotalNiveles[item.IdNivel] += parseFloat(item.Inversion);
+             inversionFederalNiveles[item.IdNivel] += parseFloat(item.InversionFederal);
+             inversionEstatalNiveles[item.IdNivel] += parseFloat(item.InversionEstatal);
+             inversionLocalNiveles[item.IdNivel] += parseFloat(item.InversionLocal);
+             inversionPropioNiveles[item.IdNivel] += parseFloat(item.InversionPropio);
+             inversionOtroNiveles[item.IdNivel] += parseFloat(item.InversionOtro);
+
+             //$ por municpio
+             inversionTotalMunicipios[item.IdMunicipio] += parseFloat(item.Inversion);
+             inversionFederalMunicipios[item.IdMunicipio] += parseFloat(item.InversionFederal);
+             inversionEstatalMunicipios[item.IdMunicipio] += parseFloat(item.InversionEstatal);
+             inversionLocalMunicipios[item.IdMunicipio] += parseFloat(item.InversionLocal);
+             inversionPropioMunicipios[item.IdMunicipio] += parseFloat(item.InversionPropio);
+             inversionOtroMunicipios[item.IdMunicipio] += parseFloat(item.InversionOtro);
+            
+         });
+
+         var valoresModalidades={Ids:modalidades,Nombres:nombreModalidades,InversionTotal:inversionTotalModalidades,
+             InversionesRecursos:[inversionFederalModalidades,inversionEstatalModalidades,inversionLocalModalidades,inversionPropioModalidades,inversionOtroModalidades]};
+       
+         var valoresGeneros={Ids:generos,Nombres:nombreGeneros,InversionTotal:inversionTotalGeneros,
+             InversionesRecursos:[inversionFederalGeneros,inversionEstatalGeneros,inversionLocalGeneros,inversionPropioGeneros,inversionOtroGeneros]};
+
+         var valoresNiveles={Ids:niveles,Nombres:nombreNiveles,InversionTotal:inversionTotalNiveles,
+             InversionesRecursos:[inversionFederalNiveles,inversionEstatalNiveles,inversionLocalNiveles,inversionPropioNiveles,inversionOtroNiveles]};
+
+         var valoresMunicipios={Ids:municipios,Nombres:nombreMunicipios,InversionTotal:inversionTotalMunicipios,
+             InversionesRecursos: [inversionFederalMunicipios, inversionEstatalMunicipios, inversionLocalMunicipios, inversionPropioMunicipios, inversionOtroMunicipios]
+         };
+
+         var valoresTiposEscuelas = {
+             Ids: tiposEscuelas, Nombres: nombreTiposEscuelas, InversionTotal: inversionTotalTiposEscuelas,
+             InversionesRecursos: [inversionFederalTiposEscuelas, inversionEstatalTiposEscuelas, inversionLocalTiposEscuelas, inversionPropioTiposEscuelas, inversionOtroTiposEscuelas]
+         };
+
+         var valoresGruposInstituciones = {
+             Ids: gruposInstituciones, Nombres: nombreGruposInstituciones, InversionTotal: inversionTotalGruposInstituciones,
+             InversionesRecursos: [inversionFederalGruposInstituciones, inversionEstatalGruposInstituciones, inversionLocalGruposInstituciones, inversionPropioGruposInstituciones, inversionOtroGruposInstituciones]
+         };
+
+         return { Modalidades: valoresModalidades, Generos: valoresGeneros, Niveles: valoresNiveles, Municipios: valoresMunicipios, TiposEscuelas: valoresTiposEscuelas, GruposInstituciones:valoresGruposInstituciones };
+     }
+
+
+     function updateDataGraficas(datos) {
+
+         var procesedData = procesarDatos(datos);
+
+         
+
+         graficas.mostrarGraficaBarras('grafica1', 'Apoyos por Modalidades', 'Modalidades', procesedData.Modalidades.Nombres, 'Inversión', ['Federal', 'Estatal', 'Local', 'Propio', 'Otro'], procesedData.Modalidades.Ids, procesedData.Modalidades.InversionesRecursos, procesedData.Modalidades.InversionTotal, true);
+         graficas.mostrarGraficaBarras('grafica2', 'Apoyos por Géneros', 'Géneros', procesedData.Generos.Nombres, 'Inversión', ['Federal', 'Estatal', 'Local', 'Propio', 'Otro'], procesedData.Generos.Ids, procesedData.Generos.InversionesRecursos, procesedData.Generos.InversionTotal, true);
+         graficas.mostrarGraficaBarras('grafica3', 'Apoyos por Niveles', 'Niveles', procesedData.Niveles.Nombres, 'Inversión', ['Federal', 'Estatal', 'Local', 'Propio', 'Otro'], procesedData.Niveles.Ids, procesedData.Niveles.InversionesRecursos, procesedData.Niveles.InversionTotal, true);
+         graficas.mostrarGraficaBarras('grafica4', 'Apoyos por Municipios', 'Municipios', procesedData.Municipios.Nombres, 'Inversión', ['Federal', 'Estatal', 'Local', 'Propio', 'Otro'], procesedData.Municipios.Ids, procesedData.Municipios.InversionesRecursos, procesedData.Municipios.InversionTotal, true);
+         graficas.mostrarGraficaBarras('grafica5', 'Apoyos por Tipos de Escuela', 'Tipos de Escuela', procesedData.TiposEscuelas.Nombres, 'Inversión', ['Federal', 'Estatal', 'Local', 'Propio', 'Otro'], procesedData.TiposEscuelas.Ids, procesedData.TiposEscuelas.InversionesRecursos, procesedData.TiposEscuelas.InversionTotal, true);
+         graficas.mostrarGraficaBarras('grafica6', 'Apoyos por Grupos de Instituciones', 'Grupos de Instituciones', procesedData.GruposInstituciones.Nombres, 'Inversión', ['Federal', 'Estatal', 'Local', 'Propio', 'Otro'], procesedData.GruposInstituciones.Ids, procesedData.GruposInstituciones.InversionesRecursos, procesedData.GruposInstituciones.InversionTotal, true);
+     }
+    
+ </script>

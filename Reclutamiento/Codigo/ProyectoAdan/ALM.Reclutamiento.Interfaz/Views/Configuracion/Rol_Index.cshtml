@@ -1,0 +1,649 @@
+﻿@{
+    ViewBag.Title = "Roles del Sistema";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+
+@Html.Hidden("hidIdRol", "0")
+
+<div id="divListado">
+    @Html.Partial("Rol_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="rolform" id="rolform" method="post" novalidate="">
+        @Html.Partial("Rol_Detalle", new ALM.Empresa.Entidades.ERol())
+    </form>
+</div>
+<div id="divListadoFormas" style="display:none; width:100%">
+    @Html.Partial("Rol_Forma_Listado")
+</div>
+<div id="divListadoFormasDetalle" style="display:none; width:100%">
+    <form name="rolform" id="rolform" method="post" novalidate="">
+        @Html.Partial("Rol_Forma_Detalle", new ALM.Empresa.Entidades.ERol())
+    </form>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script type="text/javascript">
+
+        var objMod = null;
+        var indexRowObjMod = null;
+        var tbObjModNombreRol = null;
+        var tbObjModEstatus = null;
+        var objModFormsSeleccionada = null;
+        var idFormaSeleccionada = null;
+        var privilegioSeleccionado = null;
+        var tbObjModPrivilegio = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        $("#btnBuscar").click(function () {
+            $('#hidIdRol').val("0");
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        $("#btnBuscarFormas").click(function () {
+            Utilidades.MostrarProgress();
+            LlenarGridFormas();
+        });
+
+        $(".linkPermisoRol").click(function () {
+            $('#divDetalle').hide();
+            $('#txtNombreRol_Permiso').val($('#txtNombreRol').val());
+            $("#txtNombreForma_B").focus();
+            LlenarGridFormas();
+            $('#divListadoFormas').show();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hidIdRol').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            indexRowObjMod = null;
+            tbObjModNombreRol = null;
+            tbObjModEstatus = null;
+
+            return false;
+        });
+
+        $('#btnCancelarPermiso').on('click', function () {
+            //Limpiar controles
+            idFormaSeleccionada = null;
+            privilegioSeleccionado = null;
+            objModFormsSeleccionada = null;
+            tbObjModPrivilegio = null;
+
+            $('#divListadoFormasDetalle').hide();
+            $('#divListadoFormas').show();
+
+            return false;
+        });
+
+        $('#btnCancelarPermisoListado').on('click', function () {
+            $('#divListadoFormas').hide();
+            $('#divDetalle').show();
+
+            return false;
+        });
+
+
+
+        $('#btnGuardar').on('click', function () {
+            if ($("#rolform").data('unobtrusiveValidation').validate()) {
+                var idParametro = $('#hidIdRol').val();
+                Utilidades.MostrarProgress();
+                if (idParametro != "0") {
+                    ActualizarRol();
+                }
+                else {
+                    GuardarRol();
+                }
+                $('#divDetalle').show();
+                $('#divListado').hide();
+            }
+            return false;
+        });
+
+        $('#btnGuardarPermiso').on('click', function () {
+            Utilidades.MostrarProgress();
+            var sumaPrivilegios = 0;
+            $("#ulPermisos li.active").each(function (idx, li) {
+                sumaPrivilegios += parseInt($(li).attr("privilegio"));
+            });
+            GuardarFormaRol(sumaPrivilegios);
+            return false;
+        });
+
+        function Inicializar() {
+            $("#txtNombreRol_B").focus();
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config)
+                            {
+                                AgregarRol();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "IdRol", "autoWidth": true, "visible": false
+                    },
+                        {
+                            "data": "NombreRol", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreRol">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Estatus", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+        }
+
+        function OcultarMostrarDiv(data) {
+            if (data != null) {
+                objMod = data;
+                $('#txtNombreRol').val(data.NombreRol);
+                $('#hidIdRol').val(data.IdRol);
+                $('#chkEstatus').prop('disabled', false);
+                $('#chkEstatus').prop('checked', data.Estatus);
+                $('.linkPermisoRol').show();
+                $("#rolform").data('unobtrusiveValidation').validate();
+            }
+            else {
+                objMod = null;
+                $('#txtNombreRol').val('');
+                $('#chkEstatus').prop('disabled', true);
+                $('#chkEstatus').prop('checked', true);
+                $('.linkPermisoRol').hide();
+            }
+            $('#divListadoFormas').hide();
+            $('#divDetalle').show();
+            $('#divListado').hide();
+            $("#txtNombreRol").focus();
+
+            return false;
+        }
+
+        function LlenarGrid() {
+            $('#myTable').DataTable({
+                //destroy: true,
+                //"bFilter": true,
+                //"paging": true,
+                //"pageLength": 10,
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("BuscarRol", "Configuracion")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: { IdRol: $('#hidIdRol').val(), NombreRol: $('#txtNombreRol_B').val() },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language":
+                {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarRol();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "IdRol", "autoWidth": true, "visible": false
+                    },
+                        {
+                            "data": "NombreRol", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreRol">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Estatus", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                tbObjModNombreRol = $(this).parents('tr').find('.NombreRol')[0];
+                tbObjModEstatus = $(this).parents('tr').find('.Estatus')[0];
+                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(data);
+            });
+        }
+
+        function AgregarRol() {
+            $('#hidIdRol').val("0");
+            OcultarMostrarDiv(null);
+        }
+
+        function LlenarGridFormas() {
+            $('#myTableRol').DataTable({
+                destroy: true,
+                "bFilter": true,
+                "paging": true,
+                "pageLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ConsultarPrivRol", "Configuracion")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: {
+                        IdRol: $('#hidIdRol').val(),
+                        NombreForma: $('#txtNombreForma_B').val()
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                "columns": [
+                    {
+                        "data": "IdForma", "autoWidth": true, "visible": false
+                    },
+                        {
+                            "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreForma">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                         {
+                             "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                             "render": function (data, type, row, meta) {
+                                 if (type === 'display') {
+                                     return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Descripcion">')
+                                     .wrap('<div></div>')
+                                     .text(data)
+                                     .parent()
+                                     .html();
+                                 }
+                                 else {
+                                     return data;
+                                 }
+                             }
+                         },
+                        {
+                            "data": "EsOpcionMenu", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Privilegios", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Privilegio">')
+                                    .wrap('<div></div>')
+                                    .text(data > 0 ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+
+            $('#myTableRol tbody').on('click', 'a.btnEditar', function () {
+                var data = $('#myTableRol').DataTable().row($(this).parents('tr')).data();
+                tbObjModPrivilegio = $(this).parents('tr').find('.Privilegio')[0];
+                $('#divListadoFormas').hide();
+                $('#txtNombreRol_Edicion').val($('#txtNombreRol').val());
+                $('#txtNombreForma_Edicion').val(data.Nombre);
+                $('#divListadoFormasDetalle').show();
+                idFormaSeleccionada = data.IdForma;
+                privilegioSeleccionado = data.Privilegios;
+                objModFormsSeleccionada = data;
+                ObtenerInformacionPermisosForma();
+            });
+        }
+
+        function ActualizarRol() {
+            $.ajax({
+                url: '@Url.Action("ActualizarRol", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdRol: $('#hidIdRol').val(),
+                    NombreRol: $('#txtNombreRol').val(),
+                    Estatus: $('#chkEstatus').is(":checked")
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+                            objMod.NombreRol = $('#txtNombreRol').val();
+                            objMod.Estatus = $('#chkEstatus').is(":checked");
+                            ActualizarObjetoEnTabla();
+                        }
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function GuardarRol() {
+            $.ajax({
+                url: '@Url.Action("InsertarRol", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    nombreRol: $('#txtNombreRol').val()
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#hidIdRol').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        $('.linkPermisoRol').show();
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de roles.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function GuardarFormaRol(sumaPrivilegios) {
+            $.ajax({
+                url: '@Url.Action("InsertarFormaRol", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdForma: idFormaSeleccionada,
+                    IdRol: $('#hidIdRol').val(),
+                    Privilegio: sumaPrivilegios
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        objModFormsSeleccionada.Privilegios = sumaPrivilegios;
+                        tbObjModPrivilegio.text = sumaPrivilegios > 0 ? 'Si' : 'No'
+                        Utilidades.MostrarDialogo("Aviso", "Permiso(s) guardado(s) exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarObjetoEnTabla() {
+            tbObjModNombreRol.text = objMod.NombreRol;
+            tbObjModEstatus.text = objMod.Estatus == true ? 'Si' : 'No';
+        }
+
+        function ObtenerInformacionPermisosForma() {
+            Utilidades.MostrarProgress();
+            $.ajax({
+                url: '@Url.Action("ConsultarFormaPermiso", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        MostrarPermisos(json.Respuesta.RespuestaInformacion);
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    idForma: idFormaSeleccionada
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function MostrarPermisos(lstPermisos) {
+            if (lstPermisos.Data && lstPermisos.Data.Info && lstPermisos.Data.Info.length > 0) {
+                var divPermisos = $("#divPermisos");
+                var ulPermisos = $("#ulPermisos");
+                var li = null;
+                if (ulPermisos) {
+                    ulPermisos.remove();
+                }
+                ulPermisos = $("<ul class='list-group checked-list-box' id='ulPermisos'></u>");
+                $.map(lstPermisos.Data.Info, function (objInterno, indexInterno) {
+                    li = $("<li class='list-group-item inputpe tamLetra bookTipografia' privilegio='" + objInterno.Privilegio + "' " + ((privilegioSeleccionado & objInterno.Privilegio) > 0 ? "data-checked='true'" : "") + "></li>");
+                    li.attr("id", "lnk" + objInterno.Privilegio).text(objInterno.Nombre);
+                    ulPermisos.append(li);
+                });
+                divPermisos.append(ulPermisos);
+            }
+            EstablecerFormatoCheckList();
+        }
+
+        function EstablecerFormatoCheckList() {
+            $('.list-group.checked-list-box .list-group-item').each(function () {
+
+                // Settings
+                var $widget = $(this),
+                    $checkbox = $('<input type="checkbox" class="hidden" />'),
+                    color = ($widget.data('color') ? $widget.data('color') : "primary"),
+                    style = ($widget.data('style') == "button" ? "btn-" : "list-group-item-"),
+                    settings = {
+                        on: {
+                            icon: 'glyphicon glyphicon-check'
+                        },
+                        off: {
+                            icon: 'glyphicon glyphicon-unchecked'
+                        }
+                    };
+
+                $widget.css('cursor', 'pointer')
+                $widget.append($checkbox);
+
+                // Event Handlers
+                $widget.on('click', function () {
+                    $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    $checkbox.triggerHandler('change');
+                    updateDisplay();
+                });
+                $checkbox.on('change', function () {
+                    updateDisplay();
+                });
+
+
+                // Actions
+                function updateDisplay() {
+                    var isChecked = $checkbox.is(':checked');
+
+                    // Set the button's state
+                    $widget.data('state', (isChecked) ? "on" : "off");
+
+                    // Set the button's icon
+                    $widget.find('.state-icon')
+                        .removeClass()
+                        .addClass('state-icon ' + settings[$widget.data('state')].icon);
+
+                    // Update the button's color
+                    if (isChecked) {
+                        $widget.addClass(style + color + ' active');
+                    } else {
+                        $widget.removeClass(style + color + ' active');
+                    }
+                }
+
+                // Initialization
+                function init() {
+
+                    if ($widget.data('checked') == true) {
+                        $checkbox.prop('checked', !$checkbox.is(':checked'));
+                    }
+
+                    updateDisplay();
+
+                    // Inject the icon if applicable
+                    if ($widget.find('.state-icon').length == 0) {
+                        $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>');
+                    }
+                }
+                init();
+            });
+        }
+    </script>
+}

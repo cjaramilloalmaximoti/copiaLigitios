@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<h2>Acceso Denegado</h2>
+
+<style type="text/css">
+    .vcenter {
+        display: table-cell;
+        vertical-align: middle;
+        float: none;
+    }
+</style>
+
+@Html.AntiForgeryToken()
+<hr />
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 center-block vcenter">
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 vcenter">
+        @Html.ActionLink("Le informamos que no tiene permisos suficientes para realizar la acción seleccionada,", "Index", "Inicio", new { @style = "font-size: 24px; color: #8C0000;font-weight: bold", @class = "boldTipografia" })
+        @Html.ActionLink("por favor de clic en este mensaje para volver a ingresar al sistema", "Index", "Inicio", new { @style = "font-size: 22px; color: #185284;font-weight: bold", @class = "boldTipografia" })
+    </div>
+</div>
+<br />

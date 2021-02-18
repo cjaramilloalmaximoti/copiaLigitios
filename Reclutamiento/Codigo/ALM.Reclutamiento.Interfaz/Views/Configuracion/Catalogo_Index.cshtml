@@ -1,0 +1,473 @@
+﻿
+@{
+    ViewBag.Title = @ViewData["TituloCatalogo"] + " del Sistema";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+    var idTipoCatalogo = TempData["idTipoCatalogo"];
+    TempData.Keep("idTipoCatalogo");
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/css/bootstrap-datetimepicker.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdCatalogo", "0")
+
+@*<h3>El nombre del Catalogo es @ViewData["TituloCatalogo"]</h3>*@
+
+<div id="divListado">
+    @Html.Partial("Catalogo_Listado")
+</div>
+
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="catalogoform" id="catalogoform" method="post" novalidate="">
+        @Html.Partial("Catalogo_Detalle", new ALM.Reclutamiento.Entidades.ECatalogo())
+    </form>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <!-- <script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script> -->
+    <script src="~/scripts/jquery.sauron.js"></script>
+
+    <script type="text/javascript">
+
+        var idTipoCatalogo = @idTipoCatalogo;
+        var objMod = null;
+        var indexRowObjMod = null;
+        var tbObjMod = null;
+        var tbObjModNombre = null;
+        var tbObjModDescripcion = null;
+        var tbObjModIdSube = null;
+        var tbObjModIdSibec = null;
+        var tbObjModIdAux1 = null;
+        var tbObjModIdAux2 = null;
+        var tbObjModEsActivo = null;
+        var tbObjModClave = null;
+        var idCatalogoSeleccionado = null;
+        var tableR = null;
+
+        $(document).ready(function () {
+            Inicializar();
+            //LlenarGrid();
+        });
+
+        function Inicializar() {
+
+            items = "<option value='-1' class='form-control tamLetra bookTipografia'>Todos</option>";
+            items += "<option value='1' class='form-control tamLetra bookTipografia'>Activos</option>";
+            items += "<option value='0' class='form-control tamLetra bookTipografia'>Inactivos</option>";
+
+            $("#cmbEs").html(items);
+            $("#txtNombreDet").focus();
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                               {
+                                   'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                                   'className': 'btnAgregarGrid',
+                                   'action': function (e, dt, node, config)
+                                   {
+                                       AgreGarCatalogo();
+                                   }
+                               }
+                ],
+                "columns": [
+                            {
+                                "data": "IdCatalogo", "autoWidth": true, "visible": false
+                            },
+                            {
+                                "data": "IdTipoCatalogo", "autoWidth": true, "visible": false
+                            },
+                            {
+                                "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                        .wrap('<div></div>')
+                                        .text(data)
+                                        .parent()
+                                        .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                           {
+                               "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                               {
+                                   "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                                {
+                                    "data": "EsActivo", "autoWidth": true,
+                                    "render": function (data, type, row, meta) {
+                                        if (type === 'display') {
+                                            return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                            .wrap('<div></div>')
+                                            .text(data == true ? 'Si' : 'No')
+                                            .parent()
+                                            .html();
+                                        }
+                                        else
+                                        {
+                                            return data;
+                                        }
+                                    }
+                                }
+
+
+                ]
+            });
+        }
+
+        $("#btnBuscar").click(function () {
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        function AgreGarCatalogo(){
+            $('#hidIdCatalogo').val("0");
+            OcultarMostrarDiv(null);
+        }
+
+        function OcultarMostrarDiv(data) {
+            if (data != null)
+            {
+                objMod = data;
+                $('#hidIdCatalogo').val(data.IdCatalogo);
+                $('#txtClaveDet').val(data.Clave);
+                $('#txtNombreDet').val(data.Nombre);
+                $('#txtDescripcionDet').val(data.Descripcion);
+                $('#chkEstatus').prop('disabled', false);
+                $('#chkEstatus').prop('checked', data.EsActivo);
+
+            }else
+            {
+                $('#txtClaveDet').val('');
+                $('#txtNombreDet').val('');
+                $('#txtDescripcionDet').val('');
+                $('#chkEstatus').prop('disabled', true);
+                $('#chkEstatus').prop('checked', true);
+            }
+            $('#divListado').hide();
+            $('#divDetalle').show();
+            $("#txtClaveDet").focus();
+
+            return false;
+        }
+
+        function LlenarGrid() {
+            tableR=  $('#myTable').DataTable({
+                //destroy: true,
+                //"bFilter": true,
+                //"paging": true,
+                //"pageLength": 10,
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("BuscarCatalogo", "Configuracion")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: {
+                        IdTipoCatalogo:idTipoCatalogo,
+                        Nombre: $('#txtNombre').val(),
+                        Estaus : $('#cmbEs').val()
+
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        //alert(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+
+                    },
+
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgreGarCatalogo();
+                            }
+                        }
+                ],
+                "columns": [
+                    {
+                        "data": "IdCatalogo", "autoWidth": true, "visible": false
+                    },
+                    {
+                        "data": "IdTipoCatalogo", "autoWidth": true, "visible": false
+                    },
+                    {
+                        "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                   {
+                       "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display')
+                           {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else
+                           {
+                               return data;
+                           }
+                       }
+                   },
+                       {
+                           "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Descripcion">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "EsActivo", "autoWidth": true,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                   .wrap('<div></div>')
+                                   .text(data == true ? 'Si' : 'No')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                //alert("Dist click en editar");
+                indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                tbObjModNombre = $(this).parents('tr').find('.Nombre')[0];
+                tbObjModDescripcion = $(this).parents('tr').find('.Descripcion')[0];
+                tbObjModEsActivo = $(this).parents('tr').find('.Estatus')[0];
+                tbObjModClave = $(this).parents('tr').find('.Clave')[0];
+                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(data);
+            });
+
+        }
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hidIdParametro').val("0");
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            indexRowObjMod = null;
+            tbObjMod = null;
+
+            return false;
+        });
+
+        function ActualizarCatalogo() {
+            $.ajax({
+                url: '@Url.Action("ActualizarCatalogo", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdCatalogo : $('#hidIdCatalogo').val(),
+                    IdTipoCatalogo:idTipoCatalogo,
+                    Clave: $('#txtClaveDet').val(),
+                    Nombre: $('#txtNombreDet').val(),
+                    Descripcion: $('#txtDescripcionDet').val(),
+                    EsActivo:$('#chkEstatus').is(":checked")
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+                            objMod.Clave = $('#txtClaveDet').val();
+                            objMod.Nombre = $('#txtNombreDet').val();
+                            objMod.Descripcion = $('#txtDescripcionDet').val();
+                            objMod.EsActivo = $('#chkEstatus').is(":checked");
+                            ActualizarObjetoEnTabla();
+                        }
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente.");
+                    }
+                    else {
+                        var traza = json.Respuesta.RespuestaInformacion.Data.Info.Traza;
+                        if (traza == "ERR") {
+                            Utilidades.OcultarProgress();
+                            Utilidades.MostrarDialogoError('Error', 'La clave que se acaba de ingresar ya existe en los registros');
+                        } else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+
+        function GuardarCatalogo() {
+            $.ajax({
+                url: '@Url.Action("InsertarCatalogo", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdCatalogo : $('#hidIdCatalogo').val(),
+                    IdTipoCatalogo:idTipoCatalogo,
+                    Clave: $('#txtClaveDet').val(),
+                    Nombre: $('#txtNombreDet').val(),
+                    Descripcion: $('#txtDescripcionDet').val()
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto)
+                    {
+                        var insObt = null;
+                        Utilidades.OcultarProgress();
+                        $('#hidIdCatalogo').val(json.Respuesta.RespuestaInformacion.Data.Info);
+
+                         LlenarGrid();
+                        
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente.");
+                    }
+                    else
+                    {
+                        var traza = json.Respuesta.RespuestaInformacion.Data.Info.Traza;
+                        if (traza == "ERR") {
+                            Utilidades.OcultarProgress();
+                            Utilidades.MostrarDialogoError('Error', 'La clave que se acaba de ingresar ya existe en los registros');
+                        } else {
+                            Utilidades.ErrorAjaxControlado(json);
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+
+        $('#btnGuardar').on('click', function ()
+        {
+            if ($("#catalogoform").data('unobtrusiveValidation').validate()) {
+                Utilidades.MostrarProgress();
+
+                var idCatalogo = $('#hidIdCatalogo').val();
+                if (idCatalogo != "0")
+                {
+                    ActualizarCatalogo();
+                }else
+                {
+                    GuardarCatalogo();
+                }
+                //alert("Entro aqui");
+                $('#divDetalle').show();
+                $('#divListado').hide();
+                //Limpiar controles
+            }
+            return false;
+        }); 
+
+
+        function ActualizarObjetoEnTabla()
+        {
+            tbObjModNombre.text = objMod.Nombre;
+            tbObjModDescripcion.text = objMod.Descripcion;
+            tbObjModEsActivo.text = objMod.EsActivo == true ? 'Si' : 'No';
+            tbObjModClave.text = objMod.Clave;
+        }
+
+    </script>
+}

@@ -1,0 +1,44 @@
+set @forma = 'CaracteristicasGenerales';
+set @formaLink = 'CaracteristicasGenerales';
+set @formaAccion = 'CaracteristicasGenerales_Index';
+set @formaControlador = 'CaracteristicasGenerales';
+set @id = (select idForma from Forma Where ClaveCodigo = @forma);
+
+delete from formapermiso where idForma = @id;
+delete from formaRol where idForma = @id;
+delete from forma where idforma = @id;
+
+insert into Forma(ClaveCodigo, Nombre, EsOpcionMenu, Estatus, IdFormaPadre, TextoLink, Accion, Controlador
+	, EsDropdown, Orden, IdUsuarioCreacion,FechaCreacion, IdUsuarioUltimoModifico,FechaModificacion
+	, OrigenOperacion, Descripcion, IdEmpresa, EsSuperAdministrador
+)
+values(
+	@forma
+	, @forma
+	, 1, 1
+	, 2
+	, @formaLink
+	, @formaAccion
+	, @formaControlador
+	, 0, 4, 1, now(), 1, now(), 1, '(Administracion) Forma correspondiente a Vacantes', 1, 0
+	);
+
+SET @id_forma = (select idForma from Forma where ClaveCodigo = @forma);
+
+insert into FormaRol(
+  IdForma, IdRol, Privilegios, IdUsuarioCreacion, FechaCreacion, IdUsuarioUltimoModifico, 
+  FechaModificacion, OrigenOperacion, IdEmpresa 
+)
+values( @id_forma, 2, 15, 1, now(), 1, now(), 1 , 1);
+
+insert into FormaPermiso( 
+  IdForma , IdPermiso, IdUsuarioCreacion, FechaCreacion, IdUsuarioUltimoModifico, FechaModificacion, OrigenOperacion, 
+  IdEmpresa, NombrePermiso
+)
+values
+( @id_forma, 1, 0, now(), 0,now(), 1, 1, 'Consultar' ),
+( @id_forma, 2, 0, now(), 0,now(), 1, 1, 'Agregar' ),
+( @id_forma, 3, 0, now(), 0,now(), 1, 1, 'Actualizar' ),
+( @id_forma, 4, 0, now(), 0,now(), 1, 1, 'Eliminar' );
+
+

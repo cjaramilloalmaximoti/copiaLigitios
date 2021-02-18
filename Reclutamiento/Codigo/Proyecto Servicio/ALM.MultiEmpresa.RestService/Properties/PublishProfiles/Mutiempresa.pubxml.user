@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Este archivo se usa en el proceso de publicación y empaquetado del proyecto web. Para personalizar el comportamiento de este proceso,
+edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 para obtener más información. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\inetpub\wwwroot\Multiempresa</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/ALM.Correo.dll">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.AccesoDatos.dll">
+      <publishTime>03/05/2020 09:07:46</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.AccesoDatos.pdb">
+      <publishTime>03/05/2020 09:07:46</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Datos.dll">
+      <publishTime>03/05/2020 09:07:47</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Datos.pdb">
+      <publishTime>03/05/2020 09:07:47</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Entidades.dll">
+      <publishTime>03/05/2020 09:07:45</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Entidades.pdb">
+      <publishTime>03/05/2020 09:07:45</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Negocio.dll">
+      <publishTime>03/05/2020 09:07:47</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Negocio.pdb">
+      <publishTime>03/05/2020 09:07:47</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.RestService.dll">
+      <publishTime>03/05/2020 09:07:51</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.RestService.pdb">
+      <publishTime>03/05/2020 09:07:51</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Utilerias.dll">
+      <publishTime>03/05/2020 09:07:46</publishTime>
+    </File>
+    <File Include="bin/ALM.ServicioAdminEmpresas.Utilerias.pdb">
+      <publishTime>03/05/2020 09:07:46</publishTime>
+    </File>
+    <File Include="bin/Antlr3.Runtime.dll">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="bin/App_global.asax.compiled">
+      <publishTime>03/05/2020 09:08:30</publishTime>
+    </File>
+    <File Include="bin/App_global.asax.dll">
+      <publishTime>03/05/2020 09:08:29</publishTime>
+    </File>
+    <File Include="bin/CsvHelper.dll">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="bin/DocumentFormat.OpenXml.dll">
+      <publishTime>07/12/2019 19:58:14</publishTime>
+    </File>
+    <File Include="bin/EntityFramework.dll">
+      <publishTime>07/12/2019 19:58:10</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.Identity.Core.dll">
+      <publishTime>07/12/2019 19:57:52</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.Identity.EntityFramework.dll">
+      <publishTime>07/12/2019 19:57:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.Identity.Owin.dll">
+      <publishTime>07/12/2019 19:57:48</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.dll">
+      <publishTime>07/12/2019 19:57:52</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Host.SystemWeb.dll">
+      <publishTime>07/12/2019 19:57:50</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.Cookies.dll">
+      <publishTime>07/12/2019 19:57:50</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.dll">
+      <publishTime>07/12/2019 19:57:52</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.Facebook.dll">
+      <publishTime>07/12/2019 19:57:52</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.Google.dll">
+      <publishTime>07/12/2019 19:57:52</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.MicrosoftAccount.dll">
+      <publishTime>07/12/2019 19:57:52</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.OAuth.dll">
+      <publishTime>07/12/2019 19:57:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.Twitter.dll">
+      <publishTime>07/12/2019 19:57:54</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Web.Infrastructure.dll">
+      <publishTime>07/12/2019 19:57:54</publishTime>
+    </File>
+    <File Include="bin/MySql.Data.dll">
+      <publishTime>07/12/2019 19:57:56</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>07/12/2019 19:57:56</publishTime>
+    </File>
+    <File Include="bin/Owin.dll">
+      <publishTime>07/12/2019 19:57:54</publishTime>
+    </File>
+    <File Include="bin/System.Net.Http.Formatting.dll">
+      <publishTime>07/12/2019 19:57:56</publishTime>
+    </File>
+    <File Include="bin/System.Web.Helpers.dll">
+      <publishTime>07/12/2019 19:57:56</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.Owin.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.WebHost.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.Mvc.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.Optimization.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.Razor.dll">
+      <publishTime>07/12/2019 19:58:00</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Deployment.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.dll">
+      <publishTime>07/12/2019 19:57:58</publishTime>
+    </File>
+    <File Include="bin/System.Web.WebPages.Razor.dll">
+      <publishTime>07/12/2019 19:58:00</publishTime>
+    </File>
+    <File Include="bin/WebGrease.dll">
+      <publishTime>07/12/2019 19:58:04</publishTime>
+    </File>
+    <File Include="Content/bootstrap.css">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="Content/bootstrap.min.css">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="Content/Site.css">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="favicon.ico">
+      <publishTime>07/12/2019 19:57:40</publishTime>
+    </File>
+    <File Include="fonts/glyphicons-halflings-regular.eot">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="fonts/glyphicons-halflings-regular.svg">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="fonts/glyphicons-halflings-regular.ttf">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="fonts/glyphicons-halflings-regular.woff">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>07/12/2019 19:57:40</publishTime>
+    </File>
+    <File Include="Persistencia/Consultas.config">
+      <publishTime>07/12/2019 19:57:42</publishTime>
+    </File>
+    <File Include="PrecompiledApp.config">
+      <publishTime>03/05/2020 09:07:59</publishTime>
+    </File>
+    <File Include="Scripts/bootstrap.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/bootstrap.min.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/jquery-1.10.2.js">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Scripts/jquery-1.10.2.min.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/jquery-1.10.2.min.map">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.min.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.unobtrusive.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/jquery.validate.unobtrusive.min.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/modernizr-2.6.2.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/respond.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Scripts/respond.min.js">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Scripts/_references.js">
+      <publishTime>07/12/2019 19:57:44</publishTime>
+    </File>
+    <File Include="Views/Home/Index.cshtml">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Views/Shared/Error.cshtml">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Views/Shared/_Layout.cshtml">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Views/Web.config">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Views/_ViewStart.cshtml">
+      <publishTime>07/12/2019 19:57:46</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>03/05/2020 09:07:54</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

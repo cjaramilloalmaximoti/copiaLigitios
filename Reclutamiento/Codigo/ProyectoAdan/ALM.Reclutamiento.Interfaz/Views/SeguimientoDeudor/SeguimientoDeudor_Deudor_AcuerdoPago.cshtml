@@ -1,0 +1,75 @@
+﻿@model ALM.Empresa.Entidades.EAcuerdoPago
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.FechaPagoString, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            <div id="divFechaNacimientoString">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    @Html.TextBoxFor(m => m.FechaPagoString, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "dtpFechaPagoString", type = "text" })
+                </div>
+                @Html.ValidationMessageFor(model => model.FechaPagoString, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.IdTipoGestion, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.DropDownListFor(m => m.IdTipoGestion, Enumerable.Empty<SelectListItem>(), new { @class = "control-label tamLetra regularTipografia", id = "cmbIdTipoGestion" })
+            @Html.ValidationMessageFor(model => model.IdTipoGestion, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.IdEstatus, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.DropDownListFor(m => m.IdEstatus, Enumerable.Empty<SelectListItem>(), new { @class = "control-label tamLetra regularTipografia", id = "cmbIdEstatus" })
+            @Html.ValidationMessageFor(model => model.IdEstatus, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Cantidad, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.Cantidad, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtCantidadAcuerdo", style = "text-align:right;" })
+            @Html.ValidationMessageFor(model => model.Cantidad, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.Comentarios, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+            @Html.TextAreaFor(m => m.Comentarios, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia textArea", id = "txtComentariosAcuerdo", rows = "4" })
+            @Html.ValidationMessageFor(model => model.Comentarios, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+        <div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
+            @Html.LabelFor(m => m.TelefonoMarcado, new { @class = "control-label tamLetra regularTipografia" })
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            @Html.TextBoxFor(m => m.TelefonoMarcado, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtTelefonoMarcadoAcuerdo"})
+            @Html.ValidationMessageFor(model => model.TelefonoMarcado, null, new { @class = "text-danger tamLetra bookTipografia" })
+        </div>
+    </div>
+</div>
+<div style="clear:both; text-align:right; width:100%">
+    <br />
+    <br />
+    <br />
+</div>
+<div id="containerProgressPopUp" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>
+

@@ -1,0 +1,221 @@
+﻿@{
+    ViewBag.Title = "Link Aprobar - Rechazar";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdCaracteristica", "0")
+@Html.Hidden("hidAprobada", "0")
+@Html.Hidden("hidCodigo", "0")
+
+<div class="divMarcoBusqueda">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        <div class="row">
+            <table width="80%" border="0" align="center">
+                <tr>
+                    <th colspan="3" align="center"><h2>Datos de la Caracteristica a <label id="lblTitulo"></label></h2></th>
+                </tr>
+                <tr>
+                    <td width="25%" align="right">Nombre</td>
+                    <td width="5%">&emsp;</td>
+                    <td width="=50%"><label id="lblNombre"></label></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right">Usuario</td>
+                    <td width="5%">&emsp;</td>
+                    <td width="=50%"><label id="lblUsuario"></label></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right">Empresa</td>
+                    <td width="5%">&emsp;</td>
+                    <td width="=50%"><label id="lblEmpresa"></label></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right">Fecha Creación</td>
+                    <td width="5%">&emsp;</td>
+                    <td width="=50%"><label id="lblFecha"></label></td>
+                </tr>
+                <tr>
+                    <td width="25%" align="right">Comentario</td>
+                    <td width="5%">&emsp;</td>
+                    <td width="=50%"><label id="lblComentario"></label></td>
+                </tr>
+            </table>
+
+            <div style="clear:both; text-align:right; width:100%">
+                <div style="clear:both; text-align:right; width:100%">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:5px">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <a onmouseover="" class="linkIniciarSesion bookTipografia" style="cursor: pointer;">Iniciar Sesión   </a>
+                            <button type="button" value="Buscar" id="btnGuardar" name="Guardar" class="btnGuardar">
+                                <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+    @section scripts{
+<script src="@Url.Content("~/Scripts/jquery-3.1.1.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/jquery-3.1.1.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/modernizr-2.6.2.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+        var link = getParameterByName('link');
+        var linkDescrifrado = "";
+        var parametros = null;
+        var confirmacion = false;
+
+        //alert(link);
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '@Url.Action("descifrarLink", "Caracteristicas")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        linkDescrifrado = json.Respuesta.RespuestaInformacion.Data.Info;
+                        //alert('Dentro ' + linkDescrifrado);
+
+                        var params = {
+                            carac: {
+                                IdCaracteristica: linkDescrifrado.split('|')[1],
+                                Nombre: linkDescrifrado.split('|')[2],
+                                Usuario: linkDescrifrado.split('|')[3],
+                                FechaCreacion: linkDescrifrado.split('|')[4],
+                                Comentario: 'Caracterisitca ' + (linkDescrifrado.split('|')[0] == 1 ? 'Aprobada' : 'Rechazada') + ' por el Administrador.',
+                                Empresa: linkDescrifrado.split('|')[5], 
+                                Aprobada: linkDescrifrado.split('|')[0],
+                                codigoGenerado: linkDescrifrado.split('|')[6],
+                                Email: linkDescrifrado.split('|')[7]
+                            }
+                        };
+
+                        validarCodigo(params.carac.codigoGenerado, params.carac.IdCaracteristica);
+
+                        parametros = params;
+                    } else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    strLink: link
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        });
+
+        $(".linkIniciarSesion").click(function () {
+            window.location.href = "http://localhost:83/";
+        });
+
+        function validarCodigo(codigo, id) {
+            //alert(parametros.carac.Empresa);
+            $.ajax({
+                url: '@Url.Action("validarCodigo", "Caracteristicas")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        $('#lblTitulo').attr('style', parametros.carac.Aprobada == 1 ? 'color:green' : 'color:red');
+                        $('#lblTitulo').text(parametros.carac.Aprobada == 1 ? 'Aprobar' : 'Rechazar');
+
+                        $('#lblNombre').text(parametros.carac.Nombre);
+                        $('#lblUsuario').text(parametros.carac.Usuario);
+                        $('#lblFecha').text(parametros.carac.FechaCreacion);
+                        $('#lblEmpresa').text(parametros.carac.Empresa);
+                        $('#hidIdCaracteristica').text(parametros.carac.IdCaracteristica);
+                        $('#hidAproobada').text(parametros.carac.Aprobada);
+                        $('#hidCodigo').text(parametros.carac.codigoGenerado);
+                        $('#lblComentario').text(parametros.carac.Comentario);
+
+                        $('#btnGuardar').attr('disabled', false);
+                    } else {
+                        $('#btnGuardar').attr('disabled', true);
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    codigo: codigo, id: id
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        $('#btnGuardar').click(function () {
+            var funcionCancelar = null;
+            swal({
+                title: 'Aviso',
+                text: 'Se ' + (parametros.carac.Aprobada == 1 ? 'Aprobara' : 'Rechazara') + ' la Característica, ¿Desea continuar?',
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Si",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        Utilidades.MostrarProgress();
+                        AprobarRechazar(parametros);
+                    } else {
+                        if (!isConfirm && funcionCancelar) {
+                            funcionCancelar();
+                        }
+                    }
+                });
+        });
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        function AprobarRechazar(params) {
+            $.ajax({
+                url: '@Url.Action("aprobarRechazar", "Caracteristicas")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        Utilidades.MostrarDialogo("Aviso", "Característica " + (params.carac.Aprobada == 1 ? 'Aprobada' : 'Rechazada') + " Exitósamente.");
+                    } else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                    carac: params.carac
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+        </script>
+    }

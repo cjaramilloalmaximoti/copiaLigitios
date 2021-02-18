@@ -1,0 +1,53 @@
+﻿<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                <label for="txtNombreRol_Permiso" class="labelColumn tamLetra regularTipografia">Nombre del Rol</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <input type="text" id="txtNombreRol_Edicion" class="form-control inputpe tamLetra bookTipografia" disabled="disabled" name="txtNombreRol_Edicion" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="txtNombre_Forma_B" id="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre de la Forma</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtNombreForma_Edicion" class="form-control inputpe tamLetra bookTipografia" disabled="disabled" name="txtNombreForma_Edicion" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style=" left: 25%;">
+            <h5>Permisos disponibles para esta forma</h5>
+            <div class="well" style="max-height: 50%;overflow: auto;" id="divPermisos">
+                <ul class="list-group checked-list-box" id="ulPermisos"></ul>
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Guardar" id="btnGuardarPermiso" name="Guardar" class="btnGuardar pull-right">
+            <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+        </button>
+        <button type="button" value="Cancelar" id="btnCancelarPermiso" name="Cancelar" class="btnCancelar pull-right">
+            <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+        </button>
+    </div>
+</div>
+
+<style>
+    /* CSS REQUIRED */
+    .state-icon {
+        left: -5px;
+    }
+
+    .list-group-item-primary {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+    }
+
+    /* DEMO ONLY - REMOVES UNWANTED MARGIN */
+    .well .list-group {
+        margin-bottom: 0px;
+    }
+</style>

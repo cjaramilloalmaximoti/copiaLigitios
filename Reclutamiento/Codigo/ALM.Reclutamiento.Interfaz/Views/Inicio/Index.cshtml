@@ -1,0 +1,254 @@
+﻿<!--Listo a-->
+@model ALM.Reclutamiento.Entidades.EUsuario
+@{
+    ViewBag.Title = "Acceso al sistema";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+<style>
+    .modal.modal-wide .modal-dialog {
+        width: 350px !important;
+    }
+</style>
+
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<form name="inicioform" id="inicioform" method="post" novalidate="">
+    <div class="container body-content">
+
+        <h2><strong>Bienvenido</strong></h2>
+        <h4>Capture los campos para accesar al sistema.</h4>
+        <hr />
+        <br />
+
+        <div class="col-md-9 col-md-push-3">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                @Html.LabelFor(m => m.LoginLog, new { @class = "col-md-2 control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                @Html.TextBoxFor(m => m.LoginLog, new { @class = "form-control tamLetra taminput bookTipografia" })
+                @Html.ValidationMessageFor(m => m.LoginLog, "", new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-md-9 col-md-push-3" style="height:10px;">
+
+        </div>
+        <div class="col-md-9 col-md-push-3">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+                @Html.LabelFor(m => m.ContraseniaLog, new { @class = "col-md-2  control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                @Html.PasswordFor(m => m.ContraseniaLog, new { @class = "form-control tamLetra taminput bookTipografia" })
+                <div class="sauron" style="top: 7px; width: 14.44px; height: 14.44px; right: 115px;"></div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10" style="margin-top:10px;">
+                @Html.ValidationMessageFor(m => m.ContraseniaLog, "", new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <br />
+        <div class="col-md-9 col-md-push-4">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-lg-2">
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-10 col-lg-10">
+                <button type="button" value="Guardar" id="btnLog" name="Guardar" class="botoniniciaSes" onclick="LogIn();">
+                    Iniciar sesión
+                </button>
+                <button type="submit" value="Guardar" id="btnLoggin" name="Guardar" class="botoniniciaSes" style="visibility:hidden">
+                    Iniciar sesión
+                </button>
+            </div>
+        </div>
+
+        <div id="modalCodigo" class="modal fade modal-wide" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Capturar Código</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="divSeleccionarMunicipio" style="width:100%">
+                            @Html.Partial("CodigoAdm", new @ALM.Reclutamiento.Entidades.EClaseApoyoValidacion())
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        var accAdm = false;
+        $(document).ready(function () {
+            $("#LoginLog").focus();
+            $('#btnLoggin').attr('disabled', 'disabled');
+            //if (!$('#ContraseniaLog').next().hasClass("sauron"))
+            //    $('#ContraseniaLog').sauron();
+        });
+
+        $(".sauron").mousedown(function (event) {
+            $("#ContraseniaLog").attr("type", "text");
+        });
+
+        $(".sauron").mouseup(function (event) {
+            $("#ContraseniaLog").attr("type", "password");
+        });
+
+        function LogIn() {
+            if (!$("#inicioform").data('unobtrusiveValidation').validate()) {
+                if ($("#LoginLog").val() == '') {
+                    $("#LoginLog").focus();
+                }
+                else
+                    if ($("#ContraseniaLog").val() == '') {
+                        $("#ContraseniaLog").focus();
+                    }
+                return false;
+            }
+            else {
+                Utilidades.MostrarProgress();
+                var parametro = {
+                    Login: $("#LoginLog").val(),
+                    Contrasenia: $("#ContraseniaLog").val()
+                };
+                $.ajax({
+                    url: '@Url.Action("ValidarUsuario", "Inicio")',
+                    type: 'POST',
+                    cache: false,
+                    data: parametro,
+                    success: function (json) {
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+                        var codigoCorrectoAdm = '"OKAdm"';
+                        var codigoErrorBD = '"ERRORBD"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            $('#btnLoggin').removeAttr('disabled');
+                            $("#btnLoggin").click();
+                        }
+                        else
+                            if (codigoRegreso == codigoCorrectoAdm) {
+                                Utilidades.OcultarProgress();
+                                $('#modalCodigo').modal('show');
+                            }
+                            else
+                                if (codigoRegreso == codigoErrorBD) {
+                                    Utilidades.ErrorAjaxControlado(json);
+                                    $('#ContraseniaLog').val('');
+                                    if ($("#LoginLog").val() == '') {
+                                        $("#LoginLog").focus();
+                                    }
+                                    else
+                                        if ($("#ContraseniaLog").val() == '') {
+                                            $("#ContraseniaLog").focus();
+                                        }
+                                }
+                                else {
+                                    Utilidades.ErrorAjaxControlado(json);
+                                    $('#ContraseniaLog').val('');
+                                    if ($("#LoginLog").val() == '') {
+                                        $("#LoginLog").focus();
+                                    }
+                                    else
+                                        if ($("#ContraseniaLog").val() == '') {
+                                            $("#ContraseniaLog").focus();
+                                        }
+                                }
+                    },
+                    error: function (xhr) {
+                        Utilidades.ErrorAjax(xhr);
+                    }
+                });
+                return true;
+            }
+        }
+
+        $("#LoginLog").keyup(function (event) {
+            if (event.keyCode == 13 && $("#LoginLog").val() != '') {
+                if (event.keyCode == 13 && $("#ContraseniaLog").val() != '') {
+                    $("#btnLog").click();
+                }
+                else {
+                    $("#ContraseniaLog").focus();
+                }
+            }
+        });
+
+        $("#ContraseniaLog").keyup(function (event) {
+            if (event.keyCode == 13 && $("#ContraseniaLog").val() != '') {
+                if (event.keyCode == 13 && $("#LoginLog").val() != '') {
+                    $("#btnLog").click();
+                }
+                else {
+                    $("#LoginLog").focus();
+                }
+            }
+        });
+
+
+        $('#modalCodigo').on('shown.bs.modal', function () {
+            $('#txtTexto').val('');
+            $('#txtTexto').focus();
+        });
+
+        $('#modalCodigo').on('hidden.bs.modal', function () {
+            if (accAdm == true) {
+                $('#txtTexto').val('');
+                $('#btnLoggin').removeAttr('disabled');
+                $("#btnLoggin").click();
+                $("#btnLoggin").click();
+            }
+            else {
+                $('#txtTexto').val('');
+                $('#LoginLog').val('');
+                $('#ContraseniaLog').val('');
+            }
+        });
+
+        $("#btnGuardar").click(function () {
+            $.ajax({
+                url: '@Url.Action("EstablecerCodigo", "Menu")',
+                type: 'POST',
+                cache: false,
+                data: { codigo: $('#txtTexto').val() },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        accAdm = true;
+                        $('#modalCodigo').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        });
+
+        $("#LoginLog").keyup(function (event) {
+
+            if (event.keyCode == 13) { //Permite dar enter y ejecutar la función, cuando está posicionado sobre el txtLogin
+                $("#btnLogin").click();
+            }
+        });
+        $("#ContraseniaLog").keyup(function (event) {
+
+            if (event.keyCode == 13) { //Permite dar enter y ejecutar la función, cuando está posicionado sobre el txtContrasenia
+                $("#btnLogin").click();
+            }
+        });
+        $("input").keydown(function (e) { //Permite tabular entre los inputs
+            e.which == 9
+        });
+    </script>
+}

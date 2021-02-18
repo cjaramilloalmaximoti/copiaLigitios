@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "Parámetros del Sistema";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+
+@Html.Hidden("hidIdParametro", "0")
+
+<div id="divListado">
+    @Html.Partial("Parametro_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    @Html.Partial("Parametro_Detalle")
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script type="text/javascript">
+
+        var objMod = null;
+        var indexRowObjMod = null;
+        var tbObjMod = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+            $("#txtNombre").focus();
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                "columns": [
+                   {
+                       "data": "IdParametro", "autoWidth": true, "visible": false
+                   },
+                   {
+                       "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                       {
+                           "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "Valor", "autoWidth": true,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar valor">')
+                                   .wrap('<div></div>')
+                                   .text(data.substring(0, 70))
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "EsActivo", "autoWidth": true,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                   .wrap('<div></div>')
+                                  .text(data == true ? 'Si' : 'No')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                         {
+                             "data": "EsSensitivo", "autoWidth": true,
+                             "render": function (data, type, row, meta) {
+                                 if (type === 'display') {
+                                     return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                     .wrap('<div></div>')
+                                     .text(data == true ? 'Si' : 'No')
+                                     .parent()
+                                     .html();
+                                 }
+                                 else {
+                                     return data;
+                                 }
+                             }
+                         }
+                ]
+            });
+        }
+
+        $("#btnBuscar").click(function () {
+            $('#hidIdParametro').val("0");
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        function OcultarMostrarDiv(data) {
+
+            objMod = data;
+            $('#txtNombreDet').val(data.Nombre);
+            $('#txtDescripcionDet').val(data.Descripcion);
+            $('#txtValor').val(data.Valor);
+            $('#hidIdParametro').val(data.IdParametro);
+            $('#chkEsActivo').prop('disabled', true);
+            $('#chkEsSensible').prop('disabled', true);
+
+            if (data.EsActivo == true) {
+
+                $('#chkEsActivo').prop('checked', true);
+            }
+            else {
+
+                $('#chkEsActivo').prop('checked', false);
+            }
+
+            if (data.EsSensitivo == true) {
+
+                $('#chkEsSensible').prop('checked', true);
+            }
+            else {
+
+                $('#chkEsSensible').prop('checked', false);
+            }
+
+            $('#divDetalle').show();
+            $('#divListado').hide();
+
+            return false;
+        }
+
+        function LlenarGrid() {
+            $('#myTable').DataTable({
+                //destroy: true,
+                //"bFilter": true,
+                //"paging": true,
+                //"pageLength": 10,
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("Buscar", "Configuracion")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else
+                        {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: { IdParametro: $('#hidIdParametro').val(), Nombre: $('#txtNombre').val(), Descripcion: $('#txtDescripcion').val(), Valor: "", EsActivo: true, EsSensible: true },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                "columns": [
+                    {
+                        "data": "IdParametro", "autoWidth": true, "visible": false
+                    },
+                    {
+                        "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                        {
+                            "data": "Descripcion", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Valor", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar valor">')
+                                    .wrap('<div></div>')
+                                    .text(data.substring(0, 70))
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "EsActivo", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                    .wrap('<div></div>')
+                                   .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                          {
+                              "data": "EsSensitivo", "autoWidth": true,
+                              "render": function (data, type, row, meta) {
+                                  if (type === 'display') {
+                                      return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar">')
+                                      .wrap('<div></div>')
+                                      .text(data == true ? 'Si' : 'No')
+                                      .parent()
+                                      .html();
+                                  }
+                                  else {
+                                      return data;
+                                  }
+                              }
+                          }
+                ]
+            });
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                indexRowObjMod = $(this).parents('tr')[0].rowIndex;
+                tbObjMod = $(this).parents('tr').find('.valor')[0];
+                var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(data);
+            });
+        }
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hidIdParametro').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            indexRowObjMod = null;
+            tbObjMod = null;
+
+            return false;
+        });
+
+        function ActualizarCatalogo() {
+            $.ajax({
+                url: '@Url.Action("Actualizar", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdParametro: $('#hidIdParametro').val(),
+                    Nombre: $('#txtNombreDet').val(),
+                    Descripcion: $('#txtDescripcionDet').val(),
+                    Valor: $('#txtValor').val(),
+                    EsActivo: $('#chkEsActivo').is(':checked'),
+                    EsSensitivo: $('#chkEsSensible').is(':checked')
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        objMod.Valor = $('#txtValor').val();
+                        ActualizarObjetoEnTabla();
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarParametro() {
+            $.ajax({
+                url: '@Url.Action("ActualizarParametro", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdParametro: $('#hidIdParametro').val(),
+                    Nombre: $('#txtNombreDet').val(),
+                    Descripcion: $('#txtDescripcionDet').val(),
+                    Valor: $('#txtValor').val(),
+                    EsActivo: $('#chkEsActivo').is(':checked'),
+                    EsSensitivo: $('#chkEsSensible').is(':checked')
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                     Utilidades.OcultarProgress();
+                        objMod.Valor = $('#txtValor').val();
+                        ActualizarObjetoEnTabla();
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.OcultarProgress();
+                        Utilidades.MostrarDialogoError(true, "Error", JSON.stringify(json.Respuesta.MensajeUsuario) + '<' + JSON.stringify(json.Respuesta.RespuestaInformacion.Data.Info.Mensaje) + '>');
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+        $('#btnGuardar').on('click', function () {
+            var idParametro = $('#hidIdParametro').val();
+
+            if (idParametro > 0) {
+                if ($('#txtValor').val() == "") {
+                    Utilidades.MostrarDialogo("Error", "Debe capturar un valor para poder Guardar");
+                }
+                else
+                {
+                    Utilidades.MostrarProgress();
+                    ActualizarParametro();
+                }
+            }
+
+            //Limpiar controles
+
+            $('#divDetalle').show();
+            $('#divListado').hide();
+            return false;
+        });
+
+        function ActualizarObjetoEnTabla() {
+            tbObjMod.text = objMod.Valor;
+        }
+
+    </script>
+}

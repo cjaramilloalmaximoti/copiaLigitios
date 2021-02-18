@@ -1,0 +1,48 @@
+﻿
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblNombre" id="lblNombre" class="labelColumn tamLetra regularTipografia">Nombre Cartera</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtCartera_B" class="form-control inputColumn inputpe tamLetra bookTipografia" name=" txtnombre" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Es Activo</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbEstatus" class="form-control tamLetra bookTipografia">
+                    <option value="-1">TODOS</option>
+                    <option value="1">ACTIVOS</option>
+                    <option value="0">INACTIVOS</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <button type="button" value="Buscar" id="btnBuscar" name="Buscar" class="btnBuscarAgregar">
+            <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+        </button>
+    </div>
+</div>
+
+<div class="divMarcoGrid">
+    <div class="divSubMarcoGrid">
+        <table class="myTable" id="myTable">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Clave</th>
+                    <th style="width: 30%;">Nombre</th>
+                    <th style="width: 30%;">Cliente</th>
+                    <th>Es Activo</th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+

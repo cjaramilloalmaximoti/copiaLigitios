@@ -1,0 +1,60 @@
+﻿<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px; height:50px;">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbClienteCarteraFiltro" id="lblClienteFiltro" class="labelColumn tamLetra regularTipografia">Cliente-Cartera</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbClienteCarteraFiltro" name="cmbClienteCarteraFiltro" class="form-control tamLetra bookTipografia" data-val-required="Dato requerido" data-val="true" required></select>
+                <span class="field-validation-valid text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="cmbClienteCarteraFiltro"></span>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px; height:50px;">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbAnalistaFiltro" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Análista</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbAnalistaFiltro" class="form-control tamLetra bookTipografia"></select>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px; height:50px;">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbSegmentoFiltro" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Segmento</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbSegmentoFiltro" name="cmbSegmentoFiltro" class="form-control tamLetra bookTipografia" data-val-required="Dato requerido" data-val="true" required></select>
+                <span class="field-validation-valid text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="cmbSegmentoFiltro"></span>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px; height:50px;">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbTipoEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Tipo de Estatus</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbTipoEstatus" name="cmbTipoEstatus" class="form-control tamLetra bookTipografia" data-val-required="Dato requerido" data-val="true" required></select>
+                <span class="field-validation-valid text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="cmbTipoEstatus"></span>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Es Activo</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbEstatus" name="cmbEstatus" class="form-control tamLetra bookTipografia" data-val-required="Dato requerido" data-val="true" required></select>
+                <span class="field-validation-valid text-danger tamLetra bookTipografia" data-valmsg-replace="true" data-valmsg-for="cmbEstatus"></span>
+            </div>
+        </div>
+
+    </div>
+    <div style="clear:both; text-align:right; width:100%">
+        <a href="#" class="ControlEditar btnEditar" id="lnkRegistrarAcuerdo">
+            <image src="@Url.Content("~/Imagenes/excel.png")" id="btnGenerar" onmouseover="this.src='@Url.Content("~/Imagenes/excelON.png")'" class="linkMenu LnkExcel"
+                   onmouseout="this.src='@Url.Content("~/Imagenes/excel.png")'" title="Exportar a Excel">
+            </image>
+        </a>
+    </div>
+</div>
+
+
+
+

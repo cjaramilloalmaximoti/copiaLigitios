@@ -1,0 +1,750 @@
+﻿@{
+    ViewBag.Title = "Polígonos";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+
+<h2>Polígonos</h2>
+
+@Html.Hidden("hIdPoligono", "0")
+
+
+<div id="divListado">
+    @Html.Partial("Poligono_Listado")
+</div>
+
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="Poligonoform" id="Poligonoform" method="post" novalidate="">
+        @Html.Partial("Poligono_Detalle", new ALM.Empresa.Entidades.EPoligono())
+    </form>
+</div>
+<div id="modalSeleccionarPoligonoKML" class="modal fade modal-wide" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title encabezadoPopUP">Polígonos de KML</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeleccionarPoligonoKML" style="width:100%">
+                    @Html.Partial("Poligono_KML")
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+    <script src="~/scripts/jquery.sauron.js"></script>
+    <script type="text/javascript">
+        var objMod = null;
+        var tbObjModCategoriaPoligono = null;
+        var tbObjModClave = null;
+        var tbObjModNombre = null;
+        var tbObjModPoligonoKML = null;
+        var tbObjModEsActivo = null;
+        var lstCategoriasPoligonos = null;
+        var IdBueno = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+            Utilidades.MostrarProgress();
+            var items = "<option value='-1' class='form-control tamLetra bookTipografia'>TODOS</option>";
+            items += "<option value='1' class='form-control tamLetra bookTipografia'>ACTIVOS</option>";
+            items += "<option value='0' class='form-control tamLetra bookTipografia'>INACTIVOS</option>";
+
+            $("#cmbEstatus").html(items);
+            $("#cmbCategoriaPoligonoB").focus();
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                               {
+                                   'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                                   'className': 'btnAgregarGrid',
+                                   'action': function (e, dt, node, config) {
+                                       AgregarDetalle();
+                                   }
+                               }
+                ],
+                "columns": [
+                            {
+                                "data": "CategoriaPoligono", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar CategoriaPoligono">')
+                                        .wrap('<div></div>')
+                                        .text(data)
+                                        .parent()
+                                        .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                               {
+                                   "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                       {
+                           "data": "PoligonoKML", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar PoligonoKML">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                              {
+                                  "data": "ColorRGB", "autoWidth": true, "sClass": "columnaIzquierda",
+                                  "render": function (data, type, row, meta) {
+                                      if (type === 'display') {
+                                          return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar ColorRGB">')
+                                          .wrap('<div></div>')
+                                          .text(data)
+                                          .parent()
+                                          .html();
+                                      }
+                                      else {
+                                          return data;
+                                      }
+                                  }
+                              },
+                       {
+                           "data": "EsActivo", "autoWidth": true,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                   .wrap('<div></div>')
+                                   .text(data == true ? 'Si' : 'No')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       }
+                ]
+            });
+
+
+
+
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                if (this.name != "lnkGeoCercas") {
+                   
+                    tbObjModCategoriaPoligono = $(this).parents('tr').find('.CategoriaPoligono')[0];
+                    tbObjModClave = $(this).parents('tr').find('.Clave')[0];
+                    tbObjModNombre = $(this).parents('tr').find('.Nombre')[0];
+                    tbObjModPoligonoKML = $(this).parents('tr').find('.PoligonoKML')[0];
+                    tbObjModEsActivo = $(this).parents('tr').find('.Estatus')[0];
+                    var data = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                    OcultarMostrarDiv(data);
+                }
+                else {
+                    
+                    IdBueno = ($('#myTable').DataTable().row($(this).parents('tr')).data());
+                    Utilidades.MostrarConfirmacion('Aviso', 'Se cargarán las geocercas, ¿Desea continuar?', CargarGeoCercas, null);
+                }
+
+            });
+
+            ObtCategoriasPoligonos();
+        }
+
+        function ObtCategoriasPoligonos() {
+            $.ajax({
+                url: '@Url.Action("ObtenerCategoriaPoligonos", "Poligono")',
+                type: 'POST',
+                cache: false,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        lstCategoriasPoligonos = json.Respuesta.RespuestaInformacion.Data.Info;
+                        var items = null;
+                        items = "<option value='-1'  class='tamLetra bookTipografia'>TODOS</option>";
+                        if (lstCategoriasPoligonos != null) {
+                            $.each(lstCategoriasPoligonos, function (i, catalogo) {
+                                items += "<option value='" + catalogo.IdCategoriaPoligono + "'  class='tamLetra bookTipografia'>" + catalogo.Nombre + "</option>";
+                            });
+                        }
+                        $("#cmbCategoriaPoligonoB").html(items);
+                        $("#cmbCategoriaPoligonoB").val('-1');
+                        Utilidades.OcultarProgress();
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                data: {
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function LlenarCategoriaPoligono() {
+            var items = null;
+            var idPoligono = $('#hIdPoligono').val();
+            var idTemp = 0;
+
+            if (idPoligono != "0") {
+                idTemp = objMod.IdCategoriaPoligono;
+            }
+
+            items = "<option value='-1'  class='tamLetra bookTipografia'>SELECCIONE...</option>";
+            if (lstCategoriasPoligonos != null) {
+                $.each(lstCategoriasPoligonos, function (i, catalogo) {
+                    if (idTemp == catalogo.IdCategoriaPoligono) {
+                        items += "<option value='" + catalogo.IdCategoriaPoligono + "'  class='tamLetra bookTipografia' nombreArchivo='" + catalogo.NombreArchivoEnServidor + "'>" + catalogo.Nombre + "</option>";
+                    }
+                    else
+                        if (catalogo.EsActivo) {
+                            items += "<option value='" + catalogo.IdCategoriaPoligono + "'  class='tamLetra bookTipografia' nombreArchivo='" + catalogo.NombreArchivoEnServidor + "'>" + catalogo.Nombre + "</option>";
+                        }
+                });
+            }
+            $("#cmbCategoriaPoligono").html(items);
+
+            if (idPoligono != "0") {
+                $('#cmbCategoriaPoligono').val(idTemp);
+            }
+            else {
+                $('#cmbCategoriaPoligono').val(-1);
+            }
+        }
+
+        $("#btnBuscar").click(function () {
+            $('#hIdPoligono').val("0");
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hIdPoligono').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            objMod = null;
+            tbObjModCategoriaPoligono = null;
+            tbObjModClave = null;
+            tbObjModNombre = null;
+            tbObjModPoligonoKML = null;
+            tbObjModEsActivo = null;
+
+            return false;
+        });
+
+
+        function LlenarGrid() {
+            $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerPoligonos", "Poligono")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: {
+                        IdCategoriaPoligono: $('#cmbCategoriaPoligonoB').val(),
+                        Nombre: $('#txtNombreB').val(),
+                        EsActivoFiltro: $('#cmbEstatus').val()
+
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        //alert(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+
+                    },
+
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarDetalle();
+                            }
+                        }
+                ],
+                "columns": [
+                            {
+                                "data": "CategoriaPoligono", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar CategoriaPoligono">')
+                                        .wrap('<div></div>')
+                                        .text(data)
+                                        .parent()
+                                        .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                               {
+                                   "data": "Clave", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Clave">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                               {
+                                   "data": "Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                                   "render": function (data, type, row, meta) {
+                                       if (type === 'display') {
+                                           return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Nombre">')
+                                           .wrap('<div></div>')
+                                           .text(data)
+                                           .parent()
+                                           .html();
+                                       }
+                                       else {
+                                           return data;
+                                       }
+                                   }
+                               },
+                       {
+                           "data": "PoligonoKML", "autoWidth": true, "sClass": "columnaIzquierda",
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar PoligonoKML">')
+                                   .wrap('<div></div>')
+                                   .text(data)
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                       {
+                           "data": "EsActivo", "autoWidth": true,
+                           "render": function (data, type, row, meta) {
+                               if (type === 'display') {
+                                   return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Estatus">')
+                                   .wrap('<div></div>')
+                                   .text(data == true ? 'Si' : 'No')
+                                   .parent()
+                                   .html();
+                               }
+                               else {
+                                   return data;
+                               }
+                           }
+                       },
+                              {
+                                  "data": "ColorRGB", "autoWidth": true,
+                                  "targets": 'no-sort',
+                                  "bSortable": false,
+                                  "render": function (data, type, row, meta) {
+                                      return $(' <a href="#" class="ControlEditar btnEditar" name="lnkGeoCercas"> <span class="glyphicon glyphicon-edit"></span></a>')
+                                     .wrap('<div></div>')
+                                     .parent()
+                                     .html();
+                                  }
+                              }
+                ]
+            });
+        }
+
+        function OcultarMostrarDiv(data) {
+            var items = '';
+            if (data != null) {
+                objMod = data;
+                $('#hIdPoligono').val(data.IdPoligono);
+            }
+            LlenarCategoriaPoligono();
+            if (data != null) {
+                objMod = data;
+                $('#txtClave').val(objMod.Clave);
+                $('#txtNombre').val(objMod.Nombre);
+                $('#txtLatitud').val(objMod.Latitud);
+                $('#txtLongitud').val(objMod.Longitud);
+                $('#txtPoligonoKML').val(objMod.PoligonoKML);
+                $('#txtColorRGB').val(objMod.ColorRGB);
+                $('#chkEstatus').prop('disabled', false);
+                $('#chkEstatus').prop('checked', objMod.EsActivo);
+            } else {
+                $('#txtClave').val('');
+                $('#txtNombre').val('');
+                $('#txtLatitud').val('');
+                $('#txtLongitud').val('');
+                $('#txtPoligonoKML').val('');
+                $('#txtColorRGB').val('');
+                $('#chkEstatus').prop('disabled', true);
+                $('#chkEstatus').prop('checked', true);
+            }
+            $('#divListado').hide();
+            $('#divDetalle').show();
+            Utilidades.OcultarProgress();
+            $("#txtClave").focus();
+
+            return false;
+        }
+
+        function AgregarDetalle() {
+            $('#hIdPoligono').val("0");
+            OcultarMostrarDiv(null);
+        }
+
+        $('#btnGuardar').on('click', function () {
+
+            if ($('#cmbCategoriaPoligono').val() == "-1") {
+                Utilidades.MostrarDialogoError("Aviso", "Debe seleccionar una Categoría de Polígono.");
+                return false;
+            }
+            if ($("#Poligonoform").data('unobtrusiveValidation').validate()) {
+                var idPoligono = $('#hIdPoligono').val();
+                Utilidades.MostrarProgress();
+                if (idPoligono != "0") {
+                    ActualizarPoligono();
+                }
+                else {
+                    GuardarPoligono();
+                }
+            }
+            return false;
+        });
+
+        function GuardarPoligono() {
+            $.ajax({
+                url: '@Url.Action("InsertarPoligono", "Poligono")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    Clave: $('#txtClave').val(),
+                    Nombre: $('#txtNombre').val(),
+                    ColorRGB: $('#txtColorRGB').val(),
+                    Latitud: $('#txtLatitud').val(),
+                    Longitud: $('#txtLongitud').val(),
+                    IdCategoriaPoligono: $('#cmbCategoriaPoligono').val(),
+                    PoligonoKML: $('#txtPoligonoKML').val()
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#hIdPoligono').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de Poligonos.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarPoligono() {
+            $.ajax({
+                url: '@Url.Action("ActualizarPoligono", "Poligono")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    IdPoligono: $('#hIdPoligono').val(),
+                    Clave: $('#txtClave').val(),
+                    Nombre: $('#txtNombre').val(),
+                    ColorRGB: $('#txtColorRGB').val(),
+                    Latitud: $('#txtLatitud').val(),
+                    Longitud: $('#txtLongitud').val(),
+                    IdCategoriaPoligono: $('#cmbCategoriaPoligono').val(),
+                    PoligonoKML: $('#txtPoligonoKML').val(),
+                    EsActivo: $('#chkEstatus').is(":checked")
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+
+                            objMod.Clave = $('#txtClave').val();
+                            objMod.Nombre = $('#txtNombre').val();
+                            objMod.ColorRGB = $('#txtColorRGB').val();
+                            objMod.Latitud = $('#txtLatitud').val();
+                            objMod.Longitud = $('#txtLongitud').val();
+                            objMod.IdCategoriaPoligono = $('#cmbCategoriaPoligono').val();
+                            objMod.CategoriaPoligono = $('#cmbCategoriaPoligono').text();
+                            objMod.PoligonoKML = $('#txtPoligonoKML').val();
+                            objMod.EsActivo = $('#chkEstatus').is(":checked");
+                            ActualizarObjetoEnTabla();
+                        }
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function ActualizarObjetoEnTabla() {
+            tbObjModCategoriaPoligono = objMod.CategoriaPoligono;
+            tbObjModClave = objMod.Clave;
+            tbObjModNombre = objMod.Nombre;
+            tbObjModPoligonoKML = objMod.PoligonoKML;
+            tbObjModEsActivo.text = objMod.EsActivo == true ? 'Si' : 'No';
+        }
+
+        //************ POPUP Seleccionar Poligono KML
+        $(".lnkPoligonoKML").click(function () {
+            if ($('#cmbCategoriaPoligono').val() == "-1") {
+                Utilidades.MostrarDialogoError("Aviso", "Debe seleccionar una Categoría de Polígono.");
+                return false;
+            }
+            $('#modalSeleccionarPoligonoKML').modal('show');
+        });
+
+        $('#modalSeleccionarPoligonoKML').on('shown.bs.modal', function () {
+            Utilidades.MostrarProgressPopUp();
+            $('.encabezadoPopUP').text('Polígonos de KML' + $('#cmbCategoriaPoligono').text().replace("SELECCIONE...", "  -  "));
+            LlenarPoligonoKML();
+        });
+
+        function LlenarPoligonoKML() {
+            $('#myTablePoligonoKML').dataTable().fnClearTable();
+            $('#myTablePoligonoKML').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerInformacionKML", "Poligono")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgressPopUp();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControladoPopUp(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    data: {
+                        idCategoriaPoligono: $('#cmbCategoriaPoligono').val(),
+                        nombreArchivoEnServidor: $('#cmbCategoriaPoligono option:selected').attr('nombreArchivo')
+                    },
+                    error: function (json) {
+                        Utilidades.ErrorAjaxPopUp(json);
+                        //alert(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+
+                    },
+
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                ],
+                "columns": [
+                            {
+                                "data": "PoligonoKML", "autoWidth": true, "sClass": "columnaIzquierda",
+                                "render": function (data, type, row, meta) {
+                                    if (type === 'display') {
+                                        return $('<label  onmouseover="" style="" class="btnEditar PoligonoKML">')
+                                        .wrap('<div></div>')
+                                        .text(data)
+                                        .parent()
+                                        .html();
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                           {
+                               "data": "PoligonoSistema", "autoWidth": true, "sClass": "columnaIzquierda",
+                               "render": function (data, type, row, meta) {
+                                   if (type === 'display') {
+                                       return $('<label  onmouseover="" style="" class="btnEditar PoligonoSistema">')
+                                       .wrap('<div></div>')
+                                       .text(data)
+                                       .parent()
+                                       .html();
+                                   }
+                                   else {
+                                       return data;
+                                   }
+                               }
+                           },
+                           {
+                               "data": "Seleccionar", "autoWidth": true,
+                               "render": function (data, type, row, meta) {
+                                   return $(' <a href="#" class="ControlEditar lnkSleccionarPoligonoKML btnEditar"' + (data == true ? '' : ' hidden') + '> <span class="glyphicon glyphicon-ok"></span></a>')
+                                  .wrap('<div></div>')
+                                  .parent()
+                                  .html();
+                               }
+                           }
+                ]
+            });
+
+            $('#myTablePoligonoKML tbody').on('click', 'a.ControlEditar', function () {
+                var data = $('#myTablePoligonoKML').DataTable().row($(this).parents('tr')).data();
+                $('#txtPoligonoKML').val(data.PoligonoKML);
+                $('#modalSeleccionarPoligonoKML').modal('hide');
+
+                $("#txtColorRGB").focus();
+            });
+        }
+
+        //************ Cargar GeoCercas
+
+        function CargarGeoCercas() {
+         
+            debugger    
+            Utilidades.MostrarProgress();
+            var idpoli = IdBueno.IdPoligono;
+            var polikml = IdBueno.PoligonoKML;
+            var nomserv = IdBueno.NombreArchivoEnServidor;
+                 $.ajax({
+                url: '@Url.Action("CargarGeoCercas", "Poligono")',
+                type: 'POST',
+                cache: false,
+                data: {
+                    idPoligono: idpoli,
+                    poligonoKML: polikml,
+                    nombreArchivoEnServidor: nomserv
+                },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                      
+                        setTimeout(function () {Utilidades.MostrarDialogo("Aviso", "Se ha cargado correctamente la información GeoCerca del polígono."); }, 500);
+                      
+               
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+                 
+            });
+        }
+
+    </script>
+}

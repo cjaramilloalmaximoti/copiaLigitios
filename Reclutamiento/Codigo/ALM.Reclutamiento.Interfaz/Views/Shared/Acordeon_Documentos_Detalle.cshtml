@@ -1,0 +1,34 @@
+﻿@model ALM.Reclutamiento.Entidades.EDocumentos
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblDocumento" class="labelColumn tamLetra regularTipografia">Tipo Documento</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <select id="cmbDocumentos" class="form-control tamLetra bookTipografia"></select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblNombreDocumento" class="labelColumn tamLetra regularTipografia">Nombre</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">             
+                @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtNombreDocumento" })
+                @Html.ValidationMessageFor(model => model.Nombre, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblUrl" class="labelColumn tamLetra regularTipografia">Url Documento</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(model => model.Archivo_2, new { @type = "file", @class = "form-control inputColumn inputpe tamLetra bookTipografia RutaFile", placeholder = "Url Documento", style = "width:100%;", id = "txtUrlDocumento" })
+                @Html.ValidationMessageFor(model => model.Archivo_2, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "Sábana de Datos";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="~/Estilo/bootstrap-select.min.css" rel="stylesheet" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/css/bootstrap-datetimepicker.css")" rel="stylesheet" type="text/css" />
+
+<h2>Sábana de Datos</h2>
+<div id="sabana">
+<div class="panel-group" id="accordion">
+    <div class="panel panel-default ">
+        <div class="panel-heading defaultColor1">
+            <h4 class="panel-title headerTitle">
+                <a data-toggle="collapse" href="#collapse1">Filtros</a>
+            </h4>
+        </div>
+        <div id="collapse1" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div id="divFiltrosContainer">
+                    @Html.Partial("Sabana_Filtros")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading defaultColor1">
+            <h4 class="panel-title headerTitle">
+                <a data-toggle="collapse" href="#collapse2">Listado</a>
+            </h4>
+        </div>
+        <div id="collapse2" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div id="divListado" style="min-height:400px;">
+                    @Html.Partial("Sabana_Listado")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading defaultColor1">
+            <h4 class="panel-title headerTitle">
+                <a data-toggle="collapse" href="#collapse3">Georreferencia</a>
+            </h4>
+        </div>
+        <div id="collapse3" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div id="divMapas" style="display:none; width:100%">
+                    @Html.Partial("Georreferencia/Georreferencia")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading defaultColor1">
+            <h4 class="panel-title headerTitle">
+                <a data-toggle="collapse" href="#collapse4">Gráficas</a>
+            </h4>
+        </div>
+        <div id="collapse4" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div id="divGraficasContainer" style="display:none; width:100%">
+                    @Html.Partial("Sabana_Graficas")
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+</div>
+
+@section scripts {
+<script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+<script src="~/scripts/jquery.sauron.js"></script>
+<script type="text/javascript">
+
+    window.addEventListener('keydown', function (e) {
+        if (e.keyCode === 8) {
+            if (e.target === document.body) {
+                e.preventDefault();
+            }
+        }
+    }, true);
+
+
+
+     $(document).ready(function () {
+        Inicializar();
+    });
+
+       function Inicializar() {
+     
+       InicializarFiltros();
+       InicializarListado();
+       initMap();
+       $("#divMapas").show();
+      }
+
+      $('#myTableBeneficiario1').on('data_received', function (event, data) {
+      
+        
+          if (!$("#collapse3").is(":visible"))
+           $("#collapse3").collapse("toggle");
+
+
+          updateData(data.Data);
+          
+
+          $("#divGraficasContainer").show();
+          updateDataGraficas(data.Data);
+
+      });
+
+  </script>
+    
+    
+ }
+<div id="containerProgressContainer" class="containerProgress">
+    <div class="contentImageProgress">
+        <img alt="Espere ..." src="~/Imagenes/progress.gif" />
+        <p id="containerProgressContainerPercent" class="defaultColor1" style="display:none">0%<p>
+    </div>
+    <div class="backgroundProgress">
+    </div>
+</div>

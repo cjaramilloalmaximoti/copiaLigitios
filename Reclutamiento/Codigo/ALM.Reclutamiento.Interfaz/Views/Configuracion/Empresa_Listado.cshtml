@@ -1,0 +1,67 @@
+﻿
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                <label for="lblNombreEmpresa" id="lblNombreEmpresa" class="labelColumn tamLetra regularTipografia">Nombre</label>
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                <input type="text" id="txtNombreEmpresa" name="txtNombreEmpresa" class="form-control inputColumn inputpe tamLetra bookTipografia" placeholder="Nombre" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                <label for="cmbEstatus" id="lblEstatusFiltro" class="labelColumn tamLetra regularTipografia">Estatus</label>
+            </div>
+            <div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+                <select id="cmbEstatus" class="form-control tamLetra bookTipografia">
+                    <option value="-1">Todos</option>
+                    <option value="1">Activos</option>
+                    <option value="0">Inactivos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+ 
+<div style="clear:both; text-align:right; width:100%;">
+    <button type="button" value="Buscar" id="btnBuscarEmpresa" name="Buscar" class="btnBuscarAgregar">
+        <img src="@Url.Content("~/Imagenes/Buscar.png")" class="imagBotones" /> Buscar
+    </button>
+</div>
+</div>
+
+
+
+<div class="row" style="overflow-x:scroll; margin-left:0px; margin-right:0px;">
+    <div class="col-xs-12 col-sm-11 col-md-11 col-lg-11" style="margin-top:5px">
+        <div class="divMarcoGrid">
+            <div class="divSubMarcoGrid">
+
+                <table class="myTable" id="myTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Nombre</th>
+                            <th style="width: 20%;">Dominio</th>
+                            <th style="width: 10%;">Administrador</th>
+                            <th style="width: 10%;">RFC</th>
+                            <th style="width: 10%;">Email</th>
+                            <th style="width: 10%;">Activa</th>
+                            <th style="width: 10%;">Logo</th>
+                            <th style="width: 10%;">NombreRepresentante</th>
+                            <th style="width: 10%;">EmailRepresentante</th>
+                            <th style="width: 10%;">TelefonoRepresentante</th>
+                            <th style="width: 10%;">Observaciones</th>
+                            <th style="width: 10%;">NombreOtroContacto</th>
+                            <th style="width: 10%;">EmailOtroContacto</th>
+                            <th style="width: 10%;">TelefonoOtroContacto</th>
+                            <th style="width: 10%;">EsVigente</th>
+                            <th style="width: 10%;">NumeroUsuarios</th>
+                            <th style="width: 10%;">NumeroClientes</th>
+                            <th style="width: 10%;">NumeroRegistros</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+﻿@model ALM.Empresa.Entidades.ECartera
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Clave, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Clave, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtClave" })
+                @Html.ValidationMessageFor(model => model.Clave, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Nombre, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia", id = "txtNombre" })
+                @Html.ValidationMessageFor(model => model.Nombre, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.IdCliente, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.DropDownListFor(m => m.IdCliente, Enumerable.Empty<SelectListItem>(), new { @class = "control-label tamLetra regularTipografia", id = "cmbIdCliente" })
+                @Html.ValidationMessageFor(model => model.IdCliente, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Comentarios, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.TextAreaFor(m => m.Comentarios, new { @class = "form-control inputColumn inputpe tamLetra bookTipografia textArea", id = "txtComentarios", rows = "3" })
+                @Html.ValidationMessageFor(model => model.Comentarios, null, new { @class = "text-danger tamLetra bookTipografia" })
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="margin-top:5px">
+            <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                @Html.LabelFor(m => m.Activo, new { @class = "control-label tamLetra regularTipografia" })
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+                @Html.CheckBoxFor(m => m.Activo, new { @class = "", id = "chkActivo", })
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <br />
+        <div style="clear:both; text-align:right; width:98%">
+            <hr />
+            <button type="button" value="Guardar" id="btnGuardar" name="Guardar" class="btnGuardar pull-right">
+                <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+            </button>
+            <button type="button" value="Cancelar" id="btnCancelar" name="Cancelar" class="btnCancelar pull-right">
+                <img src="@Url.Content("~/Imagenes/Cancelar.png")" class="imagBotones" /> Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS REQUIRED */
+    .state-icon {
+        left: -5px;
+    }
+
+    .list-group-item-primary {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+    }
+
+    /* DEMO ONLY - REMOVES UNWANTED MARGIN */
+    .well .list-group {
+        margin-bottom: 0px;
+    }
+</style>
+
+

@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.AccesoDatos", "ALM.Reclutamiento.AccesoDatos\ALM.Reclutamiento.AccesoDatos.csproj", "{318A264A-7AA3-4E66-B910-F04E26467596}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Datos", "ALM.Reclutamiento.Datos\ALM.Reclutamiento.Datos.csproj", "{67F702F5-A0C0-4312-9947-26A272362FEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Entidades", "ALM.Reclutamiento.Entidades\ALM.Reclutamiento.Entidades.csproj", "{189F24CD-57DF-4D3E-AFCA-21C94CAC0DF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Negocio", "ALM.Reclutamiento.Negocio\ALM.Reclutamiento.Negocio.csproj", "{F081606B-EAC2-4DF3-A12E-F8E59C52DB0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Utilerias", "ALM.Reclutamiento.Utilerias\ALM.Reclutamiento.Utilerias.csproj", "{FA80A11E-246A-42AA-9451-3B220CC4F278}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Encriptador", "ALM.Reclutamiento.Encriptador\ALM.Reclutamiento.Encriptador.csproj", "{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALM.Reclutamiento.Interfaz", "ALM.Reclutamiento.Interfaz\ALM.Reclutamiento.Interfaz.csproj", "{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{318A264A-7AA3-4E66-B910-F04E26467596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{318A264A-7AA3-4E66-B910-F04E26467596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{318A264A-7AA3-4E66-B910-F04E26467596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{318A264A-7AA3-4E66-B910-F04E26467596}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67F702F5-A0C0-4312-9947-26A272362FEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67F702F5-A0C0-4312-9947-26A272362FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67F702F5-A0C0-4312-9947-26A272362FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67F702F5-A0C0-4312-9947-26A272362FEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{189F24CD-57DF-4D3E-AFCA-21C94CAC0DF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{189F24CD-57DF-4D3E-AFCA-21C94CAC0DF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{189F24CD-57DF-4D3E-AFCA-21C94CAC0DF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{189F24CD-57DF-4D3E-AFCA-21C94CAC0DF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F081606B-EAC2-4DF3-A12E-F8E59C52DB0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F081606B-EAC2-4DF3-A12E-F8E59C52DB0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F081606B-EAC2-4DF3-A12E-F8E59C52DB0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F081606B-EAC2-4DF3-A12E-F8E59C52DB0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA80A11E-246A-42AA-9451-3B220CC4F278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA80A11E-246A-42AA-9451-3B220CC4F278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA80A11E-246A-42AA-9451-3B220CC4F278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA80A11E-246A-42AA-9451-3B220CC4F278}.Release|Any CPU.Build.0 = Release|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{838A9384-C4BE-4F75-9F13-BE681F6CE7E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0C8A6F7-F9EA-4D01-BCCD-428D6DE20115}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 8
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://reclutamiento.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ALM.Reclutamiento.Encriptador\\ALM.Reclutamiento.Encriptador.csproj
+		SccProjectName1 = ALM.Reclutamiento.Encriptador
+		SccLocalPath1 = ALM.Reclutamiento.Encriptador
+		SccProjectUniqueName2 = ALM.Reclutamiento.AccesoDatos\\ALM.Reclutamiento.AccesoDatos.csproj
+		SccProjectName2 = ALM.Reclutamiento.AccesoDatos
+		SccLocalPath2 = ALM.Reclutamiento.AccesoDatos
+		SccProjectUniqueName3 = ALM.Reclutamiento.Datos\\ALM.Reclutamiento.Datos.csproj
+		SccProjectName3 = ALM.Reclutamiento.Datos
+		SccLocalPath3 = ALM.Reclutamiento.Datos
+		SccProjectUniqueName4 = ALM.Reclutamiento.Entidades\\ALM.Reclutamiento.Entidades.csproj
+		SccProjectName4 = ALM.Reclutamiento.Entidades
+		SccLocalPath4 = ALM.Reclutamiento.Entidades
+		SccProjectUniqueName5 = ALM.Reclutamiento.Negocio\\ALM.Reclutamiento.Negocio.csproj
+		SccProjectName5 = ALM.Reclutamiento.Negocio
+		SccLocalPath5 = ALM.Reclutamiento.Negocio
+		SccProjectUniqueName6 = ALM.Reclutamiento.Utilerias\\ALM.Reclutamiento.Utilerias.csproj
+		SccProjectName6 = ALM.Reclutamiento.Utilerias
+		SccLocalPath6 = ALM.Reclutamiento.Utilerias
+		SccProjectUniqueName7 = ALM.Reclutamiento.Interfaz\\ALM.Reclutamiento.Interfaz.csproj
+		SccProjectName7 = ALM.Reclutamiento.Interfaz
+		SccLocalPath7 = ALM.Reclutamiento.Interfaz
+	EndGlobalSection
+EndGlobal

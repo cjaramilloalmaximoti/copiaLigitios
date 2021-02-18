@@ -1,0 +1,1300 @@
+﻿@{
+    ViewBag.Title = "Deudor";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-datetimepicker.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/Bootstrap3_3_7/libs/font-awesome.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/select2.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hIdEstatus", "0")
+@Html.Hidden("hIdTipoGestion", "0")
+
+<style>
+    .body-content {
+        width: 95% !important;
+    }
+
+    .modalAcuerdo.modal-wide .modal-dialog {
+        width: 50% !important;
+    }
+
+    .modalPago.modal-wide .modal-dialog {
+        width: 50% !important;
+    }
+
+    .bootstrap-datetimepicker-widget {
+        /*top: -10px !important;*/
+    }
+
+    .modalAgendarLlamada.modal-wide .modal-dialog {
+        width: 50% !important;
+    }
+
+    .modalSeguimiento.modal-wide .modal-dialog {
+        width: 50% !important;
+    }
+
+    .modalContactoDeudor.modal-wide .modal-dialog {
+        width: 50% !important;
+    }
+
+    .right-icon {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        z-index: 1000;
+        width: 30px;
+    }
+
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        padding: 6px 0;
+        font-size: 12px;
+        line-height: 1.428571429;
+        border-radius: 15px;
+    }
+</style>
+
+<button type="button" class="btn btn-primary btn-circle right-icon linkOmitir" id="btnRegresar">
+    <span class="glyphicon glyphicon-arrow-left"></span>
+</button>
+
+<div id="modalAcuerdoPago" class="modal fade modal-wide modalAcuerdo" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Acuerdo de Pago</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divAcuerdo" style="width:100%">
+                    <form name="acuerdoPagoForm" id="acuerdoPagoForm" method="post" novalidate="">
+                        @Html.Partial("SeguimientoDeudor_Deudor_AcuerdoPago", new @ALM.Empresa.Entidades.EAcuerdoPago())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarAcuerdoPago" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalPagoComprobado" class="modal fade modal-wide modalPago" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Comprobante de Pago</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divPago" style="width:100%">
+                    <form name="pagoComprobadoForm" id="pagoComprobadoForm" method="post" novalidate="">
+                        @Html.Partial("SeguimientoDeudor_Deudor_PagoComprobado", new @ALM.Empresa.Entidades.EAcuerdoPago())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarPagoComprobado" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalAgendarLlamada" class="modal fade modal-wide modalAgendarLlamada" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Agendar Llamada</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divAcuerdo" style="width:100%">
+                    <form name="agendarLamadaForm" id="agendarLamadaForm" method="post" novalidate="">
+                        @Html.Partial("SeguimientoDeudor_Deudor_AgendarLlamadaDeudor", new @ALM.Empresa.Entidades.EAgendarLlamadaDeudor())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarAgendarLlamada" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalSeguimiento" class="modal fade modal-wide modalSeguimiento" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Registrar Contacto</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divSeguimiento" style="width:100%">
+                    <form name="seguimientoForm" id="seguimientoForm" method="post" novalidate="">
+                        @Html.Partial("SeguimientoDeudor_Deudor_SeguimientoDeudor", new @ALM.Empresa.Entidades.ESeguimientoDeudor())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarSeguimiento" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalContactoDeudor" class="modal fade modal-wide modalContactoDeudor" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Actualizar Datos de Contacto</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divContactoDeudor" style="width:100%">
+                    <form name="contactoDeudorForm" id="contactoDeudorForm" method="post" novalidate="">
+                        @Html.Partial("SeguimientoDeudor_Deudor_ContactoDeudor", new @ALM.Empresa.Entidades.EDatosContactoDeudor())
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnCancelar" data-dismiss="modal">Cerrar</button>
+                <button type="button" value="Guardar" id="btnGuardarContactoDeudor" name="Guardar" class="btnGuardar pull-right">
+                    <img src="@Url.Content("~/Imagenes/Guardar.png")" class="imagBotones" /> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="divMarcoBusqueda">
+    <div class="row">
+        <div id="divControlesSeguimiento">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center;" id="divSegAcuerdo">
+                <a href="#" class="ControlEditar btnEditar" id="lnkRegistrarAcuerdo">
+                    <img src="@Url.Content("~/Imagenes/RegistrarAcuerdo.png")" id="imgAcuerdo" onmouseover="this.src='@Url.Content("~/Imagenes/RegistrarAcuerdoON.png")'" class="LnkSegDeudor"
+                           onmouseout="this.src='@Url.Content("~/Imagenes/RegistrarAcuerdo.png")'" title="Acuerdo de Pago"/>
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center; padding: 10px;" id="divSegPago">
+                <a href="#" class="ControlEditar btnEditar" id="lnkRegistrarComprobado">
+                    <img src="@Url.Content("~/Imagenes/Pago.png")" id="imgPago" onmouseover="this.src='@Url.Content("~/Imagenes/PagoON.png")'" class="LnkSegDeudor"
+                         onmouseout="this.src='@Url.Content("~/Imagenes/Pago.png")'" title="Comprobación de Pago"/>
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center;" id="divSegSeguimiento">
+                <a href="#" class="ControlEditar btnEditar" id="lnkAgregarSeguimiento">
+                    <img src="@Url.Content("~/Imagenes/AgregarSeguimiento.png")" id="imgAgregarSeguimiento" onmouseover="this.src='@Url.Content("~/Imagenes/AgregarSeguimientoON.png")'" class="LnkSegDeudor"
+                         onmouseout="this.src='@Url.Content("~/Imagenes/AgregarSeguimiento.png")'" title="Registro de Contacto"/>
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center;" id="divSegLlamada">
+                <a href="#" class="ControlEditar btnEditar" id="lnkAgendarLlamada">
+                    <img src="@Url.Content("~/Imagenes/AgendarLlamada.png")" id="imgAgendarLlamada" onmouseover="this.src='@Url.Content("~/Imagenes/AgendarLlamadaON.png")'" class="LnkSegDeudor"
+                           onmouseout="this.src='@Url.Content("~/Imagenes/AgendarLlamada.png")'" title="Agendar Llamada"/>
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center" id="divSegContacto1">
+                <a href="#" class="ControlEditar btnEditar" id="lnkContacto1">
+                    <img src="@Url.Content("~/Imagenes/Contacto.png")" id="imgContactoTrue" onmouseover="this.src='@Url.Content("~/Imagenes/ContactoON.png")'" style="display:none; padding: 5px;"
+                         onmouseout="this.src='@Url.Content("~/Imagenes/Contacto.png")'" title="Datos Contacto Adicional 1" />
+                    <img src="@Url.Content("~/Imagenes/Contacto1.png")" id="imgContactoFalse" onmouseover="this.src='@Url.Content("~/Imagenes/Contacto1ON.png")'" style="padding: 10px;"
+                         onmouseout="this.src='@Url.Content("~/Imagenes/Contacto1.png")'" title="Datos Contacto Adicional 1" />
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center;  padding: 15px;" id="divSContacto2OFF">
+                <img src="@Url.Content("~/Imagenes/ContactoOFF.png")" id="imgContacto1OFF" title="Datos Contacto Adicional 2" />
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1" style="margin-top:5px; text-align:center; display:none;" id="divSContacto2">
+                <a href="#" class="ControlEditar btnEditar" id="lnkContacto2">
+                    <img src="@Url.Content("~/Imagenes/Contacto.png")" id="imgContacto1True" onmouseover="this.src='@Url.Content("~/Imagenes/ContactoON.png")'" style="display:none; padding: 10px;"
+                         onmouseout="this.src='@Url.Content("~/Imagenes/Contacto.png")'" title="Datos Contacto Adicional 2" />
+                    <img src="@Url.Content("~/Imagenes/Contacto1.png")" id="imgContacto1False" onmouseover="this.src='@Url.Content("~/Imagenes/Contacto1ON.png")'" style="padding: 10px;"
+                         onmouseout="this.src='@Url.Content("~/Imagenes/Contacto1.png")'" title="Datos Contacto Adicional 2" />
+                </a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1  pull-right" style="margin-top:5px; text-align:center;" id="divSiguienteDeudorOFF">
+            <img src="@Url.Content("~/Imagenes/SiguienteDeudorOFF.png")" id="imgSiguienteDeudor" title="Siguiente Deudor" class="LnkSegDeudor" />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1 pull-right" style="margin-top:5px; text-align:center; display:none;" id="divSiguienteDeudor">
+            <a href="#" class="ControlEditar btnEditar" id="lnkSiguienteDeudor">
+                <img src="@Url.Content("~/Imagenes/SiguienteDeudor.png")" id="imgSiguienteDeudor" onmouseover="this.src='@Url.Content("~/Imagenes/SiguienteDeudorON.png")'" class="LnkSegDeudor"
+                     onmouseout="this.src='@Url.Content("~/Imagenes/SiguienteDeudor.png")'" title="Siguiente Deudor" />
+            </a>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-1  pull-right" style="margin-top:5px; text-align:center; display:none;" id="divCallBack">
+            <img src="@Url.Content("~/Imagenes/CallBack.png")" id="imgSiguienteDeudor" title="Registro previamente agendado" class="LnkSegDeudor" />
+        </div>
+    </div>
+</div>
+
+<div id="divDetalle">
+    @Html.Partial("SeguimientoDeudor_Deudor_Detalle")
+</div>
+<div id="divSeguimiento">
+    @Html.Partial("SeguimientoDeudor_Deudor_Seguimiento")
+</div>
+
+@section scripts {
+
+<script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+<script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+<script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/select2.full.js?v=1.0")"></script>
+<script src="@Url.Content("~/Scripts/i18n/es.js?v=1.0")"></script>
+<script src="@Url.Content("~/scripts/jquery.mask.min.js")"></script>
+
+<script type="text/javascript">
+    var lstEstatusNoSeguimiento = null;
+    var pRD = '@ALM.Empresa.Interfaz.InformacionUsuarioLogueado.ReactivarDeudor'.toUpperCase() == 'TRUE' ? true : false;
+
+    $(document).ready(function () {
+
+        Utilidades.MostrarProgress();
+        ObtenerEstatusNoSeguimiento();
+        PrepararComboTipoGestion();
+        $('#dtpFechaPagoString').datetimepicker({
+            locale: 'es',
+            date: Utilidades.FormatoFecha(new Date()),
+            format: "dd/MM/yyyy".toUpperCase(),
+            minDate: Utilidades.FormatoFechaIngles(new Date())
+        });
+
+        $('#dtpFechaPagoStringPC').datetimepicker({
+            locale: 'es',
+            date: Utilidades.FormatoFecha(new Date()),
+            format: "dd/MM/yyyy".toUpperCase(),
+            minDate: Utilidades.FormatoFechaIngles(new Date())
+        });
+
+        $('#dtpFechaAgendaString').datetimepicker({
+            locale: 'es',
+            date: Utilidades.FormatoFecha(new Date()),
+            format: "dd/MM/yyyy".toUpperCase() + " HH:mm",
+            minDate: Utilidades.FormatoFechaIngles(new Date())
+        });
+
+        $('#cmbIdEstatus').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            matcher: filterMatcher,
+            allowClear: true,
+        });
+
+        $('#cmbIdEstatusPC').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            matcher: filterMatcher,
+            allowClear: true,
+        });
+
+        $('#cmbIdEstatusSeg').select2({
+            language: "es",
+            placeholder: "Selecciona una opción",
+            matcher: filterMatcher,
+            allowClear: true,
+        });
+
+        try { $('#txtCantidadAcuerdo').mask('000,000,000,000.00', { reverse: true }); } catch (e) { }
+        try { $('#txtCantidadAcuerdoPC').mask('000,000,000,000.00', { reverse: true }); } catch (e) { }
+
+        ObtenerInformacionDeudor(false);
+    });
+
+    function ObtenerInformacionDeudor(pSiguiente) {
+        $.ajax({
+            url: '@Url.Action("ObtenerDeudoresAnalistaSeguimiento", "SeguimientoDeudor")',
+            type: 'POST',
+            cache: false,
+            data: {
+                siguiente: pSiguiente
+            },
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                var codigoCorrecto = '"OK"';
+                if (codigoRegreso == codigoCorrecto) {
+                    EstablecerDatosDeudor(json.Respuesta.RespuestaInformacion.Data.Info)
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function EstablecerDatosDeudor(deudor) {
+
+        HabilitarSiguienteDeudor(false);
+
+        if (deudor != null) {
+            $('#txtClienteCartera').val(deudor.ClienteCartera);
+            $('#txtCredito').val(deudor.Credito);
+            $('#txtNombre').val(deudor.Nombre);
+            $('#txtRFC').val(deudor.RFC);
+            $('#txtCalleNumero').val(deudor.CalleNumero);
+            $('#txtColonia').val(deudor.Colonia);
+            $('#txtCP').val(deudor.CP);
+            $('#txtCiudad').val(deudor.Ciudad);
+            $('#txtEstado').val(deudor.Estado);
+            $('#txtTelFijo').val(deudor.TelFijo);
+            $('#txtTelCelular').val(deudor.TelCelular);
+            $('#txtTelAdicional1').val(deudor.TelAdicional1);
+            $('#txtTelAdicional2').val(deudor.TelAdicional2);
+            $('#txtTelAdicional3').val(deudor.TelAdicional3);
+            $('#txtImporteDeuda').val(Utilidades.NumeroToString(deudor.ImporteDeuda));
+            $('#txtMontoPrestamo').val(deudor.MontoPrestamo);
+            $('#txtSaldoActual').val(deudor.SaldoActual);
+            $('#txtDiasdeMora').val(deudor.DiasdeMora);
+            $('#txtPorcentajeDescuento').val(deudor.PorcentajeDescuento);
+            $('#txtPagoDescuento1').val(deudor.PagoDescuento1);
+            $('#txtPagoDescuento2').val(deudor.PagoDescuento2);
+            $('#txtTipoPrestamo').val(deudor.TipoPrestamo);
+            $('#txtConvenioPago').val(deudor.ConvenioPago);
+            $('#txtNombreGrupo').val(deudor.NombreGrupo);
+            $('#txtNumeroGrupo').val(deudor.NumeroGrupo);
+            $('#txtFechaOtorgamientoString').val(deudor.FechaOtorgamientoString);
+            $('#txtFechaVencimientoString').val(deudor.FechaVencimientoString);
+            $('#txtFechaAsignacionString').val(deudor.FechaAsignacionString);
+            $('#txtBanco').val(deudor.Banco);
+            $('#txtReferencia').val(deudor.Referencia);
+            $('#txtAdicionalTexto1').val(deudor.AdicionalTexto1);
+            $('#txtAdicionalTexto2').val(deudor.AdicionalTexto2);
+            $('#txtAdicionalTexto3').val(deudor.AdicionalTexto3);
+            $('#txtAdicionalFechaString').val(deudor.AdicionalFechaString);
+            $('#txtAdicionalMonedaString').val(deudor.AdicionalMonedaString);
+            $('#txtAdicionalEntero').val(deudor.AdicionalEntero);
+            $('#txtAnalistaNombre').val(deudor.AnalistaNombre);
+            $('#txtAnalistaUltimoContacto').val(deudor.AnalistaUltimoContacto);
+            $('#txtFechaUltimoContactoString').val(deudor.FechaUltimoContactoString);
+            $('#txtUltimoTipoGestion').val(deudor.UltimoTipoGestion);
+            $('#txtUltimoEstatus').val(deudor.UltimoEstatus);
+            $('#txtMontoPromesa').val(Utilidades.NumeroToString(deudor.MontoPromesa));
+            $('#txtMontoComprobado').val(Utilidades.NumeroToString(deudor.MontoComprobado));
+            $('#txtTelefonoMarcado').val(deudor.TelefonoMarcado);
+
+            $('#hIdEstatus').val(deudor.IdEstatus);
+            $('#hIdTipoGestion').val(deudor.IdTipoGestion);
+
+            if (deudor.Contacto1 == 0) {
+                $('#imgContactoFalse').show();
+                $('#imgContactoTrue').hide();
+                HabilitarContacto2(false);
+            }
+            else {
+                $('#imgContactoTrue').show();
+                $('#imgContactoFalse').hide();
+                HabilitarContacto2(true);
+            }
+            if (deudor.Contacto2 == 0) {
+                $('#imgContacto1False').show();
+                $('#imgContacto1True').hide();
+            }
+            else {
+                $('#imgContacto1True').show();
+                $('#imgContacto1False').hide();
+            }
+
+            DeshabilitarSeguimientosDeudor(deudor.IdEstatusNoSeguimiento);
+
+            if (deudor.EsCallBack == 0) {
+                $('#divCallBack').hide();
+            }
+            else {
+                $('#divCallBack').show();
+            }
+        }
+        else {
+            $('#divCallBack').hide();
+            $('#txtClienteCartera').val('');
+            $('#txtCredito').val('');
+            $('#txtNombre').val('');
+            $('#txtRFC').val('');
+            $('#txtCalleNumero').val('');
+            $('#txtColonia').val('');
+            $('#txtCP').val('');
+            $('#txtCiudad').val('');
+            $('#txtEstado').val('');
+            $('#txtTelFijo').val('');
+            $('#txtTelCelular').val('');
+            $('#txtTelAdicional1').val('');
+            $('#txtTelAdicional2').val('');
+            $('#txtTelAdicional3').val('');
+            $('#txtImporteDeuda').val('');
+            $('#txtMontoPrestamo').val('');
+            $('#txtSaldoActual').val('');
+            $('#txtDiasdeMora').val('');
+            $('#txtPorcentajeDescuento').val('');
+            $('#txtPagoDescuento1').val('');
+            $('#txtPagoDescuento2').val('');
+            $('#txtTipoPrestamo').val('');
+            $('#txtConvenioPago').val('');
+            $('#txtNombreGrupo').val('');
+            $('#txtNumeroGrupo').val('');
+            $('#txtFechaOtorgamientoString').val('');
+            $('#txtFechaVencimientoString').val('');
+            $('#txtFechaAsignacionString').val('');
+            $('#txtBanco').val('');
+            $('#txtReferencia').val('');
+            $('#txtAdicionalTexto1').val('');
+            $('#txtAdicionalTexto2').val('');
+            $('#txtAdicionalTexto3').val('');
+            $('#txtAdicionalFechaString').val('');
+            $('#txtAdicionalMonedaString').val('');
+            $('#txtAdicionalEntero').val('');
+            $('#txtAnalistaNombre').val('');
+            $('#txtAnalistaUltimoContacto').val('');
+            $('#txtFechaUltimoContactoString').val('');
+            $('#txtUltimoTipoGestion').val('');
+            $('#txtUltimoEstatus').val('');
+            $('#txtMontoPromesa').val('');
+            $('#txtMontoComprobado').val('');
+            $('#txtTelefonoMarcado').val('');
+
+            $('#imgContactoFalse').show();
+            $('#imgContacto1False').show();
+            $('#imgContactoTrue').hide();
+            $('#imgContacto1True').hide();
+
+            $('#hIdEstatus').val("0");
+            $('#hIdTipoGestion').val("0");
+
+            $("#divControlesSeguimiento").hide();
+
+            Utilidades.MostrarProgress();
+            window.location.href = '@Url.Action("SeguimientoDeudor_Index", "SeguimientoDeudor", new { recargar = "true" })';
+        }
+        InicializarDetalleSegDeud();
+    }
+
+    $('#lnkSiguienteDeudor').click(function () {
+        ObtenerInformacionDeudor(true);
+    });
+
+    $('#lnkRegistrarAcuerdo').click(function () {
+        $('#modalAcuerdoPago').modal('show');
+    });
+
+    $('#modalAcuerdoPago').on('shown.bs.modal', function () {
+        $('#cmbIdTipoGestion').val($('#hIdTipoGestion').val());
+        $('#cmbIdTipoGestion').trigger('change');
+        $('#dtpFechaPagoString').val(Utilidades.FormatoFecha(new Date()));
+        $('#txtCantidadAcuerdo').val(Utilidades.NumeroToString(0));
+        $('#txtComentariosAcuerdo').val('');
+        $('#txtTelefonoMarcadoAcuerdo').val('');
+        PrepararComboEstatusTipoGestion($('#hIdTipoGestion').val(), 'cmbIdEstatus', $('#hIdEstatus').val());
+    });
+
+    $('#btnGuardarAcuerdoPago').on('click', function () {
+        if ($("#acuerdoPagoForm").data('unobtrusiveValidation').validate()) {
+            if (!ValidarEstatusNoSeguimiento($('#cmbIdEstatus').val())) {
+                GuardarAcuerdoPago();
+            }
+            else {
+                Utilidades.MostrarConfirmacion('Aviso', 'Al guardar el Acuerdo de Pago con el estatus seleccionado ya no podrá capturar un seguimiento más, ¿Desea continuar?', GuardarAcuerdoPago, null);
+            }
+        }
+        return false;
+    });
+
+    function GuardarAcuerdoPago() {
+        if ($("#acuerdoPagoForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgressPopUp();
+            var params = {
+                acuerdo: {
+                    IdTipoGestion: $('#cmbIdTipoGestion').val(),
+                    IdEstatus: $('#cmbIdEstatus').val(),
+                    FechaPagoString: $('#dtpFechaPagoString').val(),
+                    Cantidad: Utilidades.limpiarDecimalMoneda($('#txtCantidadAcuerdo').val()),
+                    Comentarios: $('#txtComentariosAcuerdo').val(),
+                    TelefonoMarcado: $('#txtTelefonoMarcadoAcuerdo').val()
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarAcuerdoPago", "SeguimientoDeudor")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        HabilitarSiguienteDeudor(true);
+                        $('#txtFechaUltimoContactoString').val(json.Respuesta.RespuestaInformacion.Data.Info[0]);
+                        $('#txtMontoPromesa').val(Utilidades.NumeroToString(json.Respuesta.RespuestaInformacion.Data.Info[1]));
+                        $('#txtAnalistaUltimoContacto').val(json.Respuesta.RespuestaInformacion.Data.Info[2]);
+                        $('#txtUltimoTipoGestion').val($('#cmbIdTipoGestion').select2('data')[0].text);
+                        $('#txtUltimoEstatus').val($('#cmbIdEstatus').select2('data')[0].text);
+                        $('#txtTelefonoMarcado').val($('#txtTelefonoMarcadoAcuerdo').val());
+
+                        $('#hIdEstatus').val($('#cmbIdEstatus').val());
+                        $('#hIdTipoGestion').val($('#cmbIdTipoGestion').val());
+
+                        DeshabilitarSeguimientosDeudor();
+                        InicializarDetalleSegDeud();
+
+                        Utilidades.MostrarDialogo("Aviso", "Acuerdo de Pago guardado exitosamente.", true);
+                        Utilidades.OcultarProgressPopUp();
+                        $('#modalAcuerdoPago').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+    }
+
+    $('#lnkRegistrarComprobado').click(function () {
+        $('#modalPagoComprobado').modal('show');
+    });
+
+    $('#modalPagoComprobado').on('shown.bs.modal', function () {
+        $('#cmbIdTipoGestionPC').val($('#hIdTipoGestion').val());
+        $('#cmbIdTipoGestionPC').trigger('change');
+        $('#dtpFechaPagoStringPC').val(Utilidades.FormatoFecha(new Date()));
+        $('#txtCantidadAcuerdoPC').val(Utilidades.NumeroToString(0));
+        $('#txtComentariosAcuerdoPC').val('');
+        $('#txtTelefonoMarcadoPC').val('');
+        PrepararComboEstatusTipoGestion($('#hIdTipoGestion').val(), 'cmbIdEstatusPC', $('#hIdEstatus').val());
+    });
+
+    $('#btnGuardarPagoComprobado').on('click', function () {
+        if ($("#pagoComprobadoForm").data('unobtrusiveValidation').validate()) {
+            if (!ValidarEstatusNoSeguimiento($('#cmbIdEstatusPC').val())) {
+                GuardarPagoComprobado();
+            }
+            else {
+                Utilidades.MostrarConfirmacion('Aviso', 'Al guardar el Comprobante de Pago con el estatus seleccionado ya no podrá capturar un seguimiento más, ¿Desea continuar?', GuardarPagoComprobado, null);
+            }
+        }
+        return false;
+    });
+
+    function GuardarPagoComprobado() {
+        if ($("#pagoComprobadoForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgressPopUp();
+            var params = {
+                acuerdo: {
+                    IdTipoGestion: $('#cmbIdTipoGestionPC').val(),
+                    IdEstatus: $('#cmbIdEstatusPC').val(),
+                    FechaPagoString: $('#dtpFechaPagoStringPC').val(),
+                    Cantidad: Utilidades.limpiarDecimalMoneda($('#txtCantidadAcuerdoPC').val()),
+                    Comentarios: $('#txtComentariosAcuerdoPC').val(),
+                    TelefonoMarcado: $('#txtTelefonoMarcadoPC').val()
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarPagoComprobado", "SeguimientoDeudor")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        HabilitarSiguienteDeudor(true);
+                        $('#txtFechaUltimoContactoString').val(json.Respuesta.RespuestaInformacion.Data.Info[0]);
+                        $('#txtMontoComprobado').val(Utilidades.NumeroToString(json.Respuesta.RespuestaInformacion.Data.Info[1]));
+                        $('#txtAnalistaUltimoContacto').val(json.Respuesta.RespuestaInformacion.Data.Info[2]);
+                        $('#txtUltimoTipoGestion').val($('#cmbIdTipoGestionPC').select2('data')[0].text);
+                        $('#txtUltimoEstatus').val($('#cmbIdEstatusPC').select2('data')[0].text);
+                        $('#txtTelefonoMarcado').val($('#txtTelefonoMarcadoPC').val());
+
+                        $('#hIdEstatus').val($('#cmbIdEstatusPC').val());
+                        $('#hIdTipoGestion').val($('#cmbIdTipoGestionPC').val());
+
+                        DeshabilitarSeguimientosDeudor();
+                        InicializarDetalleSegDeud();
+
+                        Utilidades.MostrarDialogo("Aviso", "Comprobante de Pago guardado exitosamente.", true);
+                        Utilidades.OcultarProgressPopUp();
+                        $('#modalPagoComprobado').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+    }
+
+    function PrepararComboTipoGestion() {
+        $.ajax({
+            url: '@Url.Action("ObtCatalogoTipoGestion", "SeguimientoDeudor")',
+            type: 'POST',
+            cache: false,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    var lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                    $element = $('#cmbIdTipoGestion').select2({
+                        language: "es",
+                        placeholder: "Selecciona una opción",
+                        matcher: filterMatcher,
+                        allowClear: true,
+                        data: lstCatalogos
+                    });
+                    $element.on("select2:select", function (e) {
+                        PrepararComboEstatusTipoGestion(e.params.data.id, 'cmbIdEstatus');
+                    });
+
+                    $element = $('#cmbIdTipoGestionPC').select2({
+                        language: "es",
+                        placeholder: "Selecciona una opción",
+                        matcher: filterMatcher,
+                        allowClear: true,
+                        data: lstCatalogos
+                    });
+                    $element.on("select2:select", function (e) {
+                        PrepararComboEstatusTipoGestion(e.params.data.id, 'cmbIdEstatusPC');
+                    });
+
+                    $element = $('#cmbIdTipoGestionSeg').select2({
+                        language: "es",
+                        placeholder: "Selecciona una opción",
+                        matcher: filterMatcher,
+                        allowClear: true,
+                        data: lstCatalogos
+                    });
+                    $element.on("select2:select", function (e) {
+                        PrepararComboEstatusTipoGestion(e.params.data.id, 'cmbIdEstatusSeg');
+                    });
+
+                }
+                else {
+                    Utilidades.ErrorAjaxControladoPopUp(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjaxPopUp(xhr);
+            }
+        });
+    }
+
+
+    function PrepararComboEstatusTipoGestion(idSeleccionado, nombreComboLlenar, idEstatus) {
+        try {
+            $('#' + nombreComboLlenar).html('').select2({ data: { id: null, text: null } });
+        }
+        catch (e) { }
+        if (idSeleccionado > 0) {
+            $.ajax({
+                url: '@Url.Action("ObtCatalogoEstatusPorTipoGestion", "SeguimientoDeudor")',
+                type: 'POST',
+                cache: false,
+                data: { idTipoGestion: idSeleccionado },
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        var lstCatalogos = json.Respuesta.RespuestaInformacion.Data.Info;
+                        $('#' + nombreComboLlenar).select2({
+                            language: "es",
+                            placeholder: "Selecciona una opción",
+                            matcher: filterMatcher,
+                            allowClear: true,
+                            data: lstCatalogos
+                        });
+                        if (idEstatus && idEstatus != '0') {
+                            $('#' + nombreComboLlenar).val(idEstatus);
+                            $('#' + nombreComboLlenar).trigger('change');
+                        }
+                        else {
+                            $('#' + nombreComboLlenar).val(-1);
+                            $('#' + nombreComboLlenar).trigger('change');
+                        }
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+        else {
+            $('#' + nombreComboLlenar).select2({
+                language: "es",
+                placeholder: "Selecciona una opción",
+                matcher: filterMatcher,
+                allowClear: true
+            });
+        }
+    }
+
+    function filterMatcher(params, data) {
+        data.parentText = data.parentText || "";
+
+        // Always return the object if there is nothing to compare
+        if ($.trim(params.term) === '') {
+            return data;
+        }
+
+        // Do a recursive check for options with children
+        if (data.children && data.children.length > 0) {
+            // Clone the data object if there are children
+            // This is required as we modify the object to remove any non-matches
+            var match = $.extend(true, {}, data);
+
+            // Check each child of the option
+            for (var c = data.children.length - 1; c >= 0; c--) {
+                var child = data.children[c];
+                child.parentText += data.parentText + " " + data.text;
+
+                var matches = filterMatcher(params, child);
+
+                // If there wasn't a match, remove the object in the array
+                if (matches == null) {
+                    match.children.splice(c, 1);
+                }
+            }
+
+            // If any children matched, return the new object
+            if (match.children.length > 0) {
+                return match;
+            }
+
+            // If there were no matching children, check just the plain object
+            return filterMatcher(params, match);
+        }
+
+        // If the typed-in term matches the text of this term, or the text from any
+        // parent term, then it's a match.
+        var original = (data.parentText + ' ' + data.text).toUpperCase();
+        var term = params.term.toUpperCase();
+
+
+        // Check if the text contains the term
+        if (original.indexOf(term) > -1) {
+            return data;
+        }
+
+        return null;
+    }
+
+
+    $('#lnkAgendarLlamada').click(function () {
+        $('#modalAgendarLlamada').modal('show');
+    });
+
+    $('#modalAgendarLlamada').on('shown.bs.modal', function () {
+        var d = new Date();
+        var dformat = [
+           d.getDate().padLeft(),
+           (d.getMonth() + 1).padLeft(),
+           d.getFullYear()].join('/') + ' ' +
+          [d.getHours().padLeft(),
+           d.getMinutes().padLeft()].join(':');
+
+        $('#dtpFechaAgendaString').val(dformat);
+        $('#dtpFechaAgendaString').focus();
+        $('#txtTelefonoAgendar').val('');
+        $('#txtComentariosAgendar').val('');
+    });
+
+    $('#btnGuardarAgendarLlamada').on('click', function () {
+        GuardarAgendarLlamada();
+        return false;
+    });
+
+    function GuardarAgendarLlamada() {
+        if ($("#agendarLamadaForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgressPopUp();
+            var params = {
+                agendar: {
+                    FechaAgendaString: $('#dtpFechaAgendaString').val(),
+                    Telefono: $('#txtTelefonoAgendar').val(),
+                    Comentarios: $('#txtComentariosAgendar').val()
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarAgendarLlamadaDeudor", "SeguimientoDeudor")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        HabilitarSiguienteDeudor(true);
+                        $('#txtFechaUltimoContactoString').val(json.Respuesta.RespuestaInformacion.Data.Info[0]);
+                        $('#txtAnalistaUltimoContacto').val(json.Respuesta.RespuestaInformacion.Data.Info[1]);
+                        InicializarDetalleSegDeud();
+
+                        Utilidades.MostrarDialogo("Aviso", "Ha quedado agendada la llamada exitosamente.", true);
+                        Utilidades.OcultarProgressPopUp();
+                        $('#modalAgendarLlamada').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+    }
+
+    Number.prototype.padLeft = function (base, chr) {
+        var len = (String(base || 10).length - String(this).length) + 1;
+        return len > 0 ? new Array(len).join(chr || '0') + this : this;
+    }
+
+    $('#lnkAgregarSeguimiento').click(function () {
+        $('#modalSeguimiento').modal('show');
+    });
+
+    $('#modalSeguimiento').on('shown.bs.modal', function () {
+        $('#cmbIdTipoGestionSeg').val($('#hIdTipoGestion').val());
+        $('#cmbIdTipoGestionSeg').trigger('change');
+        $('#txtComentariosSeg').val('');
+        $('#txtTelefonoMarcadoSeg').val('');
+        PrepararComboEstatusTipoGestion($('#hIdTipoGestion').val(), 'cmbIdEstatusSeg', $('#hIdEstatus').val());
+    });
+
+    $('#btnGuardarSeguimiento').on('click', function () {
+        if ($("#seguimientoForm").data('unobtrusiveValidation').validate()) {
+            if (!ValidarEstatusNoSeguimiento($('#cmbIdEstatusSeg').val())) {
+                GuardarSeguimiento();
+            }
+            else {
+                Utilidades.MostrarConfirmacion('Aviso', 'Al guardar el Registro de Contacto con el estatus seleccionado ya no podrá capturar un seguimiento más, ¿Desea continuar?', GuardarSeguimiento, null);
+            }
+        }
+        return false;
+    });
+
+    function GuardarSeguimiento() {
+        if ($("#seguimientoForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgressPopUp();
+            var params = {
+                segmento: {
+                    IdTipoGestion: $('#cmbIdTipoGestionSeg').val(),
+                    IdEstatus: $('#cmbIdEstatusSeg').val(),
+                    Comentarios: $('#txtComentariosSeg').val(),
+                    TelefonoMarcado: $('#txtTelefonoMarcadoSeg').val()
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarSeguimientoDeudor", "SeguimientoDeudor")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        HabilitarSiguienteDeudor(true);
+                        $('#txtFechaUltimoContactoString').val(json.Respuesta.RespuestaInformacion.Data.Info[0]);
+                        $('#txtAnalistaUltimoContacto').val(json.Respuesta.RespuestaInformacion.Data.Info[1]);
+                        $('#txtUltimoTipoGestion').val($('#cmbIdTipoGestionSeg').select2('data')[0].text);
+                        $('#txtUltimoEstatus').val($('#cmbIdEstatusSeg').select2('data')[0].text);
+                        $('#txtTelefonoMarcado').val($('#txtTelefonoMarcadoSeg').val());
+
+                        $('#hIdEstatus').val($('#cmbIdEstatusSeg').val());
+                        $('#hIdTipoGestion').val($('#cmbIdTipoGestionSeg').val());
+
+                        DeshabilitarSeguimientosDeudor();
+                        InicializarDetalleSegDeud();
+
+                        Utilidades.MostrarDialogo("Aviso", "Registro de Contacto guardado exitosamente.", true);
+                        Utilidades.OcultarProgressPopUp();
+                        $('#modalSeguimiento').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+    }
+
+    function InicializarDetalleSegDeud() {
+        tableRXDeudor = $('#myTableDetalleSeg').DataTable({
+            "destroy": true,
+            "render": true,
+            "deferRender": true,
+            "JQueryUI": true,
+            "Sort": false,
+            "Paginate": true,
+            "PaginationType": "first_last_numbers",
+            "iDisplayLength": 10,
+            "order": [],
+            "ajax": {
+                "url": "@Url.Action("ObtenerSeguimientoDeudorDetalle", "SeguimientoDeudor")",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        return json.Respuesta.RespuestaInformacion.Data.Info;
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    }
+                },
+                error: function (json) {
+                    Utilidades.ErrorAjax(json);
+                    return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                },
+            },
+            "language": {
+                "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                "sSearch": "Filtrar :",
+            },
+            dom: 'lBfrtip',
+            buttons: [
+            ],
+            "columns": [
+                    {
+                        "data": "Seguimiento", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar Seguimiento">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "Comentarios", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return '<a  onmouseover="" style="" class="btnEditar Comentarios" data-html="true">' + data.replace(/\n/g, "<br />") + '</a>';
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        "data": "TipoGestion", "autoWidth": true, "sClass": "columnaIzquierda",
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                return $('<a  onmouseover="" style="" class="btnEditar TipoGestion">')
+                                .wrap('<div></div>')
+                                .text(data)
+                                .parent()
+                                .html();
+                            }
+                            else {
+                                return data;
+                            }
+                        }
+                    },
+                   {
+                       "data": "Estatus", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="" class="btnEditar Estatus">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "Tipo", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="" class="btnEditar Tipo">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   },
+                   {
+                       "data": "TelefonoMarcado", "autoWidth": true, "sClass": "columnaIzquierda",
+                       "render": function (data, type, row, meta) {
+                           if (type === 'display') {
+                               return $('<a  onmouseover="" style="" class="btnEditar TelefonoMarcado">')
+                               .wrap('<div></div>')
+                               .text(data)
+                               .parent()
+                               .html();
+                           }
+                           else {
+                               return data;
+                           }
+                       }
+                   }
+            ]
+        });
+    }
+
+    var consecutivo = 0;
+
+    $('#lnkContacto1').click(function () {
+        consecutivo = 1;
+        $('#modalContactoDeudor').modal('show');
+    });
+
+    $('#lnkContacto2').click(function () {
+        consecutivo = 2;
+        $('#modalContactoDeudor').modal('show');
+    });
+
+    $('#modalContactoDeudor').on('shown.bs.modal', function () {
+        Utilidades.MostrarProgressPopUp();
+        ObtenerContactoDeudor();
+    });
+
+    function ObtenerContactoDeudor() {
+        $.ajax({
+            url: '@Url.Action("ObtenerContactoDeudor", "SeguimientoDeudor")',
+            type: 'POST',
+            cache: false,
+            data: { pConsecutivo: consecutivo },
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    EstablecerContactoDeudor(json.Respuesta.RespuestaInformacion.Data.Info);
+                }
+                else {
+                    Utilidades.ErrorAjaxControladoPopUp(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjaxPopUp(xhr);
+            }
+        });
+    }
+
+    function EstablecerContactoDeudor(json) {
+        $('#chkValidadoCD').prop('disabled', true);
+        $('#chkValidadoCD').prop('checked', false);
+
+        if (json != null && json.length > 0) {
+            $('#txtTelefonoCD').val(json[0].Telefono);
+            $('#txtCorreoElectronicoCD').val(json[0].CorreoElectronico);
+            $('#txtCalleNumCD').val(json[0].CalleNum);
+            $('#txtColoniaCD').val(json[0].Colonia);
+            $('#txtCiudadCD').val(json[0].Ciudad);
+            $('#txtEstadoCD').val(json[0].Estado);
+            $('#txtComentarioCD').val(json[0].Comentarios);
+        }
+        else {
+            $('#txtTelefonoCD').val('');
+            $('#txtCorreoElectronicoCD').val('');
+            $('#txtCalleNumCD').val('');
+            $('#txtColoniaCD').val('');
+            $('#txtCiudadCD').val('');
+            $('#txtEstadoCD').val('');
+            $('#txtComentarioCD').val('');
+        }
+        Utilidades.OcultarProgressPopUp();
+    }
+
+    $('#btnGuardarContactoDeudor').on('click', function () {
+        GuardarContactoDeudor();
+        return false;
+    });
+
+    function GuardarContactoDeudor() {
+        if ($("#contactoDeudorForm").data('unobtrusiveValidation').validate()) {
+            Utilidades.MostrarProgressPopUp();
+            var params = {
+                datos: {
+                    Telefono: $('#txtTelefonoCD').val(),
+                    CorreoElectronico: $('#txtCorreoElectronicoCD').val(),
+                    CalleNum: $('#txtCalleNumCD').val(),
+                    Colonia: $('#txtColoniaCD').val(),
+                    Ciudad: $('#txtCiudadCD').val(),
+                    Estado: $('#txtEstadoCD').val(),
+                    Comentarios: $('#txtComentarioCD').val(),
+                    Validado: $('#chkValidadoCD').is(":checked"),
+                    Consecutivo: consecutivo
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarDatosContactoDeudor", "SeguimientoDeudor")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+
+                        if (consecutivo == 1) {
+                            $('#imgContactoTrue').show();
+                            $('#imgContactoFalse').hide();
+                            HabilitarContacto2(true);
+                        }
+                        else {
+                            $('#imgContacto1True').show();
+                            $('#imgContacto1False').hide();
+                        }
+
+                        Utilidades.MostrarDialogo("Aviso", "Datos de Contacto guardado exitosamente.", true);
+                        Utilidades.OcultarProgressPopUp();
+                        $('#modalContactoDeudor').modal('hide');
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControladoPopUp(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjaxPopUp(xhr);
+                }
+            });
+        }
+    }
+
+    function HabilitarSiguienteDeudor(mostrar) {
+        if (mostrar) {
+            $('#divSiguienteDeudor').show();
+            $('#divSiguienteDeudorOFF').hide();
+        }
+        else {
+            $('#divSiguienteDeudor').hide();
+            $('#divSiguienteDeudorOFF').show();
+        }
+    }
+
+    function HabilitarContacto2(mostrar) {
+        if (mostrar) {
+            $('#divSContacto2').show();
+            $('#divSContacto2OFF').hide();
+        }
+        else {
+            $('#divSContacto2').hide();
+            $('#divSContacto2OFF').show();
+        }
+    }
+
+    $('#btnRegresar').on('click', function () {
+        Utilidades.MostrarProgress();
+        window.location.href = '@Url.Action("SeguimientoDeudor_Index", "SeguimientoDeudor", new { recargar = "true" })';
+        return false;
+    });
+
+    function ObtenerEstatusNoSeguimiento() {
+        $.ajax({
+            url: '@Url.Action("ObtenerEstatusNoSeguimiento", "SeguimientoDeudor")',
+            type: 'POST',
+            cache: false,
+            success: function (json) {
+                var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                var codigoCorrecto = '"OK"';
+
+                if (codigoRegreso == codigoCorrecto) {
+                    lstEstatusNoSeguimiento = json.Respuesta.RespuestaInformacion.Data.Info;
+                }
+                else {
+                    Utilidades.ErrorAjaxControlado(json);
+                }
+            },
+            error: function (xhr) {
+                Utilidades.ErrorAjax(xhr);
+            }
+        });
+    }
+
+    function DeshabilitarSeguimientosDeudor(idEstatus) {
+        if (idEstatus && idEstatus != 0) {
+            if (pRD != true) {
+                $("#divControlesSeguimiento").hide();
+            }
+            else {
+                $("#divControlesSeguimiento").show();
+            }
+        }
+        else {
+            idEstatus = $('#hIdEstatus').val();
+            if (pRD != true && ValidarEstatusNoSeguimiento(idEstatus)) {
+                $("#divControlesSeguimiento").hide();
+            }
+            else {
+                $("#divControlesSeguimiento").show();
+            }
+        }
+    }
+
+    function ValidarEstatusNoSeguimiento(idEstatus) {
+        var invalido = false;
+        if (lstEstatusNoSeguimiento && lstEstatusNoSeguimiento.length > 0) {
+            $.each(lstEstatusNoSeguimiento, function (i, estatus) {
+                if (estatus.IdEstatus == idEstatus) {
+                    invalido = true;
+                }
+            });
+            return invalido;
+        }
+        return invalido;
+    }
+
+</script>
+}

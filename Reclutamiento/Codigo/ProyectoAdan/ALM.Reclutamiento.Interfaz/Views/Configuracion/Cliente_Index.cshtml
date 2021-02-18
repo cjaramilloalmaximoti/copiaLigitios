@@ -1,0 +1,440 @@
+﻿@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_LayoutIn.cshtml";
+}
+
+<link href="@Url.Content("~/Estilo/jquery.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/buttons.dataTables.min.css?v=1.0")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Estilo/bootstrap-select.min.css")" rel="stylesheet" type="text/css" />
+
+@Html.Hidden("hidIdCliente", "0")
+
+<div id="divListado">
+    @Html.Partial("Cliente_Listado")
+</div>
+<div id="divDetalle" style="display:none; width:100%">
+    <form name="userForm" id="userForm" method="post" novalidate="">
+        @Html.Partial("Cliente_Detalle", new ALM.Empresa.Entidades.ECliente())
+    </form>
+</div>
+
+@section scripts {
+
+    <script src="@Url.Content("~/Scripts/moment.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-with-locales.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.buttons.min.js?v=1.0")"></script>
+    <script src="@Url.Content("~/Scripts/buttons.html5.min.js?v=1.0")"></script>
+
+    <script type="text/javascript">
+        var rowR = null;
+        var objMod = null;
+        var tableR = null;
+
+        $(document).ready(function () {
+            Inicializar();
+        });
+
+        function Inicializar() {
+            $("#txtCliente_B").focus();
+
+            $('#myTable').dataTable({
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/SpanishIni.txt")",
+                    "sZeroRecords": " "
+                },
+                dom: 'lBfr',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarCliente();
+                            }
+                        }
+                ],
+                "columns": [
+                        {
+                            "data": "RFC", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RFC">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "RazonSocial", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "NombreComercial", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreComercial">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Contacto_Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Activo", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+
+
+            $('#myTable tbody').on('click', 'a.btnEditar', function () {
+                rowR = tableR.row($(this).parents('tr'));
+                objMod = $('#myTable').DataTable().row($(this).parents('tr')).data();
+                OcultarMostrarDiv(objMod);
+            });
+        }
+
+        $("#btnBuscar").click(function () {
+            Utilidades.MostrarProgress();
+            LlenarGrid();
+        });
+
+        $('#btnCancelar').on('click', function () {
+            //Limpiar controles
+            $('#hidIdCliente').val("0");
+
+            $('#divDetalle').hide();
+            $('#divListado').show();
+
+            rowR = null;
+            objMod = null;
+
+            return false;
+        });
+
+
+        $('#btnGuardar').on('click', function () {
+            GuardarInformacionCliente();
+            return false;
+        });
+
+
+        function GuardarInformacionCliente() {
+            if ($("#userForm").data('unobtrusiveValidation').validate()) {
+                Utilidades.MostrarProgress();
+                if ($('#hidIdCliente').val() != '0') {
+                    ActualizarCliente();
+                }
+                else {
+                    InsertarCliente();
+                }
+            }
+        }
+
+        function AgregarCliente() {
+            objMod = null;
+            rowR = null;
+            OcultarMostrarDiv(null);
+        }
+
+        function OcultarMostrarDiv(data) {
+            if (data != null) {
+                $('#hidIdCliente').val(data.IdCliente);
+                $('#txtRFC').val(data.RFC);
+                $('#txtRazonSocial').val(data.RazonSocial);
+                $('#txtNombreComercial').val(data.NombreComercial);
+                $('#txtContacto_Nombre').val(data.Contacto_Nombre);
+                $('#txtContacto_Email').val(data.Contacto_Email);
+                $('#txtContacto_Telefono').val(data.Contacto_Telefono);
+                $('#txtDireccion').val(data.Direccion);
+                $('#txtComentarios').val(data.Comentarios);
+                $('#chkActivo').prop('disabled', false);
+                $('#chkActivo').prop('checked', data.Activo);
+            }
+            else {
+                objMod = null;
+                $('#txtRFC').val('');
+                $('#txtRazonSocial').val('');
+                $('#txtNombreComercial').val('');
+                $('#txtContacto_Nombre').val('');
+                $('#txtContacto_Email').val('');
+                $('#txtContacto_Telefono').val('');
+                $('#txtDireccion').val('');
+                $('#txtComentarios').val('');
+                $('#chkActivo').prop('disabled', true);
+                $('#chkActivo').prop('checked', true);
+            }
+            $('#divDetalle').show();
+            $('#divListado').hide();
+
+            $('#txtRFC').focus();
+
+            return false;
+        }
+
+        function LlenarGrid() {
+            tableR = $('#myTable').DataTable({
+                "destroy": true,
+                "render": true,
+                "deferRender": true,
+                "JQueryUI": true,
+                "Sort": false,
+                "Paginate": true,
+                "PaginationType": "first_last_numbers",
+                "iDisplayLength": 10,
+                "ajax": {
+                    "url": "@Url.Action("ObtenerClientes", "Configuracion")",
+                    "type": "POST",
+                    "datatype": "json",
+                    "dataSrc": function (json) {
+
+                        var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+                        var codigoCorrecto = '"OK"';
+
+                        if (codigoRegreso == codigoCorrecto) {
+                            Utilidades.OcultarProgress();
+                            return json.Respuesta.RespuestaInformacion.Data.Info;
+                        }
+                        else {
+                            Utilidades.ErrorAjaxControlado(json);
+                            return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                        }
+                    },
+                    //"dataSrc": 'Respuesta.RespuestaDatos.Data.Lista',
+                    data: { nombreCompleto: $('#txtCliente_B').val(), activo: $("#cmbEstatus").val() },
+                    error: function (json) {
+                        Utilidades.ErrorAjax(json);
+                        return ""; //De alguna manera limpia el grid (como si no hubiera encontrado registros
+                    },
+                },
+                "language": {
+                    "url": "@Url.Content("~/Estilo/DataTables/Spanish.txt")",
+                    "sSearch": "Filtrar :",
+                },
+                dom: 'lBfrtip',
+                buttons: [
+                        {
+                            'text': '<img src="@Url.Content("~/Imagenes/Agregar.png")" class="imagBotones" style="max-width: 15px;max-height: 15px;" /> Agregar',
+                            'className': 'btnAgregarGrid',
+                            'action': function (e, dt, node, config) {
+                                AgregarCliente();
+                            }
+                        }
+                ],
+                "columns": [
+                        {
+                            "data": "RFC", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RFC">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "RazonSocial", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar RazonSocial">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "NombreComercial", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar NombreComercial">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Contacto_Nombre", "autoWidth": true, "sClass": "columnaIzquierda",
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Contacto_Nombre">')
+                                    .wrap('<div></div>')
+                                    .text(data)
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            "data": "Activo", "autoWidth": true,
+                            "render": function (data, type, row, meta) {
+                                if (type === 'display') {
+                                    return $('<a  onmouseover="" style="cursor: pointer;" class="btnEditar Activo">')
+                                    .wrap('<div></div>')
+                                    .text(data == true ? 'Si' : 'No')
+                                    .parent()
+                                    .html();
+                                }
+                                else {
+                                    return data;
+                                }
+                            }
+                        }
+                ]
+            });
+        }
+
+        function ActualizarCliente() {
+            var params = {
+                cliente: {
+                    IdCliente: $('#hidIdCliente').val(),
+                    RFC: $('#txtRFC').val(),
+                    RazonSocial: $('#txtRazonSocial').val(),
+                    NombreComercial: $('#txtNombreComercial').val(),
+                    Contacto_Nombre: $('#txtContacto_Nombre').val(),
+                    Contacto_Email: $('#txtContacto_Email').val(),
+                    Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                    Direccion: $('#txtDireccion').val(),
+                    Comentarios: $('#txtComentarios').val(),
+                    Activo: $('#chkActivo').is(":checked")
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("ActualizarCliente", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        if (objMod != null) {
+                            objMod.RFC = $('#txtRFC').val();
+                            objMod.RazonSocial = $('#txtRazonSocial').val();
+                            objMod.NombreComercial = $('#txtNombreComercial').val();
+                            objMod.Contacto_Nombre = $('#txtContacto_Nombre').val();
+                            objMod.Contacto_Email = $('#txtContacto_Email').val();
+                            objMod.Contacto_Telefono = $('#txtContacto_Telefono').val();
+                            objMod.Direccion = $('#txtDireccion').val();
+                            objMod.Comentarios = $('#txtComentarios').val();
+                            objMod.Activo = $('#chkActivo').is(":checked");
+                            tableR.row(rowR).data(objMod).draw(false);
+                        }
+                        Utilidades.MostrarDialogo("Aviso", "Registro actualizado exitosamente.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+
+        function InsertarCliente() {
+            var params = {
+                cliente: {
+                    RFC: $('#txtRFC').val(),
+                    RazonSocial: $('#txtRazonSocial').val(),
+                    NombreComercial: $('#txtNombreComercial').val(),
+                    Contacto_Nombre: $('#txtContacto_Nombre').val(),
+                    Contacto_Email: $('#txtContacto_Email').val(),
+                    Contacto_Telefono: $('#txtContacto_Telefono').val(),
+                    Direccion: $('#txtDireccion').val(),
+                    Comentarios: $('#txtComentarios').val(),
+                    Activo: $('#chkActivo').is(":checked")
+                }
+            };
+            $.ajax({
+                url: '@Url.Action("InsertarCliente", "Configuracion")',
+                type: 'POST',
+                cache: false,
+                data: params,
+                success: function (json) {
+                    var codigoRegreso = JSON.stringify(json.Respuesta.Codigo);
+
+                    var codigoCorrecto = '"OK"';
+
+                    if (codigoRegreso == codigoCorrecto) {
+                        Utilidades.OcultarProgress();
+                        $('#hidIdCliente').val(json.Respuesta.RespuestaInformacion.Data.Info);
+                        Utilidades.MostrarDialogo("Aviso", "Registro guardado exitosamente, favor de actualizar el listado de usuarios.");
+                    }
+                    else {
+                        Utilidades.ErrorAjaxControlado(json);
+                    }
+                },
+                error: function (xhr) {
+                    Utilidades.ErrorAjax(xhr);
+                }
+            });
+        }
+    </script>
+}
